@@ -1,0 +1,25 @@
+{
+  "telegram": {
+    "bot_token": "env:TELEGRAM_BOT_TOKEN",
+    "channels": {
+      "signal": "REPLACE_WITH_SIGNAL_CHANNEL_CHAT_ID",
+      "position": "REPLACE_WITH_POSITION_CHANNEL_CHAT_ID",
+      "risk": "REPLACE_WITH_RISK_CHANNEL_CHAT_ID",
+      "premium": "REPLACE_WITH_PREMIUM_CHANNEL_CHAT_ID",
+      "critical": "REPLACE_WITH_CRITICAL_CHANNEL_CHAT_ID"
+    }
+  },
+  "discord": {
+    "webhooks": {
+      "signal": "REPLACE_WITH_SIGNAL_WEBHOOK_URL",
+      "critical": "REPLACE_WITH_CRITICAL_WEBHOOK_URL"
+    }
+  },
+  "settings": {
+    "p0_repeat_interval_min": 5,
+    "dedup_window_min": 60,
+    "premium_alert_step_pct": 10,
+    "daily_report_time": "09:00",
+    "timezone": "Asia/Seoul"
+  }
+}

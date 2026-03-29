@@ -1,0 +1,235 @@
+{
+  "chains": [
+    {
+      "chain_id": "cosmoshub",
+      "name": "Cosmos Hub",
+      "ticker": "ATOM",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://cosmos-rpc.publicnode.com"
+      ],
+      "avg_block_time": 6.5,
+      "tickers_affected": ["ATOM"]
+    },
+    {
+      "chain_id": "sei",
+      "name": "Sei",
+      "ticker": "SEI",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://sei-rpc.publicnode.com"
+      ],
+      "avg_block_time": 1.0,
+      "tickers_affected": ["SEI"]
+    },
+    {
+      "chain_id": "injective",
+      "name": "Injective",
+      "ticker": "INJ",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://injective-rpc.publicnode.com"
+      ],
+      "avg_block_time": 1.5,
+      "tickers_affected": ["INJ"]
+    },
+    {
+      "chain_id": "kava",
+      "name": "Kava",
+      "ticker": "KAVA",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://kava-rpc.publicnode.com"
+      ],
+      "avg_block_time": 6.5,
+      "tickers_affected": ["KAVA"]
+    },
+    {
+      "chain_id": "akash",
+      "name": "Akash",
+      "ticker": "AKT",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://akash-rpc.publicnode.com"
+      ],
+      "avg_block_time": 6.5,
+      "tickers_affected": ["AKT"]
+    },
+    {
+      "chain_id": "axelar",
+      "name": "Axelar",
+      "ticker": "AXL",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://axelar-rpc.publicnode.com"
+      ],
+      "avg_block_time": 6.5,
+      "tickers_affected": ["AXL"]
+    },
+    {
+      "chain_id": "celestia",
+      "name": "Celestia",
+      "ticker": "TIA",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://celestia-rpc.publicnode.com"
+      ],
+      "avg_block_time": 12.0,
+      "tickers_affected": ["TIA"]
+    },
+    {
+      "chain_id": "cronos_pos",
+      "name": "Cronos POS Chain",
+      "ticker": "CRO",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://cronos-pos-rpc.publicnode.com"
+      ],
+      "avg_block_time": 6.0,
+      "tickers_affected": ["CRO"]
+    },
+    {
+      "chain_id": "medibloc",
+      "name": "MediBloc",
+      "ticker": "MED",
+      "rpc_type": "tendermint",
+      "rpc_endpoints": [
+        "https://rpc.gopanacea.org"
+      ],
+      "avg_block_time": 5.0,
+      "tickers_affected": ["MED"]
+    },
+    {
+      "chain_id": "polygon",
+      "name": "Polygon PoS",
+      "ticker": "POL",
+      "rpc_type": "evm",
+      "rpc_endpoints": [
+        "https://polygon-bor-rpc.publicnode.com"
+      ],
+      "avg_block_time": 2.0,
+      "tickers_affected": ["POL"]
+    },
+    {
+      "chain_id": "arbitrum",
+      "name": "Arbitrum One",
+      "ticker": "ARB",
+      "rpc_type": "evm",
+      "rpc_endpoints": [
+        "https://arbitrum-one-rpc.publicnode.com"
+      ],
+      "avg_block_time": 1.0,
+      "tickers_affected": ["ARB"]
+    },
+    {
+      "chain_id": "optimism",
+      "name": "Optimism",
+      "ticker": "OP",
+      "rpc_type": "evm",
+      "rpc_endpoints": [
+        "https://optimism-rpc.publicnode.com"
+      ],
+      "avg_block_time": 2.0,
+      "tickers_affected": ["OP"]
+    },
+    {
+      "chain_id": "avalanche",
+      "name": "Avalanche C-Chain",
+      "ticker": "AVAX",
+      "rpc_type": "evm",
+      "rpc_endpoints": [
+        "https://avalanche-c-chain-rpc.publicnode.com"
+      ],
+      "avg_block_time": 2.0,
+      "tickers_affected": ["AVAX"]
+    },
+    {
+      "chain_id": "celo",
+      "name": "Celo",
+      "ticker": "CELO",
+      "rpc_type": "evm",
+      "rpc_endpoints": [
+        "https://celo-rpc.publicnode.com"
+      ],
+      "avg_block_time": 5.0,
+      "tickers_affected": ["CELO"]
+    },
+    {
+      "chain_id": "solana",
+      "name": "Solana",
+      "ticker": "SOL",
+      "rpc_type": "solana",
+      "rpc_endpoints": [
+        "https://solana-rpc.publicnode.com"
+      ],
+      "avg_block_time": 5.0,
+      "tickers_affected": ["SOL"]
+    },
+    {
+      "chain_id": "sui",
+      "name": "Sui",
+      "ticker": "SUI",
+      "rpc_type": "sui",
+      "rpc_endpoints": [
+        "https://sui-rpc.publicnode.com"
+      ],
+      "avg_block_time": 0.5,
+      "tickers_affected": ["SUI"]
+    },
+    {
+      "chain_id": "aptos",
+      "name": "Aptos",
+      "ticker": "APT",
+      "rpc_type": "aptos",
+      "rpc_endpoints": [
+        "https://fullnode.mainnet.aptoslabs.com"
+      ],
+      "avg_block_time": 0.5,
+      "tickers_affected": ["APT"]
+    },
+    {
+      "chain_id": "algorand",
+      "name": "Algorand",
+      "ticker": "ALGO",
+      "rpc_type": "algorand",
+      "rpc_endpoints": [
+        "https://mainnet-api.algonode.cloud"
+      ],
+      "avg_block_time": 3.3,
+      "tickers_affected": ["ALGO"]
+    },
+    {
+      "chain_id": "cardano",
+      "name": "Cardano",
+      "ticker": "ADA",
+      "rpc_type": "cardano",
+      "rpc_endpoints": [
+        "https://api.koios.rest/api/v1"
+      ],
+      "avg_block_time": 20.0,
+      "tickers_affected": ["ADA"]
+    },
+    {
+      "chain_id": "polkadot",
+      "name": "Polkadot",
+      "ticker": "DOT",
+      "rpc_type": "substrate",
+      "rpc_endpoints": [
+        "https://polkadot-rpc.publicnode.com"
+      ],
+      "avg_block_time": 6.0,
+      "tickers_affected": ["DOT"]
+    },
+    {
+      "chain_id": "tezos",
+      "name": "Tezos",
+      "ticker": "XTZ",
+      "rpc_type": "tezos",
+      "rpc_endpoints": [
+        "https://mainnet.api.tez.ie"
+      ],
+      "avg_block_time": 10.0,
+      "tickers_affected": ["XTZ"]
+    }
+  ]
+}
