@@ -1,3 +1,166 @@
+# 12. Premium Real-time Monitoring Strategy
+
+## Purpose
+After deposit/withdrawal suspension, track the **price difference (premium) between domestic (Upbit/Bithumb) and overseas (Binance/OKX)** in real-time, providing core data for liquidation timing decisions.
+
+## Premium Calculation
+
+### Basic Formula
+```
+premium_pct = ((kr_price_usd - global_price_usd) / global_price_usd) × 100
+
+kr_price_usd = kr_price_krw / usd_krw_rate
+
+Example:
+  Upbit TT price: 180 KRW
+  Binance TT price: $0.115
+  Exchange rate: 1350 KRW/$
+
+  kr_price_usd = 180 / 1350 = $0.1333
+  premium_pct = (0.1333 - 0.115) / 0.115 × 100 = +15.9%
+```
+
+### Premium by Exchange
+```
+upbit_premium = (upbit_price_usd - global_price_usd) / global_price_usd × 100
+bithumb_premium = (bithumb_price_usd - global_price_usd) / global_price_usd × 100
+```
+
+## Core Logic
+
+### 1. Real-time Price Collection
+```
+Data sources (1~5 second intervals):
+  Domestic:
+    - Upbit WebSocket: wss://api.upbit.com/websocket/v1
+    - Bithumb WebSocket: wss://pubwss.bithumb.com/pub/ws
+
+  Overseas:
+    - Binance WebSocket: wss://stream.binance.com/ws
+    - OKX WebSocket
+    - Bybit WebSocket
+
+  Exchange rate:
+    - USD/KRW real-time (bank base rate or forex API)
+    - Upbit USDT/KRW market price (crypto exchange rate)
+```
+
+### 2. Premium Dashboard Data
+```
+Real-time display per position:
+  - Current premium (%)
+  - Premium trend chart (1min/5min/1hour candles)
+  - Premium high/low (since deposit/withdrawal suspension)
+  - Premium rate of change (1-minute change rate)
+  - Order book status (bid/ask depth)
+  - Volume (1min/5min aggregation)
+```
+
+### 3. Premium Peak Detection
+```
+Peak judgment indicators:
+
+1) Premium absolute value:
+   > 30%: "Very High" alert
+   > 50%: "Extreme" alert
+   > 100%: "Historic" alert
+
+2) Premium rate of change deceleration:
+   Last 30min premium growth rate < 50% of previous 30min
+   → Peak proximity signal
+
+3) Volume spike followed by sharp decline:
+   5min volume exceeds 5x average → followed by sharp decline
+   → Possible large seller activity beginning
+
+4) Order book changes:
+   Ask side thickening (increasing sell pressure)
+   Bid side thinning
+   → Post-peak decline signal
+```
+
+### 4. Reverse Premium Detection (Hack Scenario)
+```
+premium_pct < 0 → Reverse premium occurred
+
+Reverse premium levels:
+  Below -5%: "Reverse premium started" alert
+  Below -10%: "Consider additional buying" alert → Link to 14-hack-scenario-holding
+  Below -20%: "Strong buy signal"
+  Below -30%: "Extreme fear, maximum buy"
+```
+
+### 5. Liquidation Recommendation Signal
+```
+Conditions forwarded to 13-simultaneous-liquidation:
+
+Recommended liquidation conditions (AND):
+  - Premium > target_premium (set per signal type)
+  - Premium rate of change decelerating (near peak)
+  - Sufficient sell liquidity exists in order book
+  - Volume spike occurring
+
+Default target_premium:
+  S grade coins: 15% or above
+  A grade coins: 10% or above
+  B grade coins: 5% or above
+```
+
+## Output
+
+### Real-time Data
+```json
+{
+  "ticker": "TT",
+  "timestamp": "2024-05-14T06:30:00Z",
+  "prices": {
+    "upbit_krw": 330,
+    "bithumb_krw": 360,
+    "binance_usd": 0.115,
+    "usd_krw_rate": 1350
+  },
+  "premiums": {
+    "upbit_pct": 112.6,
+    "bithumb_pct": 131.0
+  },
+  "premium_peak": {
+    "upbit_max_pct": 120.0,
+    "bithumb_max_pct": 135.0,
+    "current_vs_peak": "near_peak"
+  },
+  "volume": {
+    "upbit_5min_krw": 500000000,
+    "bithumb_5min_krw": 200000000,
+    "volume_trend": "spike_then_declining"
+  },
+  "orderbook": {
+    "upbit_ask_depth_1pct": 30000000,
+    "upbit_bid_depth_1pct": 15000000,
+    "sell_pressure_increasing": true
+  },
+  "recommendation": "consider_exit"
+}
+```
+
+## Data Dependencies
+- `09-delta-neutral-position`: Active position list
+- `13-simultaneous-liquidation`: Forward liquidation recommendation signals
+- `14-hack-scenario-holding`: Forward reverse premium buy signals
+- `18-notification-system`: Send alerts
+
+## Monitoring Cycle
+- Price collection: **1~5 second intervals** (WebSocket real-time)
+- Premium calculation: **1 second intervals**
+- Peak analysis: **1 minute intervals**
+- Dashboard refresh: **Real-time**
+
+## Edge Cases
+- Exchange rate volatility: KRW/USD rate fluctuations affect premium → Use crypto rate (USDT/KRW) in parallel
+- Exchange API failure: Use last valid price on collection failure + send alert
+- Rapid premium fluctuation: Verify data anomaly if >20% change within 1 minute
+
+---
+
 # 12. 프리미엄 실시간 모니터링 전략서
 
 ## 목적
