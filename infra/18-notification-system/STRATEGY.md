@@ -1,3 +1,207 @@
+# 18. Integrated Notification System Strategy
+
+## Purpose
+**Send real-time alerts via Telegram/Discord webhooks** for all events across the entire pipeline.
+Cover the full process from signal detection, position opening, premium changes, risk warnings, to liquidation via notifications.
+
+## Notification Channels
+
+### Telegram
+```
+Bot token: TELEGRAM_BOT_TOKEN
+Channel breakdown:
+  - #signal-alert: Detection signals (01~06)
+  - #position-alert: Position open/close (09, 13)
+  - #risk-alert: Risk warnings (15, 16, 17)
+  - #premium-monitor: Premium changes (12)
+  - #critical: Urgent alerts (hacking, liquidation risk)
+```
+
+### Discord (Optional)
+```
+Same channel separation by webhook URL
+```
+
+## Alert Priority
+
+| Priority | Level | Source | Alert Method |
+|---------|------|------|---------|
+| P0 (Critical) | 🔴 | Hack detection, short liquidation risk Level 4, fill failure | All channels + mobile push + repeat alert (5 min) |
+| P1 (High) | 🟠 | Signal detection, position open/close, premium 30%+ | Main channels + mobile alert |
+| P2 (Medium) | 🟡 | Premium change, funding fee warning, short margin caution | Relevant channel only |
+| P3 (Low) | 🟢 | Periodic reports, normal monitoring logs | Log channel only |
+
+## Alert Message Formats
+
+### Signal Detection Alert (P1)
+```
+🟠 [SIGNAL] Network Upgrade Detected
+
+Coin: TT (ThunderCore)
+Source: 02-GitHub Release (v4.0.0-athena)
+Target Grade: S (92 points)
+Lead Time: ~6 days
+Recommended Exchange: Bithumb
+
+Direction: Long + Short
+Urgency: prepare (start split buying)
+Estimated Size: 10M KRW (10% of capital)
+
+Detection Time: 2024-05-08 01:00 KST
+```
+
+### Position Open Alert (P1)
+```
+🟠 [POSITION OPEN] Delta Neutral Constructed
+
+Coin: TT
+Domestic: Bithumb spot long 10,000 @ 150 KRW
+Overseas: Binance futures short 10,000 @ $0.115
+Quantity Match: ✅ 100%
+Liquidation Price Buffer: 200%+ ✅
+
+Total Deployed: 1,500,000 KRW + $345 margin
+```
+
+### Premium Alert (P2/P1)
+```
+🟡 [PREMIUM] TT Premium Rising
+
+Current Premium:
+  Upbit: +34.2%
+  Bithumb: +89.5%
+
+Peak: Bithumb +95.0%
+Status: Rising
+Recommendation: Maintain hold
+```
+
+### Hack/Critical Alert (P0)
+```
+🔴🔴🔴 [CRITICAL] Abnormal Hot Wallet Withdrawal Detected
+
+Exchange: Upbit
+Chain: Solana
+Amount: ~44.5B KRW ($34M)
+Receiving Address: Unidentified (Gq3x...)
+Detection Time: 04:42 KST
+
+⚠️ Immediate Actions:
+- No new long entries
+- Maintain existing position hold
+- Confirm overseas short maintained
+- Prepare for reverse premium additional buy
+```
+
+### Short Liquidation Risk Alert (P0)
+```
+🔴 [RISK] Approaching Short Liquidation Price
+
+Coin: TT / Binance
+Current Price: $0.280
+Liquidation Price: $0.345
+Distance: 23.2% ⚠️
+
+Required Action:
+- Immediately deposit additional margin $500
+- Or consider partial short close
+
+Auto Margin Addition: Disabled (manual confirmation required)
+```
+
+### Liquidation Complete Alert (P1)
+```
+🟠 [EXIT] Simultaneous Liquidation Complete
+
+Coin: TT
+Exit Premium: +107.0%
+
+Domestic Sell: Bithumb 10,000 @ 330 KRW
+Overseas Short Close: Binance @ $0.118
+
+Net Profit: 1,759,500 KRW (+117.3%)
+Execution Lag: 333ms ✅
+
+Funding Fee Cost: -$12.50
+Trading Fees: ₩15,000
+Final Net Profit: 1,727,750 KRW
+```
+
+## Core Logic
+
+### 1. Event Reception
+```
+All systems (01~17) publish events:
+  event = {
+    source: "12-premium-tracker",
+    priority: "P2",
+    type: "premium_update",
+    data: { ... }
+  }
+
+System #18 receives → formats → sends
+```
+
+### 2. Duplicate Alert Prevention
+```
+Prevent duplicate sending of identical events:
+  - Same ticker + same signal_type: No re-send within 1 hour
+  - P0 is an exception (always send)
+  - Premium alerts: Only send on 10% unit changes
+```
+
+### 3. Daily Report (P3)
+```
+Every day at 09:00 KST:
+  - Active position summary
+  - Current premium status for each position
+  - Accumulated funding fees
+  - List of signals being monitored
+  - Number of signals detected today
+```
+
+### 4. P0 Repeat Alerts
+```
+On P0 event occurrence:
+  Send immediately → Re-send after 5 min → Re-send after 15 min
+  Stop repeat on user acknowledgment (ACK)
+  ACK method: Telegram bot inline button "Confirm"
+```
+
+## Data Dependencies
+- All event outputs from systems 01~17
+
+## Configuration
+```json
+{
+  "telegram": {
+    "bot_token": "env:TELEGRAM_BOT_TOKEN",
+    "channels": {
+      "signal": "chat_id_1",
+      "position": "chat_id_2",
+      "risk": "chat_id_3",
+      "premium": "chat_id_4",
+      "critical": "chat_id_5"
+    }
+  },
+  "discord": {
+    "webhooks": {
+      "signal": "webhook_url_1",
+      "critical": "webhook_url_2"
+    }
+  },
+  "settings": {
+    "p0_repeat_interval_min": 5,
+    "dedup_window_min": 60,
+    "premium_alert_step_pct": 10,
+    "daily_report_time": "09:00",
+    "timezone": "Asia/Seoul"
+  }
+}
+```
+
+---
+
 # 18. 통합 알림 시스템 전략서
 
 ## 목적
