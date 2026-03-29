@@ -1,3 +1,128 @@
+# 10. Proxy Hedge Mapping Strategy
+
+## Purpose
+When a coin is **not listed on overseas futures markets**, manage the mapping table and logic for performing substitute hedging (proxy hedge) using the major token of the same network.
+
+## Why Is This Needed
+- The smaller the altcoin, the greater the alpha (per module 07 filter criteria)
+- But the smaller the altcoin, the higher the probability of no overseas futures
+- Holding spot only without futures exposes to global price movement risk
+- Proxy hedge enables **imperfect but meaningful** directional hedging
+
+## Mapping Table
+
+### Cosmos SDK Ecosystem
+| Coin (No Futures) | Proxy Hedge Target | Correlation (Est.) | Notes |
+|-------------------|-------------------|-------------------|-------|
+| OSMO | ATOM | 0.75~0.85 | Same Cosmos ecosystem |
+| BAND | ATOM | 0.60~0.75 | Cosmos SDK based |
+| KAVA | ATOM | 0.65~0.80 | Cosmos SDK based |
+| AKT | ATOM | 0.70~0.80 | Cosmos SDK based |
+| SCRT | ATOM | 0.55~0.70 | Cosmos SDK based |
+
+### Independent Chains
+| Coin (No Futures) | Proxy Hedge Target | Correlation (Est.) | Notes |
+|-------------------|-------------------|-------------------|-------|
+| TT (ThunderCore) | ETH or BTC | 0.40~0.60 | Independent chain, weak correlation |
+| FLOW | ETH | 0.50~0.65 | L1 chain |
+| QTUM | BTC | 0.55~0.70 | PoS/PoW hybrid |
+| HBAR | BTC | 0.50~0.65 | Independent DLT |
+
+### EVM Compatible Chains
+| Coin (No Futures) | Proxy Hedge Target | Correlation (Est.) | Notes |
+|-------------------|-------------------|-------------------|-------|
+| KAIA | ETH | 0.60~0.75 | EVM compatible |
+| 0G | ETH | 0.50~0.65 | AI+blockchain |
+| STORY | ETH | 0.45~0.60 | IP chain |
+
+## Core Logic
+
+### 1. Futures Availability Check
+```
+Check whether the coin has futures listed on the following exchanges:
+  1. Binance USDT Perpetual
+  2. OKX USDT Perpetual
+  3. Bybit USDT Perpetual
+
+If any one exists → Direct hedge (proxy not needed)
+If all absent → Refer to proxy hedge mapping
+```
+
+### 2. Proxy Token Selection Criteria
+```
+Priority:
+  1. Major token of same network/ecosystem (ATOM for Cosmos, ETH for EVM)
+  2. Major token of same sector (DeFi→DeFi, L1→L1)
+  3. BTC (last resort, overall market direction hedge)
+
+Selection criteria:
+  - Correlation > 0.5 (minimum threshold)
+  - Sufficient futures liquidity (OI > $10M)
+  - Small spread
+```
+
+### 3. Beta-Adjusted Sizing
+```
+Proxy hedge is not 1:1 correspondence, so beta adjustment is needed:
+
+hedge_qty = domestic_qty × (coin_beta / proxy_beta) × correlation
+
+Example:
+  TT domestic long $1000
+  TT-ETH correlation: 0.55
+  TT beta: 1.8, ETH beta: 1.0
+  hedge_qty = $1000 × (1.8/1.0) × 0.55 = $990 ETH short
+
+→ Over-hedging is safer than under-hedging (since the goal is premium capture)
+```
+
+### 4. Real-time Correlation Refresh
+```
+Calculate 7-day/30-day/90-day rolling correlation
+Updated daily
+
+On correlation drop (< 0.3):
+  → Downgrade proxy hedge confidence to "low"
+  → Recommend position size reduction
+  → Suggest alternative proxy token
+```
+
+## Output
+```json
+{
+  "ticker": "TT",
+  "futures_available": false,
+  "proxy_hedge": {
+    "proxy_ticker": "ETH",
+    "proxy_exchange": "binance",
+    "correlation_7d": 0.58,
+    "correlation_30d": 0.52,
+    "beta_ratio": 1.8,
+    "recommended_hedge_ratio": 0.99,
+    "confidence": "medium",
+    "alternatives": [
+      {"ticker": "BTC", "correlation_30d": 0.45}
+    ]
+  }
+}
+```
+
+## Data Dependencies
+- `19-data-registry`: Overseas futures list, coin price history (for correlation calculation)
+- `09-delta-neutral-position`: Proxy hedge information requests
+
+## Refresh Cycle
+- Futures listing status: **Once daily** check
+- Correlation: **Once daily** refresh
+- Mapping table: **Manual management** + automatic search on new listings
+
+## Risks
+- Proxy hedge is not a perfect hedge → residual risk exists
+- Correlation can change non-linearly (during sharp rallies/crashes)
+- Manage risk by keeping position sizes small
+
+---
+
 # 10. Proxy Hedge 매핑 전략서
 
 ## 목적

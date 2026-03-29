@@ -1,3 +1,102 @@
+# 01. Governance Proposal Monitor Strategy
+
+## Purpose
+Detect network upgrade schedules **3 days to several weeks before** exchange announcements by monitoring on-chain governance votes.
+Upgrade -> deposit/withdrawal suspension -> closed economy -> premium generation. This system captures the very starting point of this chain.
+
+## Verified Lead Times
+- **3 days ~ several weeks**
+- ATOM v25.3.0: Proposal #1021 submitted 1/6 -> Upbit announcement 1/9+ (3+ days)
+- SEI v2: Proposal #55 announced 5/20 -> Upbit deposit/withdrawal suspension 5/27 (7 days)
+
+## Target Chains
+| Chain | Governance Type | Endpoint |
+|-------|----------------|----------|
+| ATOM (Cosmos Hub) | Cosmos SDK Gov | `/cosmos/gov/v1/proposals` |
+| SEI | Cosmos SDK Gov + SIP | `/cosmos/gov/v1/proposals` |
+| INJ (Injective) | Cosmos SDK Gov | `/cosmos/gov/v1/proposals` |
+| OSMO (Osmosis) | Cosmos SDK Gov | `/cosmos/gov/v1/proposals` |
+| KAVA | Cosmos SDK Gov | `/cosmos/gov/v1/proposals` |
+| BAND | Cosmos SDK Gov | `/cosmos/gov/v1/proposals` |
+| Polygon | PIP (Polygon Improvement Proposal) | Governance Forum RSS |
+| Other Cosmos SDK chains | Same | Per-chain RPC |
+
+## Core Logic
+
+### 1. Proposal Polling
+```
+Every 10 minutes:
+  Each Cosmos SDK chain RPC -> GET /cosmos/gov/v1/proposals?proposal_status=PROPOSAL_STATUS_VOTING_PERIOD
+  + GET /cosmos/gov/v1/proposals?proposal_status=PROPOSAL_STATUS_PASSED
+```
+
+### 2. Upgrade Proposal Filtering
+```
+Filter conditions:
+  - msg_type == "SoftwareUpgradeProposal" or "MsgSoftwareUpgrade"
+  - title/description contains "upgrade", "hard fork", "v[number]"
+  - plan.height (upgrade block height) exists
+```
+
+### 3. Upgrade Time Estimation
+```
+Estimated time = (target_block_height - current_block_height) x avg_block_time
+avg_block_time = average of last 1000 blocks
+```
+
+### 4. Signal Emission Conditions
+```
+IF new SoftwareUpgradeProposal detected
+  AND the coin is listed on Upbit/Bithumb
+  AND vote approval rate > 50% (or already passed)
+THEN:
+  Emit signal -> forward to 08-signal-direction-engine
+  Included data: {
+    chain, coin_ticker, proposal_id,
+    upgrade_block_height, estimated_time,
+    vote_yes_ratio, proposal_status
+  }
+```
+
+### 5. Polygon PIP Separate Handling
+```
+Subscribe to Polygon Governance Forum RSS
+Keywords: "PIP", "upgrade", "hardfork", "migration"
+When new PIP detected, emit signal in the same manner
+```
+
+## Data Dependencies
+- `19-data-registry`: Per-chain RPC endpoints, listed coin inventory
+- `07-target-coin-filter`: Target suitability check before signal emission
+
+## Output
+```json
+{
+  "signal_type": "governance_upgrade",
+  "chain": "cosmos",
+  "ticker": "ATOM",
+  "proposal_id": 1021,
+  "upgrade_height": 29288700,
+  "estimated_time": "2026-01-09T14:00:00Z",
+  "lead_time_hours": 72,
+  "vote_yes_pct": 99.82,
+  "confidence": "high",
+  "detected_at": "2026-01-06T10:00:00Z"
+}
+```
+
+## Monitoring Frequency
+- Cosmos SDK chains: **10-minute interval** polling
+- Polygon Forum: **30-minute interval** RSS check
+- Proposals in voting period: frequency increased to **5-minute interval**
+
+## Edge Cases
+- Proposal passed then cancelled/postponed: emit signal cancellation
+- Recalculate estimated time when block time changes drastically
+- RPC node down: automatic failover to backup RPC (minimum 2 nodes/chain)
+
+---
+
 # 01. 거버넌스 프로포절 모니터 전략서
 
 ## 목적

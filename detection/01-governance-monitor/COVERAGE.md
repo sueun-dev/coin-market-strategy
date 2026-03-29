@@ -1,3 +1,241 @@
+# 01. Governance Proposal Monitor — Detection Coverage Specification
+
+> Last updated: 2026-03-29
+> Tests: 45/45 passed (Cosmos 37 + Multi-chain 8)
+> Live verification complete
+
+---
+
+## One-Line Summary
+
+**Polls on-chain governance across 21 chains at 10-minute intervals, detecting network upgrades (which lead to exchange deposit/withdrawal suspensions) 2 to 28 days before Upbit announcements.**
+
+---
+
+## Full List of Detectable Chains
+
+### Cosmos SDK Chains (13) — Unified API, Fully Automated
+
+| Ticker | Chain | Upbit | Bithumb | Governance API | Detection Method | Measured Lead Time |
+|--------|-------|:-----:|:-------:|----------------|------------------|:------------------:|
+| ATOM | Cosmos Hub | O | O | `/cosmos/gov/v1/proposals` | Detect proposal voting start -> predict block height | **2-6 days** (4 cases verified) |
+| SEI | Sei Network | O | O | `/cosmos/gov/v1beta1/proposals` | Same (auto-fallback to v1beta1) | 7 days (PDF verified) |
+| INJ | Injective | O | O | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| KAVA | Kava | O | O | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| AKT | Akash Network | O | - | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| AXL | Axelar | O | - | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| TIA | Celestia | O | - | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| CRO | Crypto.com Chain | O | - | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| MED | MediBloc | O | - | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| OSMO | Osmosis | - | O | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| BAND | Band Protocol | - | O | `/cosmos/gov/v1/proposals` | Same (v1 -> v1beta1 fallback) | Est. 2-7 days |
+| STRD | Stride | - | O | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+| STARS | Stargaze | - | O | `/cosmos/gov/v1/proposals` | Same | Est. 2-7 days |
+
+**Cosmos SDK Detection Principle:**
+```
+Detect SoftwareUpgradeProposal or MsgSoftwareUpgrade type proposal
+-> Extract plan.height (upgrade block height)
+-> Compare with current block height to calculate estimated time
+-> Calculate approval rate -> Determine confidence (high/medium/low)
+-> Emit signal
+```
+
+**Empirical Verification (On-chain data cross-referenced with Upbit announcements):**
+
+| Proposal | Detection Time (voting_start) | Upbit Announcement | Lead Time | Confidence |
+|----------|------------------------------|-------------------|:---------:|:----------:|
+| ATOM v22 #987 | 2025-01-17 20:43 UTC | 2025-01-20 | 2.1 days | confirmed |
+| ATOM v25.3.0 #1021 | 2026-01-06 17:23 UTC | 2026-01-09 | 2.3 days | confirmed |
+| ATOM v26.0.0 #1024 | 2026-02-09 17:13 UTC | 2026-02-12* | 2.3+ days | estimated |
+| ATOM v27.0.0 #1025 | 2026-03-03 15:32 UTC | 2026-03-07* | 3.3 days | estimated |
+| ATOM v27.1.0 #1026 | 2026-03-24 14:28 UTC | Not yet announced (monitoring) | 5.3+ days | live |
+
+\* Based on deposit/withdrawal suspension start date (actual announcement posting date is earlier)
+
+---
+
+### Non-Cosmos Chains (8) — Chain-Specific APIs
+
+| Ticker | Chain | Upbit | Governance Type | API | Detection Target | Expected Lead Time |
+|--------|-------|:-----:|-----------------|-----|------------------|:------------------:|
+| DOT | Polkadot | O | OpenGov Referendum | Polkassembly API | Runtime upgrade referendum (Whitelisted Caller track) | **7-28 days** |
+| XTZ | Tezos | O | Self-amending Protocol | TzKT API | Protocol upgrade vote (5 stages: proposal -> exploration -> testing -> promotion -> adoption) | **Weeks** |
+| APT | Aptos | O | On-chain Governance | Aptos REST API | AIP-based governance proposals + chain state changes | **Days** |
+| SUI | Sui | O | Protocol Version | Sui JSON-RPC | Protocol version change detection (epoch-based) | **Hours to 1 day** |
+| ALGO | Algorand | O | Consensus Upgrade | Algonode API | Upgrade progress detection via next-version field | **Days** |
+| ADA | Cardano | O | CIP + Hard Fork Combinator | Koios API (free) | Epoch info + governance proposals (on-chain post-Chang) | **Days to weeks** |
+| ICX | ICON | O | Network Proposal | ICON JSON-RPC | Network proposal on-chain voting | **Days** |
+| CELO | Celo | O | CGP (On-chain Governance) | Celo RPC | Governance contract proposals + block state | **Days** |
+
+---
+
+## What Cannot Be Detected (Requires Other Systems)
+
+| Coin | Reason | Fallback System |
+|------|--------|-----------------|
+| SOL (Solana) | Validator feature gate consensus mechanism. No on-chain voting | #02 GitHub + #04 Block Time |
+| AVAX (Avalanche) | Off-chain ACP-based. No on-chain governance | #02 GitHub |
+| POL (Polygon) | PIP forum-based. No on-chain voting | #02 GitHub + #03 Exchange Announcements |
+| HBAR (Hedera) | Private council decisions | #03 Exchange Announcements |
+| NEAR | NEP GitHub-based. No on-chain voting | #02 GitHub |
+| EGLD (MultiversX) | Off-chain decisions | #02 GitHub |
+| QTUM | DGP is parameters only. Hard forks are off-chain | #02 GitHub |
+| MINA | MIP GitHub-based | #02 GitHub |
+| ZIL (Zilliqa) | Off-chain decisions | #02 GitHub |
+| IOTA | Off-chain decisions | #02 GitHub |
+| ARB (Arbitrum) | Has Tally governance but L2 deposit/withdrawal suspension patterns differ | Separate analysis needed |
+| OP (Optimism) | Has Agora governance but L2 patterns differ | Separate analysis needed |
+
+---
+
+## Signal Emission Conditions
+
+### Cosmos SDK Chains
+```
+IF   SoftwareUpgradeProposal or MsgSoftwareUpgrade detected
+AND  the coin is listed on Upbit/Bithumb
+AND  plan.height is in the future relative to current block
+AND  (approval rate > 50% or voting just started)
+THEN -> Emit signal
+```
+
+### Polkadot (DOT)
+```
+IF   OpenGov referendum with runtime upgrade proposal detected
+     (track: Whitelisted Caller, Root, etc.)
+AND  keywords: upgrade, runtime, release, set_code
+THEN -> Emit signal
+```
+
+### Tezos (XTZ)
+```
+IF   voting period enters exploration/promotion/adoption stage
+AND  protocol upgrade proposal exists
+THEN -> Emit signal (self-amending: automatic upgrade upon vote passage)
+```
+
+### Sui (SUI)
+```
+IF   protocolVersion changed compared to previous poll
+THEN -> Emit signal (upgrade occurs at epoch transition)
+```
+
+### Algorand (ALGO)
+```
+IF   next-version-round > last-round (upgrade pending)
+AND  next-version differs from previous
+THEN -> Emit signal
+```
+
+### Aptos (APT)
+```
+IF   new governance proposal detected
+OR   chain git_hash changed (binary upgrade occurred)
+THEN -> Emit signal
+```
+
+### Cardano (ADA)
+```
+IF   HardForkInitiation type proposal detected (on-chain post-Chang)
+OR   ProtocolParamUpdate type proposal detected
+THEN -> Emit signal
+```
+
+### ICON (ICX)
+```
+IF   new network proposal detected
+AND  status is active (voting in progress)
+THEN -> Emit signal
+```
+
+### Celo (CELO)
+```
+IF   new proposal detected in governance contract
+THEN -> Emit signal
+```
+
+---
+
+## Signal Output Format
+
+```json
+{
+  "signal_id": "2b3622f93fa0",
+  "signal_type": "governance_upgrade",
+  "chain": "cosmoshub",
+  "ticker": "ATOM",
+  "proposal_id": "1026",
+  "proposal_title": "Gaia v27.1.0 Upgrade",
+  "proposal_status": "PROPOSAL_STATUS_VOTING_PERIOD",
+  "upgrade_name": "v27.1.0",
+  "upgrade_height": 30466800,
+  "estimated_time": "2026-04-01T14:33:22Z",
+  "lead_time_hours": 64.8,
+  "remaining_blocks": 40710,
+  "vote_yes_pct": 0.0,
+  "confidence": "medium",
+  "detected_at": "2026-03-29T21:46:17Z"
+}
+```
+
+---
+
+## Usage
+
+```bash
+# Full Cosmos SDK chain single poll
+python3 main.py --reset
+
+# Specific chain only
+python3 main.py --chain cosmoshub
+
+# 10-minute interval repeated polling (background)
+nohup python3 main.py --loop > monitor.log 2>&1 &
+
+# Multi-chain (DOT, XTZ, APT, etc.) test
+python3 tests/test_multi_chain.py
+```
+
+---
+
+## Position in Pipeline
+
+```
+[01 Governance Monitor] --> [07 Target Filter] --> [08 Direction Engine] --> [09 Position Builder]
+        |
+        |  Signal: "ATOM v27.1.0 upgrade in 2.7 days"
+        |
+        |-- Detects 2-28 days before Upbit announcement
+        |-- Exchange deposit/withdrawal suspension -> Closed economy -> Premium emerges
+        +-- Domestic spot long + Overseas futures short -> Premium capture
+```
+
+---
+
+## Limitations
+
+1. **Non-Cosmos SDK chains cannot predict by block height** -- Polkadot, Tezos, etc. use time-based voting, so judgment is based on "how many days remain in the voting period" rather than "how many blocks remain"
+2. **Tezos proposal period with no proposals** -- Empty signals emitted when no proposals are submitted during a proposal period (noise)
+3. **Sui is epoch-based** -- Protocol version changes can occur at epoch transitions without prior notice, resulting in short lead times
+4. **Cardano not using Blockfrost** -- Replaced with Koios API (free). Governance data is rich but precise HardForkInitiation proposal filtering requires further development
+5. **L2 chains (ARB, OP) not supported** -- On-chain governance exists but L2 deposit/withdrawal suspension patterns differ from L1, requiring separate analysis
+
+---
+
+## Test Status
+
+| Test Type | Count | Result | Notes |
+|-----------|:-----:|:------:|-------|
+| Cosmos SDK unit (proposal_filter, estimator, state_store) | 24 | 24/24 | All edge cases covered |
+| Cosmos SDK integration (13 chains live RPC) | 6 | 6/6 | Including failover |
+| Historical verification (past Upbit announcement comparison) | 7 | 7/7 | Cross-verified with 2 RPCs |
+| Multi-chain governance (8 chains live API) | 8 | 8/8 | DOT through CELO all covered |
+| **Total** | **45** | **45/45** | |
+
+---
+---
+
 # 01. 거버넌스 프로포절 모니터 — 감지 범위 명세서
 
 > 최종 업데이트: 2026-03-29

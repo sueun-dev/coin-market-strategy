@@ -1,3 +1,121 @@
+# 06. Hot Wallet to Cold Wallet Movement Detection Strategy
+
+## Purpose
+Detect the pattern of **exchanges moving funds from hot wallets to cold wallets** before internal wallet maintenance/system operations.
+Even "hard to pre-detect" internal maintenance cases like KAIA maintenance can be captured through this pattern.
+Distinction from #05 (abnormal withdrawal): the recipient address is the **same exchange's cold wallet**.
+
+## Core Principle
+- Exchanges move hot wallet funds to cold wallets for risk management before system operations/maintenance
+- If only assets on a specific network are moved -> predict deposit/withdrawal suspension for that network
+- If all assets are moved -> predict full system maintenance
+
+## Monitoring Targets
+
+### Exchange Wallet Address Labeling
+| Exchange | Hot Wallet | Cold Wallet | Labeling Source |
+|----------|-----------|-------------|-----------------|
+| Upbit | Per-chain hot wallet addresses | Per-chain cold wallet addresses | Arkham, Etherscan |
+| Bithumb | Per-chain hot wallet addresses | Per-chain cold wallet addresses | Arkham, Etherscan |
+
+## Core Logic
+
+### 1. Hot-to-Cold Movement Detection
+```
+From each exchange's hot wallet address:
+  Detect withdrawal tx -> verify if recipient is same exchange's cold wallet
+
+Judgment:
+  Recipient address in same exchange cold wallet labels -> internal movement confirmed
+  Recipient address in unidentified -> classify as #05 (abnormal withdrawal)
+```
+
+### 2. Movement Pattern Analysis
+```
+Pattern A: Only specific network assets moved
+  Example: Only KAIA network tokens moved hot -> cold
+  -> Predict deposit/withdrawal suspension for that network
+  -> Emit signal
+
+Pattern B: Large-scale movement of all assets
+  Example: ETH, SOL, BTC etc. all chains hot -> cold
+  -> Predict full system maintenance / scheduled server maintenance
+  -> No alpha, skip signal
+
+Pattern C: Single chain asset movement + abnormal time window
+  Example: Specific chain only moved during late night hours
+  -> Possible emergency maintenance
+  -> Emit signal (medium confidence)
+```
+
+### 3. Normal vs Abnormal Distinction
+```
+Normal hot -> cold movements (ignore):
+  - Periodic/regular fund movements (same time window weekly)
+  - Small transfers (less than 5% of average balance)
+  - Simultaneous movement across all chains (scheduled maintenance)
+
+Abnormal movements (signal targets):
+  - Non-scheduled time window
+  - Selective movement of specific network only
+  - Large relative to normal (50% or more of balance)
+  - Sharp decline in network tx immediately after movement
+```
+
+### 4. Signal Emission
+```
+IF specific network assets only moved hot -> cold detected
+  AND non-scheduled pattern
+  AND movement amount is significant (20% or more of balance)
+THEN:
+  Emit signal (signal_type: "internal_maintenance_signal")
+  Prediction: deposit/withdrawal suspension imminent for that network
+  Confidence: medium (lower than #05)
+```
+
+## Output
+```json
+{
+  "signal_type": "hot_to_cold_movement",
+  "exchange": "upbit",
+  "chains_moved": ["kaia"],
+  "chains_not_moved": ["ethereum", "solana", "bitcoin"],
+  "total_moved_usd": 5000000,
+  "hot_wallet_remaining_pct": 30,
+  "movement_pattern": "specific_network",
+  "is_regular_schedule": false,
+  "predicted_action": "network_specific_suspension",
+  "affected_tickers": ["KAIA", "KCT_TOKENS"],
+  "confidence": "medium",
+  "detected_at": "2026-03-15T02:30:00Z"
+}
+```
+
+## Data Dependencies
+- `19-data-registry`: Exchange hot wallet + cold wallet address labeling DB
+- `19-data-registry`: Exchange scheduled maintenance schedule (for regular vs non-scheduled distinction)
+- `05-hot-wallet-abnormal-withdrawal`: Unidentified address movements routed to #05
+
+## Monitoring Frequency
+- Hot wallet -> cold wallet tx polling: **1-minute interval**
+- Regular movement pattern learning: **once daily** statistics refresh
+
+## Distinction from #05
+| Criteria | 05. Abnormal Withdrawal | 06. Hot -> Cold Movement |
+|----------|------------------------|-------------------------|
+| Recipient address | Unidentified/external | Same exchange cold wallet |
+| Meaning | Hacking indicator | Internal maintenance indicator |
+| Urgency | Critical | Medium |
+| Position direction | Initially prohibited -> reverse premium buying | Small long + short |
+| Signal strength | Strong | Weak |
+
+## Edge Cases
+- Cold wallet address change: labeling DB requires periodic refresh
+- No deposit/withdrawal suspension after hot -> cold movement: learn from false positive, update pattern DB
+- Regular maintenance at non-scheduled time: reference special events (holidays etc.) calendar
+
+---
+
 # 06. 핫월렛 → 콜드월렛 이동 감지 전략서
 
 ## 목적

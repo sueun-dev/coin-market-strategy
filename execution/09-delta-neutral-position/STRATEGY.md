@@ -1,3 +1,159 @@
+# 09. Delta Neutral Position Construction Strategy
+
+## Purpose
+When a "LONG_SHORT" decision is made by module 08, **simultaneously take a domestic spot long + overseas futures 1x short** to completely eliminate global price movement risk and **purely capture the Korea premium**.
+
+## Position Structure
+
+| Category | Domestic (Upbit/Bithumb) | Overseas (Binance/OKX/Bybit) | Net Exposure |
+|----------|-------------------------|------------------------------|-------------|
+| Position | **Spot Long** | **Futures 1x Short** | Korea Premium Only |
+| Characteristics | No liquidation, indefinite holding possible | Cross margin, liquidation price 200%+ headroom | Unaffected by global ups/downs |
+
+## Core Principle
+```
+Deposit/withdrawal suspension → Arbitrage blocked → Independent price formation on domestic exchange → Premium emerges
+Domestic spot long: Premium profit
+Overseas futures short: Global price movement hedge
+Net profit = Korea Premium
+```
+
+## Execution Logic
+
+### 1. Entry Order (Mandatory: Domestic First)
+```
+Step 1: Domestic spot buy (Upbit or Bithumb)
+  - Use exchange recommended by 11-exchange-selection-optimizer
+  - Split buy: Enter in 3~5 tranches
+  - Market order + order book analysis combined (minimize slippage)
+
+Step 2: Overseas futures short (Binance/OKX/Bybit)
+  - Execute immediately after domestic buy is complete
+  - Same quantity 1x short
+  - Market order entry (speed priority since it's a hedge)
+
+Why order matters:
+  - Buy domestic first to minimize order book impact
+  - Overseas short has ample liquidity, so lower priority is OK
+  - Target time gap within 30 seconds maximum
+```
+
+### 2. Quantity Match Verification
+```
+Domestic buy quantity (qty_domestic)
+Overseas short quantity (qty_overseas)
+
+Verification:
+  abs(qty_domestic - qty_overseas) / qty_domestic < 0.02  # 2% tolerance
+
+On mismatch:
+  - Adjust overseas short quantity (add short or partially close short)
+  - Send mismatch alert
+```
+
+### 3. Split Buy Strategy
+```
+urgency == "prepare" (lead time 3+ days):
+  5 tranches, 6-hour intervals
+  20% each tranche
+
+urgency == "enter" (lead time 1~3 days):
+  3 tranches, 2-hour intervals
+  33% each tranche
+
+urgency == "urgent_enter" (lead time < 1 day):
+  2 tranches, 30-minute intervals
+  50% each tranche
+  Or market order bulk entry
+```
+
+### 4. Overseas Futures Settings
+```
+Leverage: 1x (fixed, absolutely no changes)
+Margin mode: Cross margin
+Liquidation price headroom: 200%+ (relative to current price)
+
+Margin calculation:
+  Required margin = position_size / leverage
+  Additional margin = required_margin × 2  # 200% headroom
+  Total margin = required_margin + additional_margin
+
+→ Real-time verification by 15-short-liquidation-safety
+```
+
+### 5. Proxy Hedge (Coins Without Futures Support)
+```
+When the coin's futures are not available on Binance/OKX:
+  → Query substitute token from 10-proxy-hedge-mapper
+  → Short the major token of the same network
+
+Example:
+  TT (ThunderCore) has no futures
+  → Proxy hedge with same ecosystem or small-cap alt index
+  → Not a perfect hedge but reduces directional risk
+
+Additional caution for proxy hedge:
+  - Check correlation coefficient (0.7+ recommended)
+  - Adjust size (consider beta)
+```
+
+## P&L by Scenario
+
+| Scenario | Domestic Long | Overseas Short | Net Profit |
+|----------|--------------|----------------|-----------|
+| Upgrade → Premium +20% | +20% | 0% | **+20%** |
+| Domestic +20%, Global +10% | +20% | -10% | **+10%** |
+| Domestic +5%, Global -15% crash | +5% | +15% | **+20%** |
+| No premium, synchronized decline | -10% | +10% | **0%** |
+| Hack → Panic sell -30%, Global -5% | -30%(paper) | +5% | **Hold → 0%** |
+| Hack panic sell + reverse premium buying | Hold+buy more | Additional hedge | **+15~25%** |
+
+**Key: Since it's spot holding, no loss if you don't sell during panic sell phase. After resumption, convergence → worst case break-even.**
+
+## Output
+```json
+{
+  "position_id": "uuid",
+  "ticker": "TT",
+  "domestic": {
+    "exchange": "bithumb",
+    "side": "long",
+    "type": "spot",
+    "qty": 10000,
+    "avg_entry_price_krw": 150,
+    "total_cost_krw": 1500000,
+    "entries": [
+      {"qty": 5000, "price": 148, "time": "..."},
+      {"qty": 5000, "price": 152, "time": "..."}
+    ]
+  },
+  "overseas": {
+    "exchange": "binance",
+    "side": "short",
+    "type": "futures_perp",
+    "leverage": 1,
+    "margin_mode": "cross",
+    "qty": 10000,
+    "entry_price_usd": 0.115,
+    "margin_usd": 3450,
+    "liquidation_price_usd": 0.345
+  },
+  "qty_match_pct": 100,
+  "hedge_type": "direct",
+  "status": "active",
+  "opened_at": "2024-05-08T02:00:00Z"
+}
+```
+
+## Data Dependencies
+- `08-signal-direction-engine`: Position direction, urgency, size ratio
+- `10-proxy-hedge-mapper`: Substitute token when futures not supported
+- `11-exchange-selection-optimizer`: Domestic exchange selection
+- `15-short-liquidation-safety`: Short liquidation price safety verification
+- `17-position-sizing`: Size limits relative to total capital
+
+---
+
 # 09. 델타 뉴트럴 포지션 구축 전략서
 
 ## 목적

@@ -1,3 +1,159 @@
+# 14. Hack Scenario Holding Strategy
+
+## Purpose
+During hacking/security incidents/caution designation, **never sell during the panic sell phase and hold**,
+**additionally buy during the reverse premium phase** to lock in profit at the global convergence point after deposit/withdrawal resumption.
+
+## Core Principle
+```
+Since this is spot holding, no loss if you don't sell during panic sell phase (paper loss only)
+Deposit/withdrawal resumes → Arbitrage inflow → Global price convergence → At worst, break even
+Additional buying during reverse premium phase can yield even more profit (+15~25%)
+```
+
+## Verified Cases
+- 2025.11.27 Upbit Solana hack 44.5 billion KRW
+  - Panic sell occurred → Full deposit/withdrawal suspension → Later resumed → Convergence
+- FLOW security incident 2025.12.27
+  - DAXA trading risk warning → -40% crash → Deposit/withdrawal suspended
+
+## Execution Phases
+
+### Phase 0: Hack/Incident Detection (Signal received from #05)
+```
+Signal received from 05-hot-wallet-abnormal-withdrawal or
+03-exchange-announcement-monitor (caution/DAXA warning)
+
+Immediate actions:
+  - Absolutely no new long entries
+  - Switch existing positions to holding mode
+  - Maintain overseas short (hedges global decline)
+```
+
+### Phase 1: Panic Sell Phase (hours to 1 day)
+```
+Domestic price crashes, global may also decline
+
+Actions:
+  - No spot selling (absolute rule)
+  - Maintain overseas short → Profit from global decline
+  - Intensify premium monitoring (#12)
+
+Monitoring:
+  - Track domestic vs global price divergence
+  - Panic sell volume trends
+  - Whether reverse premium occurs
+```
+
+### Phase 2: Reverse Premium Phase (when panic sell intensifies)
+```
+Domestic price < Global price = Reverse premium occurs
+Irrational selling driven by fear → Domestic becomes cheaper than global
+
+Additional buy criteria:
+  Reverse premium -5%: Prepare for additional buy (small scale, 20% of total)
+  Reverse premium -10%: 1st additional buy (30% of total)
+  Reverse premium -15%: 2nd additional buy (30% of total)
+  Reverse premium -20% or more: 3rd additional buy (entire remainder)
+
+Additional overseas short with each buy:
+  Add overseas short matching additional buy quantity → Maintain delta neutral
+  When reverse premium converges, additional buy profit = reverse premium spread
+```
+
+### Phase 3: Stabilization Phase
+```
+Panic sell ends, volume drops sharply, volatility contracts
+
+Actions:
+  - Maintain position holding
+  - Monitor for deposit/withdrawal resumption announcements
+  - Check accumulated funding fees (#16)
+```
+
+### Phase 4: Deposit/Withdrawal Resumes → Convergence → Liquidation
+```
+When deposit/withdrawal resumption announcement detected:
+  1. Expect arbitrage bot inflow → Convergence to global price
+  2. Premium/reverse premium → Converges to 0%
+  3. After convergence confirmed, liquidate via 13-simultaneous-liquidation
+
+Liquidation timing:
+  - Rapid convergence right after resumption: Liquidate after convergence complete
+  - Gradual convergence: Liquidate when reverse premium → reaches 0%
+  - Premium reversal (reverse premium → positive premium): Liquidate at premium peak
+```
+
+## P&L Scenarios
+
+### Hack Occurs with Existing Position
+```
+Entry: Domestic long 100 KRW, overseas short $0.07
+
+Right after hack:
+  Domestic 70 KRW (-30%), overseas $0.065 (-7%)
+  Domestic PnL: -30% (paper)
+  Overseas PnL: +7%
+
+Phase 2 additional buy (reverse premium -10%):
+  Domestic additional buy 65 KRW, overseas additional short $0.065
+
+After resumption convergence (global $0.063 level):
+  Domestic: Converges to 85 KRW (additional buy +30%)
+  Overseas: Short close ($0.063, original +10%, additional +3%)
+
+Net profit: Additional buy reverse premium capture +15~25%
+```
+
+### Hack Detected with No Position
+```
+Phase 1: No entry
+Phase 2: New entry when reverse premium occurs
+  Domestic long (at reverse premium price) + overseas short
+  After resumption convergence → Reverse premium spread = profit
+```
+
+## Output
+```json
+{
+  "scenario": "hack_holding",
+  "ticker": "SOL",
+  "phase": "phase_2_reverse_premium",
+  "current_premium_pct": -12.5,
+  "action": "additional_buy",
+  "additional_buy": {
+    "qty": 50,
+    "target_price_krw": 180000,
+    "additional_hedge_qty": 50,
+    "hedge_exchange": "binance"
+  },
+  "existing_position": {
+    "domestic_qty": 100,
+    "domestic_avg_price": 210000,
+    "overseas_short_qty": 100,
+    "paper_loss_pct": -14.3,
+    "actual_loss": 0
+  },
+  "exit_plan": "wait_for_resumption_then_converge"
+}
+```
+
+## Data Dependencies
+- `05-hot-wallet-abnormal-withdrawal`: Hack signal
+- `03-exchange-announcement-monitor`: Caution/DAXA warning, resumption announcements
+- `12-premium-realtime-tracker`: Reverse premium monitoring
+- `09-delta-neutral-position`: Additional buy position construction
+- `13-simultaneous-liquidation`: Final liquidation
+- `16-funding-rate-tracker`: Funding fees during extended holding
+
+## Absolute Rules
+1. **No spot selling during panic sell phase** -- the most important rule
+2. When making additional buys during reverse premium, always add overseas short (maintain delta neutral)
+3. This strategy cannot be applied to coins with delisting risk (DAXA warning coins)
+4. No liquidation until deposit/withdrawal resumption is confirmed
+
+---
+
 # 14. 해킹 시나리오 홀딩 전략서
 
 ## 목적

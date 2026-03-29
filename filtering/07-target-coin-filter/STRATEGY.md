@@ -1,3 +1,149 @@
+# 07. Target Coin Auto-Filtering Engine Strategy
+
+## Purpose
+When a signal is generated from the detection systems (01~06), this engine automatically evaluates and scores whether the coin is a **target capable of generating alpha**.
+Core principle: **The lighter the coin, the greater the alpha.** Low trading volume does not mean no alpha — rather, low trading volume = maximized closed economy effect = maximum alpha.
+
+## Filter Conditions and Priorities
+
+### Tier 1 (Top Priority Target)
+| Condition | Criteria | Score |
+|-----------|----------|-------|
+| Market Cap | Below 50B KRW | +40 |
+| Daily Volume | Below 1B KRW | +30 |
+| Network | Independent Mainnet (own chain) | +15 |
+| Korea Share | 50%+ compared to global | +10 |
+| Overseas Futures | Listed on Binance/OKX futures | +5 |
+| **Total 100 points → Top Priority** |
+
+### Tier 2 (Excellent Target)
+| Condition | Criteria | Score |
+|-----------|----------|-------|
+| Market Cap | 50B~200B KRW | +25 |
+| Daily Volume | 1B~5B KRW | +20 |
+| Network | Independent Mainnet | +15 |
+| Korea Share | 30~50% | +7 |
+| Overseas Futures | Available | +5 |
+
+### Tier 3 (Average)
+| Condition | Criteria | Score |
+|-----------|----------|-------|
+| Market Cap | Above 200B KRW | +10 |
+| Network | ERC-20 etc. (rarely suspended) | +5 |
+
+## Core Logic
+
+### 1. Real-time Data Collection
+```
+Real-time refresh per coin (5-minute intervals):
+  - Market Cap (CoinGecko/CoinMarketCap API)
+  - 24h Volume (Upbit/Bithumb + Global)
+  - Korea Volume Ratio = (Upbit + Bithumb Volume) / Global Volume
+  - Overseas Futures Availability (Binance/OKX/Bybit futures listing)
+  - Network Type (own mainnet vs ERC-20 vs other)
+```
+
+### 2. Score Calculation
+```
+score = 0
+
+# Market cap score (lower = higher score)
+if market_cap <= 500억:     score += 40
+elif market_cap <= 1000억:  score += 30
+elif market_cap <= 2000억:  score += 25
+elif market_cap <= 5000억:  score += 15
+else:                       score += 10
+
+# Volume score (lower = higher score)
+if daily_volume <= 10억:    score += 30
+elif daily_volume <= 50억:  score += 20
+elif daily_volume <= 100억: score += 15
+else:                       score += 5
+
+# Network score
+if own_mainnet:             score += 15
+elif l2_network:            score += 10
+else:                       score += 5  # ERC-20 etc.
+
+# Korea share score
+if kr_volume_ratio >= 0.7:  score += 15  # Upbit exclusive listing level
+elif kr_volume_ratio >= 0.5: score += 10
+elif kr_volume_ratio >= 0.3: score += 7
+else:                        score += 3
+
+# Overseas futures available
+if futures_available:        score += 5  # Perfect delta neutral possible
+else:                        score += 0  # proxy hedge required
+```
+
+### 3. Target Grade Classification
+```
+S Grade (85+): Top priority target. Auto-entry candidate.
+  Ex: Market cap 30B, Volume 500M, own mainnet, Korea share 60%
+
+A Grade (65~84): Excellent target. Enter when signal strength is high.
+  Ex: Market cap 80B, Volume 2B, own mainnet
+
+B Grade (45~64): Average. Enter after confirming signal strength + additional conditions.
+  Ex: Market cap 300B, own mainnet, Korea share 40%
+
+C Grade (44 or below): Low. Enter only in special cases.
+  Ex: BTC, ETH and other large-cap coins
+```
+
+### 4. Special Condition Bonuses
+```
+Upbit exclusive listing: score += 10 (maximized closed economy effect)
+Bithumb liquidity << Upbit: Add Bithumb position recommendation tag
+Deposit/withdrawal suspension history in last 6 months: score += 5 (recurrence possibility)
+```
+
+## Output
+```json
+{
+  "ticker": "TT",
+  "coin_name": "ThunderCore",
+  "score": 92,
+  "grade": "S",
+  "details": {
+    "market_cap_krw": 84000000000,
+    "market_cap_score": 40,
+    "daily_volume_krw": 3000000000,
+    "volume_score": 30,
+    "network_type": "own_mainnet",
+    "network_score": 15,
+    "kr_volume_ratio": 0.45,
+    "kr_ratio_score": 7,
+    "futures_available": false,
+    "futures_score": 0,
+    "bonus": {
+      "upbit_exclusive": false,
+      "bithumb_lower_liquidity": true,
+      "recent_suspension_history": true
+    }
+  },
+  "recommended_exchange": "bithumb",
+  "hedge_type": "proxy_hedge",
+  "proxy_hedge_ticker": null
+}
+```
+
+## Data Dependencies
+- `19-data-registry`: Listed coin list, network types, overseas futures list
+- `10-proxy-hedge-mapper`: Proxy hedge target lookup when futures are not supported
+
+## Refresh Cycle
+- Per-coin score calculation: **5-minute interval** real-time refresh
+- Listed coin list: **Once daily** refresh
+- Network type: **Manual management** (update on new listings)
+
+## Edge Cases
+- Newly listed coins: Conservative evaluation when data is insufficient (default B grade)
+- Sudden market cap/volume changes: Compare current value with 7-day average, alert on sudden changes
+- Coins scheduled for delisting: Separate flag when designated as caution stock (handled by module 08)
+
+---
+
 # 07. 타겟 코인 자동 필터링 엔진 전략서
 
 ## 목적

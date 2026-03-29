@@ -1,3 +1,124 @@
+# 04. Block Time Anomaly Detection Strategy
+
+## Purpose
+Detect block production halt (chain halt) on mainnet chains **within minutes** via RPC polling.
+Can detect hours faster than exchange announcements. Unexpected block halts cause exchanges to immediately suspend deposits/withdrawals, creating closed economy premium opportunities.
+
+## Verified Lead Times
+- **Minutes** (compared to exchange announcements)
+- DisChain block halt -> Bithumb announcement lagged behind
+- Polygon PoS block production halt -> Upbit POL/GMT deposit/withdrawal suspension announcement hours later
+
+## Monitoring Targets
+**All mainnet chains** listed on Upbit/Bithumb (approximately 30-50 chains)
+
+### Key Targets
+| Chain | RPC Type | Normal Block Time | Anomaly Threshold |
+|-------|----------|-------------------|-------------------|
+| Cosmos Hub (ATOM) | Tendermint RPC | ~6.5s | >13s |
+| SEI | Tendermint RPC | ~0.4s | >0.8s |
+| Injective (INJ) | Tendermint RPC | ~1.5s | >3s |
+| Polygon PoS (POL) | Ethereum-compatible | ~2s | >4s |
+| Flow (FLOW) | Flow Access API | ~1s | >2s |
+| Solana (SOL) | Solana RPC | ~0.4s | >0.8s |
+| Sui (SUI) | Sui RPC | ~0.5s | >1s |
+| Aptos (APT) | Aptos REST | ~0.5s | >1s |
+| Others | Per-chain RPC | Varies by chain | avg x 2 |
+
+## Core Logic
+
+### 1. Block Time Polling
+```
+Every 10 seconds for each chain RPC node:
+  GET latest block -> record timestamp, block_height
+
+Block time calculation:
+  current_block_time = latest_block.timestamp - previous_block.timestamp
+```
+
+### 2. Moving Average Block Time Management
+```
+For each chain:
+  avg_block_time = average block time of last 1000 blocks (refreshed hourly)
+  stddev = standard deviation
+```
+
+### 3. Anomaly Detection Criteria
+```
+Level 1 - Warning:
+  Current block time > avg_block_time x 2
+  -> Internal log only
+
+Level 2 - Alert:
+  Time elapsed since last block > avg_block_time x 5
+  -> Prepare signal emission
+
+Level 3 - Critical (Chain Halt):
+  Time elapsed since last block > avg_block_time x 10
+  OR time elapsed since last block > 60 seconds (absolute threshold)
+  -> Emit signal immediately
+```
+
+### 4. Chain Halt Confirmation Logic
+```
+Distinguish simple slowdown vs complete halt:
+  - No block_height change across 3 consecutive polls (30 seconds) -> halt confirmed
+  - Same phenomenon confirmed across multiple RPC nodes -> prevent false positives
+
+When halt confirmed:
+  -> Emit signal immediately
+  -> Increase monitoring frequency for that chain from 10s -> 5s
+  -> Emit "chain_resumed" signal upon recovery detection
+```
+
+### 5. Distinguishing Scheduled Upgrade Halts
+```
+For halts on chains where an upgrade signal has already been emitted
+by 01-governance-monitor or 02-github-release-monitor:
+  -> Add "expected_halt" tag
+  -> Prevent duplicate signals as position may already be taken
+
+For unannounced halts:
+  -> "unexpected_halt" tag
+  -> Emit signal with high urgency
+```
+
+## Output
+```json
+{
+  "signal_type": "block_halt",
+  "chain": "polygon_pos",
+  "tickers_affected": ["POL", "GMT"],
+  "last_block_height": 65432100,
+  "last_block_time": "2025-12-15T10:30:00Z",
+  "seconds_since_last_block": 180,
+  "avg_block_time": 2.0,
+  "halt_type": "unexpected",
+  "severity": "critical",
+  "rpc_nodes_confirming": 3,
+  "confidence": "high",
+  "detected_at": "2025-12-15T10:33:00Z"
+}
+```
+
+## Data Dependencies
+- `19-data-registry`: Per-chain RPC endpoint list, average block times
+- `01-governance-monitor`: Scheduled upgrade information (expected vs unexpected distinction)
+- `07-target-coin-filter`: Target suitability check for affected coins
+
+## Monitoring Frequency
+- Normal state: **10-second interval** polling
+- After Level 1 detection: **5-second interval**
+- After halt confirmed: **5-second interval** (for recovery detection)
+
+## Edge Cases
+- RPC node itself down vs chain halt: cross-verify with multiple nodes (minimum 2)
+- Drastic block time changes (network congestion): judge based on stddev
+- Single block delay only: require 3 consecutive confirmations
+- Re-halt after recovery: maintain enhanced monitoring for 30 minutes after recovery signal
+
+---
+
 # 04. 블록 타임 이상 감지 전략서
 
 ## 목적

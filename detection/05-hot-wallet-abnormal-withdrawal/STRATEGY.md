@@ -1,3 +1,121 @@
+# 05. Hot Wallet Abnormal Withdrawal Detection Strategy
+
+## Purpose
+Detect **large fund movements (hacking indicators)** from Upbit/Bithumb hot wallets to unidentified external wallets.
+Hack occurrence -> exchange-wide deposit/withdrawal suspension -> closed economy -> panic sell -> reverse premium buying opportunity.
+Can detect **4-8 hours faster** than official exchange announcements.
+
+## Verified Lead Times
+- **4~8 hours**
+- 2025.11.27 Upbit Solana hack 44.5 billion KRW:
+  - 04:42 On-chain tx occurred
+  - 08:55 Full deposit/withdrawal suspension announcement (4 hours later)
+  - 12:33 Public disclosure (8 hours later)
+  - Lookonchain, PeckShield tweeted alerts within minutes of tx occurrence
+
+## Monitoring Targets
+
+### Upbit Hot Wallets (Per Chain)
+| Chain | Address Labeling Source |
+|-------|----------------------|
+| Ethereum | Arkham Intelligence, Etherscan Labels |
+| Solana | Solscan Labels, Arkham |
+| Bitcoin | Blockchain.com Labels, Arkham |
+| Tron | Tronscan Labels |
+| Other EVM | Arkham, respective Explorer Labels |
+
+### Bithumb Hot Wallets (Same Method)
+- Same per-chain hot wallet address labeling
+
+## Core Logic
+
+### 1. Hot Wallet Withdrawal Monitoring
+```
+For each chain's exchange hot wallet address:
+  - Poll latest tx via Etherscan API / Solscan API / multi-chain RPC
+  - When withdrawal tx detected, verify recipient address
+```
+
+### 2. Abnormal Withdrawal Criteria
+```
+Abnormal judgment conditions (OR):
+  1. Single tx amount > average withdrawal x 10
+  2. Cumulative withdrawals within 1 hour > daily average withdrawal x 5
+  3. Recipient address is unlabeled/unidentified
+  4. Recipient address is a mixer/Tornado/bridge contract
+  5. Large transfer to newly created address (first tx)
+
+Weighted scoring:
+  - Unidentified address + large amount: high score
+  - Known exchange/market maker address: low score (normal operations)
+  - Mixer/privacy protocol: highest score (high hack probability)
+```
+
+### 3. External Surveillance Sources (Supplementary)
+```
+Twitter/X real-time monitoring (supplementary):
+  - @looloconchain, @PeckShieldAlert, @zachxbt accounts
+  - "hack", "exploit", "stolen", "drained" + exchange name keywords
+  - Leverage their pattern of tweeting within minutes of on-chain tx
+
+Arkham Intelligence alerts:
+  - Set up alerts for large outflows from exchange-labeled addresses
+```
+
+### 4. Signal Emission
+```
+IF abnormal withdrawal score > threshold
+THEN:
+  Level 1 (Warning): Internal log + enhanced monitoring
+  Level 2 (Alert): Emit signal, but position entry still prohibited
+  Level 3 (Confirmed): Multiple sources confirmed -> emit hack scenario signal
+
+Hack signal specifics:
+  - Immediately prohibit long entry (panic sell expected)
+  - Connect to 14-hack-scenario-holding strategy
+  - Emit separate reverse premium buying signal after bottom confirmation
+```
+
+## Output
+```json
+{
+  "signal_type": "hot_wallet_abnormal_withdrawal",
+  "exchange": "upbit",
+  "chain": "solana",
+  "tx_hash": "5Kj3...",
+  "amount_usd": 44500000000,
+  "recipient_address": "0xabc...",
+  "recipient_label": "unknown",
+  "anomaly_score": 95,
+  "anomaly_reasons": [
+    "amount_10x_average",
+    "unlabeled_recipient",
+    "new_address"
+  ],
+  "severity": "critical",
+  "action": "no_long_entry_wait_for_bottom",
+  "confidence": "high",
+  "detected_at": "2025-11-27T04:45:00Z"
+}
+```
+
+## Data Dependencies
+- `19-data-registry`: Exchange hot wallet address labeling DB (per chain)
+- `19-data-registry`: Known address labels (exchanges, market makers, mixers, etc.)
+
+## Monitoring Frequency
+- Hot wallet tx polling: **30-second interval**
+- Twitter monitoring: **1-minute interval**
+- Arkham alerts: real-time (webhook)
+
+## Edge Cases
+- False positive from normal cold wallet transfer: cross-verify with 06-hot-to-cold-wallet-monitor
+- Internal wallet reorganization: ignore if recipient address has same exchange label
+- Tx detection delay due to chain congestion: use multiple RPC nodes
+- Unidentified address later identified as legitimate: signal cancellation logic
+
+---
+
 # 05. 핫월렛 비정상 출금 감지 전략서
 
 ## 목적
