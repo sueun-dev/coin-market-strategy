@@ -1,0 +1,212 @@
+{
+  "cosmoshub": {
+    "chain_id": "cosmoshub",
+    "last_height": 30426968,
+    "last_block_time": 1774825814.624457,
+    "last_polled": "2026-03-29T23:10:22.938587+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:51.453054+00:00",
+    "halt_count": 0
+  },
+  "sei": {
+    "chain_id": "sei",
+    "last_height": 200100619,
+    "last_block_time": 1774825822.715328,
+    "last_polled": "2026-03-29T23:10:23.117836+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:51.597823+00:00",
+    "halt_count": 0
+  },
+  "injective": {
+    "chain_id": "injective",
+    "last_height": 160281163,
+    "last_block_time": 1774825822.540311,
+    "last_polled": "2026-03-29T23:10:23.328455+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:51.757331+00:00",
+    "halt_count": 0
+  },
+  "kava": {
+    "chain_id": "kava",
+    "last_height": 20024662,
+    "last_block_time": 1774825815.725266,
+    "last_polled": "2026-03-29T23:10:23.476290+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:51.933796+00:00",
+    "halt_count": 0
+  },
+  "akash": {
+    "chain_id": "akash",
+    "last_height": 26155834,
+    "last_block_time": 1774825815.97588,
+    "last_polled": "2026-03-29T23:10:23.851414+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:52.220508+00:00",
+    "halt_count": 0
+  },
+  "axelar": {
+    "chain_id": "axelar",
+    "last_height": 26296115,
+    "last_block_time": 1774825820.789285,
+    "last_polled": "2026-03-29T23:10:24.267238+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:52.402319+00:00",
+    "halt_count": 0
+  },
+  "celestia": {
+    "chain_id": "celestia",
+    "last_height": 10439002,
+    "last_block_time": 1774825816.930494,
+    "last_polled": "2026-03-29T23:10:24.429179+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:52.566830+00:00",
+    "halt_count": 0
+  },
+  "cronos_pos": {
+    "chain_id": "cronos_pos",
+    "last_height": 28909914,
+    "last_block_time": 1774825813.66277,
+    "last_polled": "2026-03-29T23:10:24.579554+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:53.006165+00:00",
+    "halt_count": 0
+  },
+  "medibloc": {
+    "chain_id": "medibloc",
+    "last_height": 25992574,
+    "last_block_time": 1774825812.995392,
+    "last_polled": "2026-03-29T23:10:25.239732+00:00",
+    "anomaly_level": "warning",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:53.705846+00:00",
+    "halt_count": 0
+  },
+  "polygon": {
+    "chain_id": "polygon",
+    "last_height": 84852893,
+    "last_block_time": 1774825822.0,
+    "last_polled": "2026-03-29T23:10:25.420968+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:53.850049+00:00",
+    "halt_count": 0
+  },
+  "arbitrum": {
+    "chain_id": "arbitrum",
+    "last_height": 447035764,
+    "last_block_time": 1774825825.0,
+    "last_polled": "2026-03-29T23:10:25.595616+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:54.023353+00:00",
+    "halt_count": 0
+  },
+  "optimism": {
+    "chain_id": "optimism",
+    "last_height": 149613523,
+    "last_block_time": 1774825823.0,
+    "last_polled": "2026-03-29T23:10:25.822408+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:54.161468+00:00",
+    "halt_count": 0
+  },
+  "avalanche": {
+    "chain_id": "avalanche",
+    "last_height": 81618188,
+    "last_block_time": 1774825824.0,
+    "last_polled": "2026-03-29T23:10:25.975432+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:54.344393+00:00",
+    "halt_count": 0
+  },
+  "celo": {
+    "chain_id": "celo",
+    "last_height": 62925068,
+    "last_block_time": 1774825826.0,
+    "last_polled": "2026-03-29T23:10:26.209410+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:54.489849+00:00",
+    "halt_count": 0
+  },
+  "solana": {
+    "chain_id": "solana",
+    "last_height": 409747320,
+    "last_block_time": 1774825812.0,
+    "last_polled": "2026-03-29T23:10:26.479277+00:00",
+    "anomaly_level": "warning",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:54.704406+00:00",
+    "halt_count": 0
+  },
+  "sui": {
+    "chain_id": "sui",
+    "last_height": 259537082,
+    "last_block_time": 1774825825.013,
+    "last_polled": "2026-03-29T23:10:26.768150+00:00",
+    "anomaly_level": "warning",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:54.978000+00:00",
+    "halt_count": 0
+  },
+  "aptos": {
+    "chain_id": "aptos",
+    "last_height": 687667132,
+    "last_block_time": 1774825826.921672,
+    "last_polled": "2026-03-29T23:10:27.040270+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:55.136478+00:00",
+    "halt_count": 0
+  },
+  "algorand": {
+    "chain_id": "algorand",
+    "last_height": 59741074,
+    "last_block_time": 1774825822.0,
+    "last_polled": "2026-03-29T23:10:27.361051+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:55.433933+00:00",
+    "halt_count": 0
+  },
+  "cardano": {
+    "chain_id": "cardano",
+    "last_height": 13223581,
+    "last_block_time": 1774825783.0,
+    "last_polled": "2026-03-29T23:10:28.074005+00:00",
+    "anomaly_level": "warning",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:55.710784+00:00",
+    "halt_count": 0
+  },
+  "polkadot": {
+    "chain_id": "polkadot",
+    "last_height": 30576837,
+    "last_block_time": 1774825828.465682,
+    "last_polled": "2026-03-29T23:10:28.465703+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:55.953920+00:00",
+    "halt_count": 0
+  },
+  "tezos": {
+    "chain_id": "tezos",
+    "last_height": 12553407,
+    "last_block_time": 1774825822.0,
+    "last_polled": "2026-03-29T23:10:28.738564+00:00",
+    "anomaly_level": "none",
+    "is_halted": false,
+    "first_seen": "2026-03-29T23:09:56.219058+00:00",
+    "halt_count": 0
+  }
+}
