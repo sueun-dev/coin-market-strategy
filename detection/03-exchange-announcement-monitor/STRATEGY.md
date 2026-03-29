@@ -1,3 +1,146 @@
+# 03. Other Exchange Announcement Early Detection Strategy
+
+## Purpose
+Crawl announcements from overseas exchanges such as Binance/Coinbase/OKX to obtain deposit/withdrawal suspension information **before Upbit/Bithumb**.
+Also perform cross-verification by detecting Upbit announcements before Bithumb.
+Additionally capture **Upbit/Bithumb caution designation, investment warning, DAXA trade risk warning** announcements as signals.
+
+## Verified Lead Times
+- **Several hours ~ 1 day** (overseas -> domestic)
+- **Several hours ~ 6 days** (Upbit -> Bithumb)
+- Ethereum Pectra: Binance announcement 5/7 09:45 UTC -> Upbit suspended at same time
+- ThunderCore: Upbit announcement 5/8 -> Bithumb announcement 5/14 same day (6-day lead time)
+- FLOW security incident: DAXA trade risk warning -> Upbit/Bithumb simultaneous deposit/withdrawal suspension
+
+## Monitoring Sources
+
+### Overseas Exchanges
+| Exchange | Source | Endpoint/Method |
+|----------|--------|-----------------|
+| Binance | Announcement API | `GET /sapi/v1/announcement` or announcement page crawling |
+| Coinbase | Status Page | status.coinbase.com RSS |
+| OKX | Announcement Center | okx.com/support/announcements crawling |
+| Bybit | Announcement Center | bybit.com/announcements crawling |
+| Kraken | Status | status.kraken.com RSS |
+
+### Domestic Exchanges (Cross-verification)
+| Exchange | Source | Endpoint/Method |
+|----------|--------|-----------------|
+| Upbit | Announcements API | `GET /v1/notices` or announcement page crawling |
+| Bithumb | Announcements | bithumb.com/notices crawling |
+| Coinone | Announcements | coinone.co.kr/notices crawling |
+| Korbit | Announcements | korbit.co.kr/announcements crawling |
+
+## Core Logic
+
+### 1. Deposit/Withdrawal Suspension Announcement Detection
+```
+Crawl each exchange announcement every 5 minutes:
+
+Keyword filter (multilingual):
+  English: "suspend", "deposit", "withdrawal", "upgrade", "hardfork",
+        "maintenance", "network upgrade", "wallet maintenance"
+  Korean: "입출금", "정지", "중단", "업그레이드", "하드포크",
+        "점검", "지갑 점검", "네트워크 업그레이드"
+```
+
+### 2. Caution Designation/Investment Warning Detection (Domestic Exchanges Only)
+```
+Keyword filter:
+  - "유의종목", "투자유의", "투자경고", "거래유의"
+  - "상장폐지", "상장 심사", "거래지원 종료"
+  - "DAXA", "거래위험", "투자위험"
+  - "투자 유의 종목 지정", "유의 종목 해제"
+
+Caution designation signals are classified separately:
+  - Caution designation -> panic sell possibility -> handle similarly to hack scenario
+  - Caution designation + deposit/withdrawal suspension simultaneously -> highest alert signal
+```
+
+### 3. Cross-verification Logic
+```
+Case 1: Overseas exchange announces first
+  Binance announces deposit/withdrawal suspension for Coin X
+  -> Predict Upbit/Bithumb will also suspend soon
+  -> Emit signal immediately
+
+Case 2: Upbit announces first
+  Upbit announces deposit/withdrawal suspension for Coin X
+  -> Predict Bithumb will also suspend soon
+  -> Emit signal for positioning on Bithumb
+  (Lower liquidity on Bithumb means larger premium)
+
+Case 3: DAXA announcement
+  DAXA trade risk warning detected
+  -> Predict simultaneous deposit/withdrawal suspension across all domestic exchanges
+  -> Classify as panic sell scenario
+```
+
+### 4. Signal Emission
+```
+IF deposit/withdrawal suspension announcement detected on overseas exchange
+  AND the coin is listed on Upbit/Bithumb
+  AND no announcement yet from Upbit/Bithumb
+THEN:
+  Emit signal (lead_source: "overseas_exchange")
+
+IF deposit/withdrawal suspension announcement detected on Upbit
+  AND the coin is also listed on Bithumb
+  AND no announcement yet from Bithumb
+THEN:
+  Emit signal (lead_source: "upbit_to_bithumb")
+
+IF caution designation/investment warning announcement detected
+THEN:
+  Emit signal (signal_type: "caution_designation")
+```
+
+## Output
+
+### Deposit/Withdrawal Suspension Signal
+```json
+{
+  "signal_type": "exchange_announcement_suspension",
+  "ticker": "TT",
+  "source_exchange": "upbit",
+  "announcement_url": "https://...",
+  "suspension_reason": "network_upgrade",
+  "suspension_start": "2024-05-08T00:00:00Z",
+  "target_exchanges_not_yet_announced": ["bithumb"],
+  "lead_time_estimate_hours": 144,
+  "confidence": "high",
+  "detected_at": "2024-05-08T01:00:00Z"
+}
+```
+
+### Caution Designation/Warning Signal
+```json
+{
+  "signal_type": "caution_designation",
+  "ticker": "FLOW",
+  "source": "DAXA",
+  "caution_type": "거래위험경고",
+  "exchanges_affected": ["upbit", "bithumb"],
+  "expected_impact": "panic_sell",
+  "suspension_likely": true,
+  "confidence": "high",
+  "detected_at": "2025-12-27T03:00:00Z"
+}
+```
+
+## Monitoring Frequency
+- Overseas exchange announcements: **5-minute interval**
+- Domestic exchange announcements: **3-minute interval** (more frequent)
+- DAXA/FSS announcements: **10-minute interval**
+
+## Edge Cases
+- Exchange announcement page structure change: alert if crawler cannot auto-recover
+- Duplicate detection of same announcement: dedup based on announcement ID/URL
+- Coin ticker parsing failure in announcement body: NLP analysis or manual review alert
+- Crawling failure due to exchange server down: retry + use backup source
+
+---
+
 # 03. 타 거래소 공지 선행 감지 전략서
 
 ## 목적

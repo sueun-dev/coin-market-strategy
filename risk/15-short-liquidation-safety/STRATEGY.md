@@ -1,3 +1,140 @@
+# 15. Short Liquidation Price Safety Margin Check Strategy
+
+## Purpose
+To **prevent forced liquidation** of overseas futures short positions by monitoring margin balance and liquidation price in real time.
+Since the deposit/withdrawal suspension period is unpredictable, ensure **200%+ buffer** so the short is not liquidated even during extended holding.
+
+## Why This Matters
+```
+If the short gets liquidated:
+  - Overseas short disappears → Hedge unravels
+  - Only domestic spot remains → Full directional risk exposure
+  - Selling domestic spot during deposit/withdrawal suspension forfeits premium
+  → Worst case scenario: Short liquidated + domestic premium declines = losses on both sides
+```
+
+## Safety Margin Criteria
+
+### Liquidation Price Buffer Standards
+```
+Minimum standard: Liquidation price = entry price x 2.0 (survives 100% price increase)
+Recommended standard: Liquidation price = entry price x 3.0 (survives 200% price increase)
+
+Example (1x short, cross margin):
+  Entry price: $0.10
+  Margin: $0.30 (3x)
+  Liquidation price: $0.40 (at 300% increase)
+  → Safety buffer: 300% ✓
+```
+
+### Margin Calculation
+```
+Required margin = position_notional / leverage  # For 1x = position_notional
+Additional margin = required margin x safety_multiplier  # Minimum 2.0
+
+Total required margin = required margin + additional margin
+  = position_notional x (1 + safety_multiplier)
+  = position_notional x 3  (when safety_multiplier=2)
+```
+
+## Core Logic
+
+### 1. Validation at Position Open
+```
+Before opening short in 09-delta-neutral-position:
+
+  Calculate: liquidation_price = entry_price x (1 + margin/position_notional)
+
+  IF liquidation_price < entry_price x 2.0:
+    → Warning: "Insufficient margin -- minimum 200% buffer not met"
+    → Request additional margin deposit
+
+  IF liquidation_price < entry_price x 3.0:
+    → Caution: "Recommended 300% buffer not met"
+    → Can proceed but display warning
+```
+
+### 2. Real-time Liquidation Price Monitoring
+```
+Every 1 minute for each active short position:
+
+  current_price = overseas exchange current price
+  distance_to_liquidation = (liquidation_price - current_price) / current_price x 100
+
+  Level 1 (Safe): distance > 100%
+    → Normal, maintain monitoring
+
+  Level 2 (Caution): 50% < distance <= 100%
+    → Alert: "Approaching liquidation price"
+    → Recommend additional margin
+
+  Level 3 (Warning): 30% < distance <= 50%
+    → Urgent alert: "Liquidation risk"
+    → Auto-add margin (if configured)
+    → Or consider partial short close
+
+  Level 4 (Danger): distance <= 30%
+    → Urgent alert: "Liquidation imminent"
+    → Auto-add margin or strategic short reduction
+    → #18 notification + mobile urgent alert
+```
+
+### 3. Automatic Margin Addition (Optional)
+```
+When configured:
+  Maintain reserve margin in overseas exchange account
+  Automatically add margin when Level 3 is reached
+
+Auto margin addition limit:
+  Total margin < 15% of total capital
+  Request manual intervention when limit exceeded
+```
+
+### 4. Global Price Surge Scenario
+```
+When global price surges during deposit/withdrawal suspension:
+  - Short position unrealized loss increases
+  - However, domestic spot may also rise (hedge works)
+  - Problem: Domestic is a closed economy so may not rise as much as global
+  - In this case: Short unrealized loss > domestic spot unrealized gain
+
+  Response:
+    - If margin is sufficient, hold (convergence after resumption)
+    - If margin is insufficient, partially reduce short + partially sell domestic spot (balance)
+```
+
+## Output
+```json
+{
+  "position_id": "pos_uuid",
+  "ticker": "TT",
+  "exchange": "binance",
+  "check_time": "2024-05-14T06:00:00Z",
+  "entry_price_usd": 0.115,
+  "current_price_usd": 0.125,
+  "liquidation_price_usd": 0.345,
+  "distance_to_liquidation_pct": 176,
+  "margin_balance_usd": 3450,
+  "unrealized_pnl_usd": -100,
+  "safety_level": "safe",
+  "safety_grade": "Level 1",
+  "action_required": false,
+  "recommendation": null
+}
+```
+
+## Data Dependencies
+- `09-delta-neutral-position`: Active short position information
+- `18-notification-system`: Warning/urgent alert delivery
+- `16-funding-rate-tracker`: Reflect margin changes due to funding fees
+
+## Monitoring Frequency
+- Normal state: **1-minute intervals**
+- Level 2: **30-second intervals**
+- Level 3/4: **10-second intervals**
+
+---
+
 # 15. 숏 청산가 안전 마진 체크 전략서
 
 ## 목적

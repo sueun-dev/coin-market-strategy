@@ -1,3 +1,141 @@
+# 16. Funding Rate Tracker Strategy
+
+## Purpose
+**Track accumulated funding rate costs** while maintaining overseas futures short positions, monitoring impact on net profit in real time.
+If the deposit/withdrawal suspension period extends, funding fees can become the sole cost, so the cost-to-profit ratio must be managed.
+
+## Funding Rate Basics
+```
+Perpetual futures settle funding rates every 8 hours:
+  - Positive funding rate: Longs pay shorts (short holders = profit)
+  - Negative funding rate: Shorts pay longs (short holders = cost)
+
+Typical situations:
+  - Bull market: Positive funding rate → Favorable for short holders (bonus)
+  - Bear market: Negative funding rate → Unfavorable for short holders (cost)
+
+Settlement times (Binance standard):
+  00:00 UTC, 08:00 UTC, 16:00 UTC
+```
+
+## Core Logic
+
+### 1. Real-time Funding Rate Collection
+```
+For each active short position's exchange:
+  - Binance: GET /fapi/v1/fundingRate
+  - OKX: GET /api/v5/public/funding-rate
+  - Bybit: GET /v5/market/funding/history
+
+Collected items:
+  - Current funding rate (current_funding_rate)
+  - Predicted next funding rate (predicted_next)
+  - Recent funding rate history (30 days)
+```
+
+### 2. Cumulative Funding Fee Calculation
+```
+At each settlement:
+  funding_payment = position_notional x funding_rate
+
+  Positive: Short holder receives (profit)
+  Negative: Short holder pays (cost)
+
+Cumulative:
+  cumulative_funding = Σ funding_payments (since position opened)
+
+Daily conversion:
+  daily_funding_cost = 3 x avg_funding_rate x position_notional
+  (3 settlements per day)
+```
+
+### 3. Profit-to-Cost Ratio Monitoring
+```
+Expected premium profit vs funding fee cost:
+
+  profit_ratio = expected_premium_pct / cumulative_funding_pct
+
+  Positive funding (favorable for short):
+    → profit_ratio infinite (zero cost, actually profitable)
+    → No alert needed
+
+  Negative funding (unfavorable for short):
+    profit_ratio > 5: Safe (expected profit 5x+ funding fees)
+    profit_ratio 2~5: Caution (funding fees accumulating)
+    profit_ratio < 2: Warning (funding fees eroding profit)
+    profit_ratio < 1: Danger (funding fees > expected profit, consider liquidation)
+```
+
+### 4. Projected Costs for Extended Holding
+```
+When deposit/withdrawal suspension period extends:
+
+  Projected funding fees by duration:
+    1 week: avg_daily_funding x 7
+    2 weeks: avg_daily_funding x 14
+    1 month: avg_daily_funding x 30
+
+  When projected cost exceeds 30% of target profit:
+    → Warning alert
+    → Review short reduction or position close
+```
+
+### 5. Funding Rate-based Decision Making
+```
+Case 1: Sustained positive funding rate
+  → Bonus for maintaining short → Added to profit
+  → Aggressive holding favorable
+
+Case 2: Slightly negative funding rate (-0.01% or less)
+  → Negligible level
+  → Maintain holding
+
+Case 3: Moderately negative funding rate (-0.01% ~ -0.05%)
+  → Daily cost 0.03%~0.15%
+  → Weekly 0.21%~1.05%
+  → Maintain if premium is sufficient, otherwise review
+
+Case 4: Heavily negative funding rate (-0.05% or more)
+  → Daily cost 0.15%+
+  → Weekly 1%+
+  → Strongly recommend early liquidation
+```
+
+## Output
+```json
+{
+  "position_id": "pos_uuid",
+  "ticker": "TT",
+  "exchange": "binance",
+  "current_funding_rate": -0.0085,
+  "predicted_next_rate": -0.0092,
+  "funding_direction": "short_pays",
+  "cumulative_funding_usd": -12.50,
+  "cumulative_funding_pct": -0.36,
+  "holding_days": 5,
+  "daily_avg_cost_pct": 0.072,
+  "projected_cost_7d_pct": 0.50,
+  "projected_cost_14d_pct": 1.01,
+  "current_premium_pct": 15.0,
+  "profit_cost_ratio": 41.7,
+  "status": "safe",
+  "recommendation": "hold"
+}
+```
+
+## Data Dependencies
+- `09-delta-neutral-position`: Active short position information
+- `12-premium-realtime-tracker`: Current premium (for profit-to-cost calculation)
+- `15-short-liquidation-safety`: Share margin changes due to funding fees
+- `18-notification-system`: Warning alerts
+
+## Monitoring Frequency
+- Funding rate collection: **1-hour intervals** (check before settlement)
+- Cumulative calculation: **8-hour intervals** (after settlement)
+- Cost ratio check: **Once daily**
+
+---
+
 # 16. 펀딩비 트래커 전략서
 
 ## 목적

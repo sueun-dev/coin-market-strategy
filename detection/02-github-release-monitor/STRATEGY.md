@@ -1,3 +1,122 @@
+# 02. GitHub Release Monitor Strategy
+
+## Purpose
+Detect hard fork/upgrade releases from official GitHub repos of mainnet projects listed on Upbit/Bithumb **2 days to 2 weeks before** exchange announcements.
+Node update release -> exchange node update required -> deposit/withdrawal suspension -> closed economy premium generation.
+
+## Verified Lead Times
+- **2 days ~ 2 weeks**
+- cosmos/gaia v25.0.0 release tag -> followed by exchange announcement
+- QTUM, 0G, Story Protocol all preceded by GitHub
+- ThunderCore Athena hard fork: upgrade time (5/14 2:53 PM) pre-disclosed on official webpage
+
+## Monitoring Targets
+Official repos of **mainnet projects** listed on Upbit/Bithumb (approximately 50-100)
+
+### Key Target Examples
+| Coin | GitHub Repo | Notes |
+|------|-------------|-------|
+| ATOM | cosmos/gaia | Cosmos Hub |
+| SEI | sei-protocol/sei-chain | Sei Network |
+| INJ | InjectiveLabs/injective-core | Injective |
+| OSMO | osmosis-labs/osmosis | Osmosis |
+| QTUM | qtumproject/qtum | Qtum |
+| 0G | 0glabs/0g-chain | 0G Network |
+| STORY | storyprotocol/protocol-core | Story Protocol |
+| KAVA | Kava-Labs/kava | Kava |
+| BAND | bandprotocol/chain | Band Protocol |
+| POL | maticnetwork/bor | Polygon PoS |
+| FLOW | onflow/flow-go | Flow |
+| TT | thundercore/thunder | ThunderCore |
+
+## Core Logic
+
+### 1. GitHub Releases API Polling
+```
+Every 30 minutes:
+  Each repo -> GET /repos/{owner}/{repo}/releases
+  Check latest release -> whether new release exists since last check
+```
+
+### 2. Keyword Filtering
+```
+Search in release title/body:
+  - "upgrade" / "hardfork" / "hard fork" / "migration"
+  - "breaking change" / "consensus" / "network upgrade"
+  - "mandatory update" / "node update"
+  - Major version change (v1.x -> v2.x)
+
+Tag name patterns:
+  - Detect semantic version major/minor changes
+  - "rc" (release candidate) -> signal that full release is imminent
+```
+
+### 3. Official Webpage/Blog Crawling (Supplementary)
+```
+Some projects announce on official channels before GitHub
+  - ThunderCore: upgrade time disclosed on official webpage
+  - Medium/Mirror blog posts
+Apply same keywords
+```
+
+### 4. Signal Emission Conditions
+```
+IF new release detected
+  AND keyword match (upgrade/hardfork/migration etc.)
+  AND the coin is listed on Upbit/Bithumb
+  AND official release, not pre-release (or RC -> imminent signal)
+THEN:
+  Emit signal -> forward to 08-signal-direction-engine
+  Included data: {
+    chain, coin_ticker, repo, release_tag,
+    release_title, release_url,
+    is_breaking_change, is_mandatory,
+    published_at
+  }
+```
+
+### 5. RC (Release Candidate) Stage Tracking
+```
+When RC release detected:
+  - Emit "pre-warning" level signal
+  - Increase polling frequency for that repo from 30min -> 10min
+  - Emit main signal when official release comes out
+```
+
+## Data Dependencies
+- `19-data-registry`: Listed coin <-> GitHub repo URL mapping table
+- `07-target-coin-filter`: Target suitability check before signal emission
+
+## Output
+```json
+{
+  "signal_type": "github_release",
+  "chain": "thundercore",
+  "ticker": "TT",
+  "repo": "thundercore/thunder",
+  "release_tag": "v4.0.0-athena",
+  "release_title": "Athena Hard Fork",
+  "keywords_matched": ["hardfork", "mandatory update"],
+  "is_breaking": true,
+  "upgrade_time_announced": "2024-05-14T05:53:00Z",
+  "confidence": "high",
+  "detected_at": "2024-05-08T02:00:00Z"
+}
+```
+
+## Monitoring Frequency
+- All repos: **30-minute interval** polling
+- Repos with RC detected: increased to **10-minute interval**
+- GitHub API Rate Limit: use authenticated token (5000 req/hr)
+
+## Edge Cases
+- GitHub API Rate Limit exceeded: token rotation or use GraphQL API
+- Repo migration/rename: detect redirect and auto-update mapping table
+- Tag created without release: also poll Tags API in parallel
+- Draft releases: ignore (only target public releases)
+
+---
+
 # 02. GitHub 릴리스 모니터 전략서
 
 ## 목적

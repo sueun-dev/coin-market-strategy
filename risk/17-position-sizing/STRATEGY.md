@@ -1,3 +1,148 @@
+# 17. Position Sizing Strategy
+
+## Purpose
+**Limit capital allocation** for individual positions and the overall portfolio to manage risk.
+Also responsible for liquidity (OI) verification of small-cap alt futures and slippage warnings.
+
+## Basic Rules
+```
+1. Single position: Within 5~10% of total capital
+2. Sum of simultaneous active positions: Within 30% of total capital
+3. Total deployment including short margin: Within 50% of total capital
+```
+
+## Core Logic
+
+### 1. Single Position Size Calculation
+```
+Base size = total_capital x base_allocation_pct
+
+base_allocation_pct by target grade:
+  S grade: 10% (highest conviction)
+  A grade: 7%
+  B grade: 5%
+  C grade: 3%
+
+Signal strength adjustment:
+  confidence == "high": x 1.0
+  confidence == "medium": x 0.7
+  confidence == "low": x 0.5
+
+Final size:
+  position_size = total_capital x base_allocation_pct x confidence_multiplier
+
+Example:
+  Capital 100M KRW, S grade, high confidence
+  position_size = 100M x 10% x 1.0 = 10M KRW
+  → Domestic spot 5M KRW + overseas short margin 5M KRW (1x, including additional margin)
+```
+
+### 2. Portfolio Limit Management
+```
+Sum of simultaneous active positions:
+  total_allocated = Σ position_sizes
+
+  IF total_allocated + new_position > total_capital x 0.30:
+    → Reject new entry
+    → Or first liquidate existing positions where profit can be locked
+
+Liquidity reserve:
+  Minimum cash holding: total_capital x 0.40
+  Reserve funds for reverse premium additional buys
+```
+
+### 3. Overseas Futures Liquidity (OI) Check
+```
+Position size vs that coin's futures OI (open interest):
+
+  position_notional / total_OI ratio:
+
+  < 0.5%: Safe (slippage negligible)
+  0.5~2%: Caution (split entry/exit recommended)
+  2~5%: Warning (insufficient liquidity, reduce size)
+  > 5%: Danger (no entry, consider proxy hedge)
+
+OI check:
+  - Binance: GET /fapi/v1/openInterest
+  - OKX, Bybit: respective APIs
+```
+
+### 4. Slippage Estimation
+```
+Small-cap alt futures:
+  OI < $1M: Expected slippage 1~3%
+  OI $1~5M: Expected slippage 0.5~1%
+  OI $5~20M: Expected slippage 0.1~0.5%
+  OI > $20M: Expected slippage < 0.1%
+
+Domestic spot:
+  24h volume < 100M KRW: Expected slippage 2~5%
+  24h volume 100M~1B KRW: Expected slippage 0.5~2%
+  24h volume > 1B KRW: Expected slippage < 0.5%
+
+When total expected slippage exceeds 20% of target profit:
+  → Recommend size reduction
+  → Or recommend against entry
+```
+
+### 5. Capital Allocation for Simultaneous Multiple Signals
+```
+When multiple coin signals occur simultaneously:
+  1. Allocate in order of highest grade
+  2. In order of highest signal confidence
+  3. In order of shortest lead time (urgency)
+
+Allocation example:
+  Capital 100M KRW, 3 simultaneous signals
+  TT (S grade, high): 10% = 10M KRW
+  ATOM (A grade, high): 7% = 7M KRW
+  FLOW (B grade, medium): 5% x 0.7 = 3.5M KRW
+  Total deployed: 20.5M KRW (20.5% < 30% limit OK)
+```
+
+## Output
+```json
+{
+  "decision_id": "uuid",
+  "ticker": "TT",
+  "total_capital_krw": 100000000,
+  "allocation": {
+    "base_pct": 10,
+    "confidence_multiplier": 1.0,
+    "final_pct": 10,
+    "position_size_krw": 10000000,
+    "domestic_allocation_krw": 5000000,
+    "overseas_margin_krw": 5000000
+  },
+  "portfolio_check": {
+    "current_total_allocated_pct": 7,
+    "after_this_position_pct": 17,
+    "within_limit": true
+  },
+  "liquidity_check": {
+    "futures_oi_usd": 5000000,
+    "position_vs_oi_pct": 0.7,
+    "estimated_slippage_pct": 0.8,
+    "grade": "caution"
+  },
+  "approved": true,
+  "warnings": ["Low futures OI, split entry recommended"]
+}
+```
+
+## Data Dependencies
+- `07-target-coin-filter`: Target grade
+- `08-signal-direction-engine`: Signal confidence, size ratio
+- `09-delta-neutral-position`: Current active position list
+- `10-proxy-hedge-mapper`: OI check for proxy hedge
+
+## Update Frequency
+- Total capital update: **Once daily** (or upon deposit/withdrawal)
+- OI check: **Immediately upon signal generation**
+- Portfolio limit check: **Immediately upon position change**
+
+---
+
 # 17. 포지션 사이징 전략서
 
 ## 목적

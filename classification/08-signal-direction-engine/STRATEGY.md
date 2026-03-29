@@ -1,3 +1,165 @@
+# 08. Signal → Position Direction Auto-Decision Strategy
+
+## Purpose
+Classifies signals from the detection systems (01~06) and **automatically determines position direction (long+short / prohibited / skip)**.
+The hub for all signals. The center of the Signal → Filter (07) → Direction Decision (08) → Execution (09~11) pipeline.
+
+## Signal → Direction Decision Table
+
+| Signal Type | Expected Domestic Direction | Position Decision | Entry Condition | Notes |
+|-------------|---------------------------|-------------------|----------------|-------|
+| Network Upgrade | Premium ↑ | **Long + Short** | Enter immediately | Highest win rate, main target. 13/22 cases verified |
+| Block Halt (short-term) | Premium ↑ | **Conditional Entry** | Only when recovery is fast | Funding rate risk on long halts |
+| Hack/Security Incident | Panic Sell ↓ | **Initial Prohibition** | Reverse premium buying after bottom confirmation | Absolutely no immediate long |
+| Caution Designation | Panic Sell ↓ | **Initial Prohibition** | Reverse premium buying after bottom confirmation | Same treatment as hack |
+| DAXA Trading Risk Warning | Panic Sell ↓↓ | **Prohibited** | Extremely conservative | Delisting possibility |
+| Exchange Internal Maintenance (Hot→Cold) | Uncertain | **Small-scale Entry** | S/A grade only | Weak signal |
+| Scheduled Server Maintenance | — | **Skip** | No entry | All trading halted, no alpha |
+| Other Exchange Prior Announcement | Premium ↑ | **Long + Short** | Enter immediately | Short lead time, fast execution needed |
+| Upbit→Bithumb Cross | Premium ↑ | **Long + Short on Bithumb** | Enter immediately | Bithumb closed economy effect is greater |
+
+## Core Logic
+
+### 1. Signal Reception and Classification
+```
+On signal reception:
+  1. Check signal_type
+  2. Query target grade from 07-target-coin-filter
+  3. Execute classification logic below
+```
+
+### 2. Main Scenario: Network Upgrade
+```
+IF signal_type IN ["governance_upgrade", "github_release", "exchange_announcement_suspension"]
+  AND suspension_reason == "network_upgrade"
+THEN:
+  direction = "LONG_SHORT"  # Domestic long + overseas short
+  urgency = based on lead_time:
+    > 3 days: "prepare" (prepare, start split buying)
+    1~3 days: "enter" (full-scale entry)
+    < 1 day: "urgent_enter" (immediate entry)
+
+  → Forward to 09-delta-neutral-position
+  → Include: ticker, direction, urgency, target_grade, recommended_exchange
+```
+
+### 3. Block Halt Scenario
+```
+IF signal_type == "block_halt"
+THEN:
+  IF halt_type == "expected" (scheduled upgrade):
+    → Maintain if position exists, enter if not
+
+  IF halt_type == "unexpected":
+    IF estimated recovery time < 24 hours:
+      direction = "CONDITIONAL_LONG_SHORT"
+      → Small-scale entry (50% of regular size)
+    ELSE:
+      direction = "WAIT"
+      → Decide on entry after recovery confirmation
+```
+
+### 4. Hack/Security Incident Scenario
+```
+IF signal_type == "hot_wallet_abnormal_withdrawal"
+  OR (signal_type == "caution_designation" AND caution_type == "security_incident")
+THEN:
+  Phase 1 (immediate): direction = "NO_ENTRY"
+    → Absolutely no long entry
+    → Hold existing positions (spot, so no liquidation)
+    → Consider additional short hedge overseas
+
+  Phase 2 (after bottom confirmation): direction = "REVERSE_PREMIUM_BUY"
+    → Confirm domestic price < global price (reverse premium)
+    → Buy signal when reverse premium exceeds -10%
+    → Deposit/withdrawal resumption → global convergence → profit
+
+  Bottom judgment criteria:
+    - Volume spike during panic sell followed by sharp volume decline
+    - Price volatility contraction (volatility convergence)
+    - Reverse premium expansion stops
+```
+
+### 5. Caution Designation / Investment Warning Scenario
+```
+IF signal_type == "caution_designation"
+THEN:
+  IF caution_type == "caution_stock_designation":
+    → Apply Phase 1/2 same as hack scenario
+    → Additionally check delisting possibility
+    → Absolute no entry if delisting is scheduled
+
+  IF caution_type == "DAXA_trading_risk_warning":
+    → direction = "ABSOLUTE_NO_ENTRY"
+    → Delisting risk too high
+    → FLOW case: -40% crash, recovery uncertain
+```
+
+### 6. Internal Maintenance Scenario
+```
+IF signal_type == "hot_to_cold_movement"
+THEN:
+  IF target_grade IN ["S", "A"]:
+    direction = "SMALL_LONG_SHORT"  # 30% of regular
+  ELSE:
+    direction = "SKIP"
+
+  Low confidence, small-scale only
+```
+
+### 7. Scheduled Maintenance Filter
+```
+IF signal_type == "scheduled_maintenance"
+  OR movement_pattern == "all_chains"  # All-chain movement
+THEN:
+  direction = "SKIP"
+  reason = "All trading halted, no individual coin alpha"
+```
+
+## Final Output (Forwarded to Execution System)
+```json
+{
+  "decision_id": "uuid",
+  "ticker": "TT",
+  "direction": "LONG_SHORT",
+  "urgency": "enter",
+  "position_size_ratio": 1.0,
+  "target_grade": "S",
+  "target_score": 92,
+  "recommended_exchange": "bithumb",
+  "hedge_type": "proxy_hedge",
+  "signal_source": "03-exchange-announcement",
+  "original_signal": { ... },
+  "constraints": {
+    "max_position_pct": 10,
+    "entry_method": "split_buy",
+    "stop_loss": null
+  },
+  "created_at": "2024-05-08T01:30:00Z"
+}
+```
+
+## Simultaneous Multi-Signal Handling
+```
+When multiple signals received for the same coin simultaneously:
+  1. Prioritize the signal with highest confidence
+  2. Conflicting signals (upgrade + hack): Choose conservative direction
+  3. Reinforcing signals (governance + GitHub): Upgrade confidence, upgrade urgency
+
+Multiple signals for different coins:
+  - Consider capital allocation (linked with 17-position-sizing)
+  - Prioritize allocation to higher-grade coins
+```
+
+## Data Dependencies
+- `01~06`: Signal input from all detection systems
+- `07-target-coin-filter`: Target grade/score
+- `09-delta-neutral-position`: Forward position construction commands
+- `14-hack-scenario-holding`: Hack scenario strategy linkage
+- `17-position-sizing`: Capital allocation check
+
+---
+
 # 08. 시그널 → 포지션 방향 자동 결정 전략서
 
 ## 목적

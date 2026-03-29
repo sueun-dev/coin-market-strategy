@@ -1,3 +1,9 @@
+# 16. Funding Rate Tracker
+Cumulative funding rate monitoring during short maintenance
+Negative (cost) vs positive (bonus) tracking, threshold alert for prolonged suspensions
+
+---
+
 # 16. 펀딩비 트래커
 숏 유지 중 펀딩비 누적 모니터링
 음수(비용) vs 양수(보너스) 추적, 장기 정지 시 임계치 알림

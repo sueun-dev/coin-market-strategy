@@ -1,3 +1,124 @@
+# 11. Exchange Selection Optimization Strategy
+
+## Purpose
+Automatically select the optimal exchange between Upbit and Bithumb for **taking spot long positions**.
+Key: Positions must be taken on the exchange with lower liquidity to maximize the closed economy effect.
+
+## Verified Case
+- ThunderCore (TT) 2024.05.14: Bithumb **120%** vs Upbit **34%**
+  - Bithumb had less supply, resulting in 120% pump
+  - Same event, but 3.5x profit difference just from exchange selection
+
+## Selection Criteria
+
+### 1st Criterion: Per-Coin Liquidity by Exchange
+```
+Comparison items:
+  - 24h Volume (Upbit vs Bithumb)
+  - Order book depth (ask/bid spread, 1%/2% depth)
+  - Estimated coin holdings (on-chain data)
+
+Judgment:
+  volume_ratio = bithumb_volume / upbit_volume
+
+  IF volume_ratio < 0.3:  # Bithumb volume less than 30% of Upbit
+    → Select Bithumb (maximize closed economy effect)
+
+  IF volume_ratio > 3.0:  # Upbit volume less than 30% of Bithumb
+    → Select Upbit
+
+  IF 0.3 <= volume_ratio <= 3.0:
+    → Judge by additional criteria
+```
+
+### 2nd Criterion: Order Book Depth
+```
+1% depth comparison (order quantity within ±1% of current price):
+  bithumb_depth / upbit_depth ratio
+
+depth_ratio < 0.5 → Select Bithumb (thin order book = maximize premium)
+depth_ratio > 2.0 → Select Upbit
+```
+
+### 3rd Criterion: Listing Status
+```
+Upbit exclusive listing → Upbit (no choice, but closed economy maximized)
+Bithumb exclusive listing → Bithumb
+Listed on both → Apply 1st/2nd criteria
+```
+
+### 4th Criterion: Deposit/Withdrawal Suspension Timing
+```
+Upbit announced first, Bithumb not yet → Position on Bithumb (enter before Bithumb suspension)
+Bithumb announced first, Upbit not yet → Position on Upbit
+Both simultaneously → Select exchange with lower liquidity
+```
+
+## Core Logic
+
+### Composite Score Calculation
+```
+exchange_score(exchange) =
+  liquidity_inverse_score × 0.5     # Lower liquidity = higher score
+  + depth_inverse_score × 0.3       # Thinner order book = higher score
+  + timing_score × 0.2              # Bonus for exchange not yet announced
+
+bithumb_score = exchange_score("bithumb")
+upbit_score = exchange_score("upbit")
+
+selected = argmax(bithumb_score, upbit_score)
+```
+
+### Dual Entry on Both Exchanges (Advanced)
+```
+When capital is sufficient and alpha expected on both sides:
+  - Spot long on both Upbit + Bithumb
+  - Overseas short = combined quantity of both
+  - Close the side with higher premium first
+```
+
+## Output
+```json
+{
+  "ticker": "TT",
+  "recommended_exchange": "bithumb",
+  "reason": "bithumb_lower_liquidity",
+  "comparison": {
+    "upbit": {
+      "24h_volume_krw": 5000000000,
+      "1pct_depth_krw": 50000000,
+      "spread_pct": 0.8,
+      "suspension_announced": true,
+      "score": 35
+    },
+    "bithumb": {
+      "24h_volume_krw": 800000000,
+      "1pct_depth_krw": 8000000,
+      "spread_pct": 2.5,
+      "suspension_announced": false,
+      "score": 85
+    }
+  },
+  "dual_entry_recommended": false
+}
+```
+
+## Data Dependencies
+- `19-data-registry`: Upbit/Bithumb API endpoints
+- `03-exchange-announcement-monitor`: Deposit/withdrawal suspension announcement timing
+- `09-delta-neutral-position`: Forward selection results
+
+## Refresh Cycle
+- Volume/order book data: **1-minute interval** real-time
+- Immediate re-evaluation on signal generation
+
+## Cautions
+- Low-liquidity coins on Bithumb also have high entry slippage → Split buy mandatory
+- If order book is too thin (spread > 5%), entry itself may be inefficient
+- Consider exchange fee differences as well (minimal but meaningful at scale)
+
+---
+
 # 11. 거래소 선택 최적화 전략서
 
 ## 목적

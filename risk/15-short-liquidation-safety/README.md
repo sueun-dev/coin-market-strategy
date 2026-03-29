@@ -1,3 +1,9 @@
+# 15. Short Liquidation Price Safety Margin Check
+Auto-verify 200%+ liquidation price buffer
+Alert on insufficient margin balance
+
+---
+
 # 15. 숏 청산가 안전 마진 체크
 청산가 200%+ 여유 확보 자동 검증
 마진 잔고 부족 시 알림

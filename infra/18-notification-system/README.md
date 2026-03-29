@@ -1,3 +1,9 @@
+# 18. Unified Notification System
+Telegram/Discord webhook alerts
+Priority classification by signal type, detection -> filter -> direction decision result delivery
+
+---
+
 # 18. 통합 알림 시스템
 Telegram/Discord 웹훅 알림
 시그널 종류별 우선순위 분류, 감지→필터→방향 판단 결과 전송

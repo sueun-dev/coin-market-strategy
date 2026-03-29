@@ -1,3 +1,171 @@
+# 13. Simultaneous Liquidation System Strategy
+
+## Purpose
+When sufficient premium has formed, **simultaneously execute domestic spot sell + overseas short close** to lock in profits.
+If a time lag occurs, the hedge unravels and exposes directional risk, making **simultaneity** the critical factor.
+
+## Liquidation Timing Decision
+
+### Liquidation Recommendation Conditions from #12
+```
+Liquidation Execution Conditions (all must be met):
+  1. premium_pct > target_premium (varies by grade)
+  2. premium_velocity slowing (approaching peak)
+  3. Sufficient liquidity in order book
+  4. Volume spike detected
+
+target_premium defaults:
+  S grade: 15%+
+  A grade: 10%+
+  B grade: 5%+
+
+Early liquidation conditions:
+  - Premium sharp decline begins (drop of -30% from peak)
+  - Deposit/withdrawal resumption announcement imminent
+  - Accumulated short funding fees exceed 50% of expected profit
+```
+
+### Partial Liquidation Strategy
+```
+Partial liquidation by premium range:
+
+Conservative mode:
+  Premium reaches 10%: Liquidate 30%
+  Premium reaches 20%: Liquidate additional 30%
+  Premium reaches 30%+: Liquidate entire remainder
+
+Aggressive mode:
+  Hold until peak detection signal
+  Peak detected → Full immediate liquidation
+```
+
+## Simultaneous Liquidation Execution Logic
+
+### 1. Pre-preparation
+```
+Pre-liquidation state:
+  1. Pre-set domestic exchange spot sell order (limit order)
+  2. Pre-set overseas exchange short close order (limit order)
+  3. Confirm API connection status on both sides
+  4. Confirm order size match on both sides
+```
+
+### 2. Simultaneous Execution
+```
+On liquidation trigger:
+  T+0ms: Submit domestic spot sell order (market order)
+  T+0ms: Submit overseas short close order (market order) [sent simultaneously]
+
+  Target: execution lag between both sides < 1 second
+
+Execution method:
+  - Asynchronous parallel API calls
+  - Market orders on both sides (execution speed priority)
+  - Partial fills → immediately resubmit remaining quantity
+```
+
+### 3. Fill Confirmation and Quantity Reconciliation
+```
+After both sides filled:
+  Compare domestic_filled_qty vs overseas_closed_qty
+
+IF mismatch:
+  Immediately submit additional order for the difference
+  Example: Domestic 10,000 sold, overseas only 9,500 closed
+  → Submit additional 500 short close overseas
+
+IF one side fill fails:
+  Attempt immediate cancellation of the other side
+  Failure alert + request manual intervention
+```
+
+### 4. Slippage Management
+```
+Small-cap alts have low liquidity:
+  - Domestic: Check 1% order book depth before determining liquidation quantity
+  - If quantity exceeds 1% depth, split liquidation (3~5 times)
+  - Interval between splits: 10~30 seconds
+
+Overseas:
+  - Futures liquidity relatively abundant
+  - However, watch out for coins with low OI
+  - If OI < $1M, use split liquidation
+```
+
+## Scenario-based Liquidation
+
+### Normal Liquidation (Premium Capture)
+```
+Sufficient premium → Simultaneous liquidation on both sides → Profit locked
+Most common scenario
+```
+
+### Deposit/Withdrawal Resumption Imminent Liquidation
+```
+When deposit/withdrawal resumption announcement detected:
+  → Expect sharp premium decline (arbitrage resumes)
+  → Immediately liquidate all positions
+  → Resumption announcement detection via reverse monitoring in #03
+```
+
+### Post-Hack Scenario Holding Liquidation
+```
+Hack → Panic sell → Reverse premium → Additional buy → Deposit/withdrawal resumes → Convergence
+  → Liquidate after convergence (linked with #14)
+  → May take a long time (days to weeks)
+```
+
+## Output
+```json
+{
+  "liquidation_id": "uuid",
+  "position_id": "pos_uuid",
+  "ticker": "TT",
+  "type": "simultaneous_exit",
+  "domestic": {
+    "exchange": "bithumb",
+    "side": "sell",
+    "qty": 10000,
+    "avg_exit_price_krw": 330,
+    "total_proceeds_krw": 3300000,
+    "slippage_pct": 1.2,
+    "filled_at": "2024-05-14T08:00:00.123Z"
+  },
+  "overseas": {
+    "exchange": "binance",
+    "action": "close_short",
+    "qty": 10000,
+    "avg_exit_price_usd": 0.118,
+    "pnl_usd": -30,
+    "filled_at": "2024-05-14T08:00:00.456Z"
+  },
+  "execution_lag_ms": 333,
+  "qty_match": true,
+  "premium_at_exit_pct": 107.0,
+  "net_pnl": {
+    "domestic_pnl_krw": 1800000,
+    "overseas_pnl_usd": -30,
+    "overseas_pnl_krw": -40500,
+    "net_pnl_krw": 1759500,
+    "net_pnl_pct": 117.3
+  },
+  "completed_at": "2024-05-14T08:00:01Z"
+}
+```
+
+## Data Dependencies
+- `12-premium-realtime-tracker`: Premium data, peak detection
+- `09-delta-neutral-position`: Active position information
+- `15-short-liquidation-safety`: Short liquidation price status check
+- `18-notification-system`: Liquidation result notifications
+
+## Cautions
+- If simultaneous liquidation fails and only one side is liquidated, directional risk is exposed → immediate alert + manual intervention
+- Backup execution path for exchange API outages (manual liquidation guide via web UI)
+- Mobile alerts mandatory for late-night/early-morning liquidations
+
+---
+
 # 13. 동시 청산 시스템 전략서
 
 ## 목적
