@@ -1,3 +1,230 @@
+# 19. Data Registry System Strategy
+
+## Purpose
+**Centrally manage static/semi-static data** that the entire pipeline depends on.
+All systems (01~18) reference this registry. Without data, no detection, filtering, or execution is possible.
+
+## 6 Types of Managed Data
+
+### 1. Listed Coin List + GitHub Repo Mapping
+```
+Coins listed on Upbit/Bithumb with their own mainnet projects (~50-100)
+
+Schema:
+{
+  "ticker": "ATOM",
+  "coin_name": "Cosmos Hub",
+  "network": "cosmos",
+  "network_type": "own_mainnet",  // own_mainnet | erc20 | bep20 | spl | ...
+  "github_repo": "cosmos/gaia",
+  "governance_type": "cosmos_sdk",  // cosmos_sdk | evm_governor | custom | none
+  "governance_endpoint": "https://cosmos-rpc.example.com/cosmos/gov/v1/proposals",
+  "listed_exchanges": {
+    "upbit": {"market": "KRW-ATOM", "listed_at": "2019-10-01"},
+    "bithumb": {"market": "ATOM_KRW", "listed_at": "2019-08-01"}
+  },
+  "upbit_exclusive": false,
+  "bithumb_exclusive": false,
+  "caution_status": null  // null | "caution" | "investment_warning"
+}
+
+Update frequency: Once daily (reflect listings/delistings)
+Source: Upbit API, Bithumb API, manual management
+```
+
+### 2. Per-chain RPC Endpoints + Average Block Time
+```
+Schema:
+{
+  "chain": "cosmos",
+  "rpc_endpoints": [
+    {"url": "https://rpc.cosmos.network", "priority": 1, "status": "active"},
+    {"url": "https://cosmos-rpc.publicnode.com", "priority": 2, "status": "active"}
+  ],
+  "rpc_type": "tendermint",  // tendermint | evm | solana | sui | aptos | flow | custom
+  "avg_block_time_seconds": 6.5,
+  "block_time_stddev": 0.8,
+  "affected_tickers": ["ATOM"],
+  "last_updated": "2026-03-29"
+}
+
+Update frequency:
+  - RPC status: Health check every hour
+  - Block time statistics: Recalculated once daily
+  - Endpoint additions/removals: Manual
+```
+
+### 3. Exchange Hot Wallet + Cold Wallet Address Labeling
+```
+Schema:
+{
+  "exchange": "upbit",
+  "chain": "ethereum",
+  "wallets": {
+    "hot": [
+      {"address": "0xabc...", "label": "Upbit Hot Wallet 1", "source": "arkham"},
+      {"address": "0xdef...", "label": "Upbit Hot Wallet 2", "source": "etherscan"}
+    ],
+    "cold": [
+      {"address": "0x123...", "label": "Upbit Cold Wallet", "source": "arkham"}
+    ]
+  },
+  "avg_daily_outflow_usd": 5000000,
+  "last_verified": "2026-03-15"
+}
+
+Target chains:
+  Ethereum, Solana, Bitcoin, Tron, Polygon, Cosmos,
+  + All own-mainnet chains listed on Upbit/Bithumb
+
+Update frequency:
+  - Address labeling: Monthly manual verification + Arkham cross-check
+  - Average outflow: Recalculated weekly
+Source: Arkham Intelligence, Etherscan Labels, Solscan, respective Explorers
+```
+
+### 4. Per-coin Market Cap, Volume, Korean Trading Ratio
+```
+Schema:
+{
+  "ticker": "TT",
+  "market_cap_krw": 84000000000,
+  "market_cap_usd": 62000000,
+  "daily_volume": {
+    "upbit_krw": 3500000000,
+    "bithumb_krw": 800000000,
+    "global_usd": 5000000
+  },
+  "kr_volume_ratio": 0.63,  // (upbit + bithumb) / global
+  "rank_by_market_cap": 350,
+  "last_updated": "2026-03-29T06:00:00Z"
+}
+
+Update frequency: Real-time at 5-minute intervals
+Source: CoinGecko API, CoinMarketCap API, Upbit/Bithumb API
+```
+
+### 5. Overseas Futures Availability + Proxy Hedge Mapping
+```
+Schema:
+{
+  "ticker": "TT",
+  "futures": {
+    "binance": null,
+    "okx": null,
+    "bybit": null
+  },
+  "futures_available": false,
+  "proxy_hedge": {
+    "recommended": "ETH",
+    "correlation_30d": 0.52,
+    "beta_ratio": 1.8,
+    "alternatives": ["BTC"]
+  }
+}
+
+Update frequency:
+  - Futures listing status: Once daily
+  - Correlation coefficients: Once daily
+Source: Binance/OKX/Bybit futures listing APIs
+```
+
+### 6. Exchange Announcement API/RSS Endpoints
+```
+Schema:
+{
+  "exchange": "binance",
+  "type": "overseas",
+  "announcement_sources": [
+    {
+      "type": "api",
+      "url": "https://www.binance.com/bapi/composite/v1/public/cms/article/list/query",
+      "method": "POST",
+      "polling_interval_min": 5
+    },
+    {
+      "type": "rss",
+      "url": "https://www.binance.com/en/support/announcement/rss",
+      "polling_interval_min": 5
+    }
+  ],
+  "keywords": {
+    "suspension": ["suspend", "deposit", "withdrawal", "maintenance"],
+    "upgrade": ["upgrade", "hardfork", "network update"],
+    "caution": ["delist", "remove", "trading pair"]
+  }
+}
+
+Additional domestic exchanges:
+  - Upbit: Announcement API + investment caution notices
+  - Bithumb: Announcement page crawling
+  - DAXA: Announcement page crawling
+
+Update frequency: Manual management (when API changes)
+```
+
+## Initial Data Construction Plan
+
+### Phase 1 (Essential, Immediate)
+```
+1. Collect Upbit/Bithumb listed coin list (API)
+2. Identify own-mainnet coins + GitHub repo mapping (manual)
+3. Major chain RPC endpoints (10 chains)
+4. Collect overseas futures listing (API)
+```
+
+### Phase 2 (Important, Within 1 Week)
+```
+5. Hot wallet/cold wallet address labeling (Arkham-based)
+6. Expand full chain RPC endpoints (30~50 chains)
+7. Set up exchange announcement crawling endpoints
+8. Collect price history for correlation calculation
+```
+
+### Phase 3 (Operations, Ongoing)
+```
+9. Real-time market cap/volume/Korean ratio pipeline
+10. Periodic address labeling verification
+11. Auto-detect and reflect new listings/delistings
+```
+
+## Data Storage
+```
+Storage: PostgreSQL or JSON file-based
+Cache: Redis (real-time data)
+Backup: Once daily
+
+Directory structure:
+  19-data-registry/
+  ├── data/
+  │   ├── coins.json          # Listed coins + GitHub repo
+  │   ├── chains.json         # RPC + block time
+  │   ├── wallets.json        # Hot/cold wallet addresses
+  │   ├── market_data.json    # Market cap/volume (real-time updates)
+  │   ├── futures.json        # Futures + proxy hedge
+  │   └── announcements.json  # Announcement endpoints
+  ├── scripts/
+  │   ├── fetch_coins.py      # Listed coin collection
+  │   ├── fetch_market.py     # Real-time market cap/volume
+  │   ├── fetch_futures.py    # Futures list update
+  │   └── verify_wallets.py   # Wallet address verification
+  └── STRATEGY.md
+```
+
+## Dependency Map (Systems that reference this registry)
+- `01`: Per-chain RPC, governance endpoints, listed coins
+- `02`: GitHub repo mapping
+- `03`: Exchange announcement endpoints, listed coins
+- `04`: Per-chain RPC, average block time
+- `05`: Hot wallet address labeling
+- `06`: Hot wallet + cold wallet address labeling
+- `07`: Market cap, volume, Korean ratio, network type, futures availability
+- `10`: Futures list, proxy hedge mapping, correlation coefficients
+- `11`: Upbit/Bithumb API endpoints
+- `12`: Price data sources
+
+---
+
 # 19. 데이터 사전 구축 시스템 전략서
 
 ## 목적
