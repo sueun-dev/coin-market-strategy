@@ -1,0 +1,198 @@
+{
+  "chains": [
+    {
+      "chain_id": "cosmoshub",
+      "name": "Cosmos Hub",
+      "ticker": "ATOM",
+      "rpc_endpoints": [
+        "https://cosmos-rest.publicnode.com",
+        "https://rest.cosmos.directory/cosmoshub"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 5.75,
+      "listed": {
+        "upbit": true,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "sei",
+      "name": "Sei Network",
+      "ticker": "SEI",
+      "rpc_endpoints": [
+        "https://sei-rest.publicnode.com",
+        "https://rest.cosmos.directory/sei"
+      ],
+      "gov_api_version": "v1beta1",
+      "avg_block_time_seconds": 0.73,
+      "listed": {
+        "upbit": true,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "injective",
+      "name": "Injective",
+      "ticker": "INJ",
+      "rpc_endpoints": [
+        "https://injective-rest.publicnode.com",
+        "https://rest.cosmos.directory/injective"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 0.6,
+      "listed": {
+        "upbit": true,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "kava",
+      "name": "Kava",
+      "ticker": "KAVA",
+      "rpc_endpoints": [
+        "https://kava-rest.publicnode.com",
+        "https://rest.cosmos.directory/kava"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 6.5,
+      "listed": {
+        "upbit": true,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "akash",
+      "name": "Akash Network",
+      "ticker": "AKT",
+      "rpc_endpoints": [
+        "https://akash-rest.publicnode.com",
+        "https://rest.cosmos.directory/akash"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 6.2,
+      "listed": {
+        "upbit": true,
+        "bithumb": false
+      }
+    },
+    {
+      "chain_id": "axelar",
+      "name": "Axelar",
+      "ticker": "AXL",
+      "rpc_endpoints": [
+        "https://axelar-rest.publicnode.com",
+        "https://rest.cosmos.directory/axelar"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 1.9,
+      "listed": {
+        "upbit": true,
+        "bithumb": false
+      }
+    },
+    {
+      "chain_id": "celestia",
+      "name": "Celestia",
+      "ticker": "TIA",
+      "rpc_endpoints": [
+        "https://celestia-rest.publicnode.com",
+        "https://rest.cosmos.directory/celestia"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 6.1,
+      "listed": {
+        "upbit": true,
+        "bithumb": false
+      }
+    },
+    {
+      "chain_id": "cryptoorgchain",
+      "name": "Crypto.com Chain",
+      "ticker": "CRO",
+      "rpc_endpoints": [
+        "https://rest.cosmos.directory/cryptoorgchain"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 5.5,
+      "listed": {
+        "upbit": true,
+        "bithumb": false
+      }
+    },
+    {
+      "chain_id": "panacea",
+      "name": "MediBloc",
+      "ticker": "MED",
+      "rpc_endpoints": [
+        "https://rest.cosmos.directory/panacea"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 5.0,
+      "listed": {
+        "upbit": true,
+        "bithumb": false
+      }
+    },
+    {
+      "_comment": "아래는 업비트 미상장이지만 빗썸/코인원 상장 가능성 있어서 유지",
+      "chain_id": "osmosis",
+      "name": "Osmosis",
+      "ticker": "OSMO",
+      "rpc_endpoints": [
+        "https://osmosis-rest.publicnode.com",
+        "https://rest.cosmos.directory/osmosis"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 2.5,
+      "listed": {
+        "upbit": false,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "band",
+      "name": "Band Protocol",
+      "ticker": "BAND",
+      "rpc_endpoints": [
+        "https://rest.cosmos.directory/bandchain",
+        "https://band-rest.publicnode.com"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 1.1,
+      "listed": {
+        "upbit": false,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "stride",
+      "name": "Stride",
+      "ticker": "STRD",
+      "rpc_endpoints": [
+        "https://stride-rest.publicnode.com",
+        "https://rest.cosmos.directory/stride"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 1.6,
+      "listed": {
+        "upbit": false,
+        "bithumb": true
+      }
+    },
+    {
+      "chain_id": "stargaze",
+      "name": "Stargaze",
+      "ticker": "STARS",
+      "rpc_endpoints": [
+        "https://stargaze-rest.publicnode.com",
+        "https://rest.cosmos.directory/stargaze"
+      ],
+      "gov_api_version": "v1",
+      "avg_block_time_seconds": 2.5,
+      "listed": {
+        "upbit": false,
+        "bithumb": true
+      }
+    }
+  ]
+}
