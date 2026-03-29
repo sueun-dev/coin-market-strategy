@@ -1,0 +1,83 @@
+{
+  "chains": [
+    {
+      "chain_id": "polkadot",
+      "name": "Polkadot",
+      "ticker": "DOT",
+      "chain_type": "polkadot",
+      "rpc_endpoints": ["https://rpc.polkadot.io"],
+      "governance": {
+        "api_url": "https://api.polkassembly.io",
+        "network": "polkadot"
+      },
+      "listed": {"upbit": true, "bithumb": true}
+    },
+    {
+      "chain_id": "tezos",
+      "name": "Tezos",
+      "ticker": "XTZ",
+      "chain_type": "tezos",
+      "rpc_endpoints": ["https://mainnet.api.tez.ie"],
+      "governance": {
+        "api_url": "https://api.tzkt.io"
+      },
+      "listed": {"upbit": true, "bithumb": true}
+    },
+    {
+      "chain_id": "aptos",
+      "name": "Aptos",
+      "ticker": "APT",
+      "chain_type": "aptos",
+      "rpc_endpoints": ["https://fullnode.mainnet.aptoslabs.com/v1"],
+      "governance": {},
+      "listed": {"upbit": true, "bithumb": true}
+    },
+    {
+      "chain_id": "sui",
+      "name": "Sui",
+      "ticker": "SUI",
+      "chain_type": "sui",
+      "rpc_endpoints": ["https://fullnode.mainnet.sui.io:443"],
+      "governance": {},
+      "listed": {"upbit": true, "bithumb": true}
+    },
+    {
+      "chain_id": "algorand",
+      "name": "Algorand",
+      "ticker": "ALGO",
+      "chain_type": "algorand",
+      "rpc_endpoints": ["https://mainnet-api.algonode.cloud"],
+      "governance": {},
+      "listed": {"upbit": true, "bithumb": false}
+    },
+    {
+      "chain_id": "cardano",
+      "name": "Cardano",
+      "ticker": "ADA",
+      "chain_type": "cardano",
+      "rpc_endpoints": [],
+      "governance": {
+        "api_url": "https://api.koios.rest/api/v1"
+      },
+      "listed": {"upbit": true, "bithumb": true}
+    },
+    {
+      "chain_id": "icon",
+      "name": "ICON",
+      "ticker": "ICX",
+      "chain_type": "icon",
+      "rpc_endpoints": ["https://ctz.solidwallet.io/api/v3"],
+      "governance": {},
+      "listed": {"upbit": true, "bithumb": true}
+    },
+    {
+      "chain_id": "celo",
+      "name": "Celo",
+      "ticker": "CELO",
+      "chain_type": "celo",
+      "rpc_endpoints": ["https://forno.celo.org"],
+      "governance": {},
+      "listed": {"upbit": true, "bithumb": false}
+    }
+  ]
+}
