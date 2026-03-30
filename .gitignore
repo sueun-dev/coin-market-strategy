@@ -11,8 +11,9 @@ venv/
 env/
 
 # Runtime data
-detection/01-governance-monitor/data/detected_proposals.json
-detection/01-governance-monitor/data/signals/*.json
+detection/*/data/detected_*.json
+detection/*/data/signals/*.json
+detection/*/data/chain_state.json
 
 # IDE
 .vscode/
