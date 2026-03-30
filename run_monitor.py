@@ -30,6 +30,7 @@ load_dotenv(Path(__file__).parent / ".env")
 # ── Paths ──────────────────────────────────────────────────
 ROOT = Path(__file__).parent
 GOV_DIR = ROOT / "detection" / "01-governance-monitor"
+GITHUB_DIR = ROOT / "detection" / "02-github-release-monitor"
 BLOCK_DIR = ROOT / "detection" / "04-block-time-anomaly-detector"
 
 sys.path.insert(0, str(GOV_DIR))
@@ -127,6 +128,85 @@ def format_block_halt_signal(signal: dict) -> str:
     return "\n".join(line for line in lines if line or line == "")
 
 
+def format_multi_chain_signal(signal: dict) -> str:
+    """Format non-Cosmos multi-chain governance signal for Telegram."""
+    chain_type = signal.get("chain_type", "unknown").upper()
+    ticker = signal.get("ticker", "")
+    chain_name = signal.get("chain_name", chain_type)
+    status = signal.get("status", "")
+    plan = signal.get("plan", {})
+    plan_name = plan.get("name", "N/A") if plan else "N/A"
+    plan_height = plan.get("height") if plan else None
+    yes_pct = signal.get("yes_pct", 0.0)
+
+    # Classify by status to decide urgency
+    actionable_statuses = {
+        "UPGRADE_PENDING", "TEZOS_PROPOSAL", "TEZOS_EXPLORATION",
+        "TEZOS_PROMOTION", "TEZOS_TESTING", "TEZOS_ADOPTION",
+    }
+    is_actionable = status in actionable_statuses or "VOTING" in status.upper()
+    emoji = "\U0001f7e0" if is_actionable else "\U0001f535"  # orange vs blue
+
+    lines = [
+        f"{emoji} <b>[MULTI-CHAIN GOV] {chain_name} ({ticker})</b>",
+        "",
+        f"Type: {chain_type}",
+        f"Proposal: #{signal.get('proposal_id', 'N/A')}",
+        f"Title: {signal.get('title', 'N/A')}",
+        f"Status: <b>{status}</b>",
+        f"Plan: {plan_name}",
+    ]
+    if plan_height:
+        lines.append(f"Target Height: {plan_height:,}")
+    if yes_pct and yes_pct > 0:
+        lines.append(f"Approval: {yes_pct:.1f}%")
+    if signal.get("submit_time"):
+        lines.append(f"Submitted: {str(signal.get('submit_time', ''))[:19]}")
+    if signal.get("voting_end_time"):
+        lines.append(f"Voting End: {str(signal.get('voting_end_time', ''))[:19]}")
+
+    lines.append(f"Detected: {datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%S')}")
+
+    if is_actionable:
+        lines.extend(["", "\u26a0\ufe0f <b>Action may be required — governance activity detected.</b>"])
+
+    return "\n".join(lines)
+
+
+def format_github_release_signal(signal: dict) -> str:
+    """Format GitHub release signal for Telegram."""
+    level = signal.get("signal_level", "alert")
+    emoji = "🟡" if level == "pre-warning" else "🟠"
+    mandatory = "YES" if signal.get("is_mandatory") else "no"
+    pre = "yes" if signal.get("is_prerelease") else "no"
+
+    lines = [
+        f"{emoji} <b>[GITHUB] Release Detected</b>",
+        "",
+        f"Chain: <b>{signal.get('chain', '')} ({signal.get('ticker', '')})</b>",
+        f"Repo: {signal.get('repo', '')}",
+        f"Tag: <b>{signal.get('release_tag', '')}</b>",
+        f"Title: {signal.get('release_title', '')}",
+    ]
+    if signal.get("keywords_matched"):
+        lines.append(f"Keywords: {', '.join(signal['keywords_matched'])}")
+    if signal.get("version_jump"):
+        lines.append(f"Version: {signal['version_jump']}")
+    lines.extend([
+        f"Mandatory: {mandatory}",
+        f"Pre-release: {pre}",
+        f"Confidence: {signal.get('confidence', '')}",
+        f"Published: {str(signal.get('published_at', ''))[:19]}",
+    ])
+    if signal.get("release_url"):
+        lines.append(f"URL: {signal['release_url']}")
+
+    if mandatory == "YES":
+        lines.extend(["", "⚠️ <b>Mandatory upgrade — exchange deposit/withdrawal suspension expected.</b>"])
+
+    return "\n".join(lines)
+
+
 def format_chain_resumed_signal(signal: dict) -> str:
     """Format chain resumed signal for Telegram."""
     lines = [
@@ -160,6 +240,102 @@ def run_governance_poll() -> list[dict]:
         return signals
     finally:
         sys.path = old_path
+
+
+# ── Multi-Chain Governance Monitor ─────────────────────────
+
+def run_github_release_poll() -> list[dict]:
+    """Poll GitHub releases via subprocess."""
+    import subprocess
+    script = """
+import json, sys, os, io
+sys.path.insert(0, ".")
+os.environ.setdefault("GITHUB_TOKEN", sys.argv[2] if len(sys.argv) > 2 else "")
+import logging
+logging.disable(logging.CRITICAL)
+_real_stdout = sys.stdout
+sys.stdout = io.StringIO()
+from src.poller import ReleasePoller
+poller = ReleasePoller()
+signals = poller.poll_all()
+poller.close()
+sys.stdout = _real_stdout
+print(json.dumps(signals))
+"""
+    github_token = os.getenv("GITHUB_TOKEN", "")
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", script, str(GITHUB_DIR / "config" / "repos.json"), github_token],
+            capture_output=True, text=True, timeout=120,
+            cwd=str(GITHUB_DIR),
+        )
+        if result.returncode != 0:
+            logger.error("GitHub poll stderr: %s", result.stderr.strip()[:200])
+            return []
+
+        output = result.stdout.strip()
+        if not output:
+            return []
+        signals = json.loads(output)
+        return signals if isinstance(signals, list) else []
+    except subprocess.TimeoutExpired:
+        logger.error("GitHub release poll timed out")
+        return []
+    except (json.JSONDecodeError, Exception) as e:
+        logger.error("GitHub release poll failed: %s", e)
+        return []
+
+
+def run_multi_chain_governance_poll() -> list[dict]:
+    """Poll all 8 non-Cosmos chains via subprocess to avoid src/ namespace collision."""
+    import subprocess
+
+    # Inline script that imports multi_chain_client from the governance monitor's src/
+    script = """
+import json, sys
+sys.path.insert(0, ".")
+from src.multi_chain_client import MultiChainGovernanceClient
+
+config_path = sys.argv[1]
+with open(config_path) as f:
+    config = json.load(f)
+
+results = []
+for chain_cfg in config.get("chains", []):
+    client = MultiChainGovernanceClient(chain_cfg)
+    try:
+        proposals = client.fetch_upgrade_proposals()
+        for p in proposals:
+            p["ticker"] = chain_cfg["ticker"]
+            p["chain_name"] = chain_cfg["name"]
+        results.extend(proposals)
+    finally:
+        client.close()
+
+print(json.dumps(results))
+"""
+    config_file = str(GOV_DIR / "config" / "multi_chains.json")
+    try:
+        result = subprocess.run(
+            [sys.executable, "-c", script, config_file],
+            capture_output=True, text=True, timeout=120,
+            cwd=str(GOV_DIR),
+        )
+        if result.returncode != 0:
+            logger.error("Multi-chain poll stderr: %s", result.stderr.strip())
+            return []
+
+        output = result.stdout.strip()
+        if not output:
+            return []
+        proposals = json.loads(output)
+        return proposals if isinstance(proposals, list) else []
+    except subprocess.TimeoutExpired:
+        logger.error("Multi-chain governance poll timed out")
+        return []
+    except (json.JSONDecodeError, Exception) as e:
+        logger.error("Multi-chain governance poll failed: %s", e)
+        return []
 
 
 # ── Block Time Monitor ─────────────────────────────────────
@@ -222,6 +398,37 @@ def poll_once(run_gov: bool = True, run_block: bool = True):
         except Exception as e:
             logger.error("Governance poll failed: %s", e)
 
+        logger.info("[%s] GitHub release poll starting...", now)
+        try:
+            gh_signals = run_github_release_poll()
+            for signal in gh_signals:
+                msg = format_github_release_signal(signal)
+                level = signal.get("signal_level", "alert")
+                if level == "pre-warning":
+                    send_telegram(msg, "P2")
+                else:
+                    send_telegram(msg, "P1")
+                logger.info("GitHub: %s %s [%s]", signal.get("ticker"), signal.get("release_tag"), level)
+        except Exception as e:
+            logger.error("GitHub release poll failed: %s", e)
+
+        logger.info("[%s] Multi-chain governance poll starting...", now)
+        try:
+            mc_signals = run_multi_chain_governance_poll()
+            for signal in mc_signals:
+                msg = format_multi_chain_signal(signal)
+                # Only send telegram for actionable statuses, log the rest
+                status = signal.get("status", "")
+                actionable = status in {
+                    "UPGRADE_PENDING", "TEZOS_PROPOSAL", "TEZOS_EXPLORATION",
+                    "TEZOS_PROMOTION", "TEZOS_TESTING", "TEZOS_ADOPTION",
+                } or "VOTING" in status.upper()
+                if actionable:
+                    send_telegram(msg, "P1")
+                logger.info("Multi-chain: %s %s [%s]", signal.get("ticker"), signal.get("title", "")[:60], status)
+        except Exception as e:
+            logger.error("Multi-chain governance poll failed: %s", e)
+
     if run_block:
         logger.info("[%s] Block time poll starting...", now)
         try:
@@ -251,7 +458,9 @@ def run_loop(gov_interval: int = 600, block_interval: int = 10):
     """
     send_telegram(
         "🟢 <b>ChainPulse Monitor Started</b>\n\n"
-        f"• Governance: 21 chains, every {gov_interval}s\n"
+        f"• Governance (Cosmos): 13 chains, every {gov_interval}s\n"
+        f"• Governance (Multi-chain): 8 chains, every {gov_interval}s\n"
+        f"• GitHub releases: 34 repos, every {gov_interval}s\n"
         f"• Block time: 21 chains, every {block_interval}s\n"
         f"• Time: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}",
         "P3",
@@ -279,7 +488,7 @@ def run_loop(gov_interval: int = 600, block_interval: int = 10):
             except Exception as e:
                 logger.error("Block poll error: %s", e)
 
-            # Governance poll at interval
+            # Governance poll at interval (Cosmos + Multi-chain)
             if now - last_gov_poll >= gov_interval:
                 try:
                     gov_signals = run_governance_poll()
@@ -287,6 +496,29 @@ def run_loop(gov_interval: int = 600, block_interval: int = 10):
                         send_telegram(format_governance_signal(signal), "P1")
                 except Exception as e:
                     logger.error("Gov poll error: %s", e)
+
+                try:
+                    mc_signals = run_multi_chain_governance_poll()
+                    for signal in mc_signals:
+                        status = signal.get("status", "")
+                        actionable = status in {
+                            "UPGRADE_PENDING", "TEZOS_PROPOSAL", "TEZOS_EXPLORATION",
+                            "TEZOS_PROMOTION", "TEZOS_TESTING", "TEZOS_ADOPTION",
+                        } or "VOTING" in status.upper()
+                        if actionable:
+                            send_telegram(format_multi_chain_signal(signal), "P1")
+                except Exception as e:
+                    logger.error("Multi-chain gov poll error: %s", e)
+
+                try:
+                    gh_signals = run_github_release_poll()
+                    for signal in gh_signals:
+                        level = signal.get("signal_level", "alert")
+                        msg = format_github_release_signal(signal)
+                        send_telegram(msg, "P2" if level == "pre-warning" else "P1")
+                except Exception as e:
+                    logger.error("GitHub release poll error: %s", e)
+
                 last_gov_poll = now
 
             if poll_count % 360 == 0:  # ~every hour at 10s interval

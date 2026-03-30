@@ -1,0 +1,210 @@
+{
+  "description": "GitHub repos for mainnet blockchain projects listed on Upbit/Bithumb. Each entry maps a repo to its coin ticker and chain name for signal emission.",
+  "last_verified": "2026-03-29",
+  "repos": [
+    {
+      "repo": "cosmos/gaia",
+      "ticker": "ATOM",
+      "chain": "cosmos",
+      "notes": "Cosmos Hub node"
+    },
+    {
+      "repo": "sei-protocol/sei-chain",
+      "ticker": "SEI",
+      "chain": "sei",
+      "notes": "Sei Network"
+    },
+    {
+      "repo": "osmosis-labs/osmosis",
+      "ticker": "OSMO",
+      "chain": "osmosis",
+      "notes": "Osmosis DEX chain"
+    },
+    {
+      "repo": "Kava-Labs/kava",
+      "ticker": "KAVA",
+      "chain": "kava",
+      "notes": "Kava DeFi chain"
+    },
+    {
+      "repo": "bandprotocol/chain",
+      "ticker": "BAND",
+      "chain": "band",
+      "notes": "Band Protocol oracle chain"
+    },
+    {
+      "repo": "axelarnetwork/axelar-core",
+      "ticker": "AXL",
+      "chain": "axelar",
+      "notes": "Axelar cross-chain"
+    },
+    {
+      "repo": "celestiaorg/celestia-app",
+      "ticker": "TIA",
+      "chain": "celestia",
+      "notes": "Celestia data availability"
+    },
+    {
+      "repo": "crypto-org-chain/chain-main",
+      "ticker": "CRO",
+      "chain": "cronos",
+      "notes": "Crypto.org Chain (Cronos)"
+    },
+    {
+      "repo": "medibloc/panacea-core",
+      "ticker": "MED",
+      "chain": "medibloc",
+      "notes": "MediBloc healthcare chain"
+    },
+    {
+      "repo": "anza-xyz/agave",
+      "ticker": "SOL",
+      "chain": "solana",
+      "notes": "Solana validator client (moved from solana-labs/solana)"
+    },
+    {
+      "repo": "maticnetwork/bor",
+      "ticker": "POL",
+      "chain": "polygon",
+      "notes": "Polygon PoS execution client"
+    },
+    {
+      "repo": "OffchainLabs/nitro",
+      "ticker": "ARB",
+      "chain": "arbitrum",
+      "notes": "Arbitrum Nitro L2 node"
+    },
+    {
+      "repo": "ethereum-optimism/optimism",
+      "ticker": "OP",
+      "chain": "optimism",
+      "notes": "OP Stack / Optimism L2"
+    },
+    {
+      "repo": "ava-labs/avalanchego",
+      "ticker": "AVAX",
+      "chain": "avalanche",
+      "notes": "Avalanche node implementation"
+    },
+    {
+      "repo": "celo-org/celo-blockchain",
+      "ticker": "CELO",
+      "chain": "celo",
+      "notes": "Celo blockchain"
+    },
+    {
+      "repo": "MystenLabs/sui",
+      "ticker": "SUI",
+      "chain": "sui",
+      "notes": "Sui Move-based chain"
+    },
+    {
+      "repo": "aptos-labs/aptos-core",
+      "ticker": "APT",
+      "chain": "aptos",
+      "notes": "Aptos Move-based chain"
+    },
+    {
+      "repo": "algorand/go-algorand",
+      "ticker": "ALGO",
+      "chain": "algorand",
+      "notes": "Algorand node"
+    },
+    {
+      "repo": "IntersectMBO/cardano-node",
+      "ticker": "ADA",
+      "chain": "cardano",
+      "notes": "Cardano node"
+    },
+    {
+      "repo": "icon-project/goloop",
+      "ticker": "ICX",
+      "chain": "icon",
+      "notes": "ICON network node (goloop)"
+    },
+    {
+      "repo": "paritytech/polkadot-sdk",
+      "ticker": "DOT",
+      "chain": "polkadot",
+      "notes": "Polkadot SDK (includes relay chain)"
+    },
+    {
+      "repo": "tezos/tezos",
+      "ticker": "XTZ",
+      "chain": "tezos",
+      "notes": "Tezos node (octez)"
+    },
+    {
+      "repo": "onflow/flow-go",
+      "ticker": "FLOW",
+      "chain": "flow",
+      "notes": "Flow blockchain node"
+    },
+    {
+      "repo": "qtumproject/qtum",
+      "ticker": "QTUM",
+      "chain": "qtum",
+      "notes": "Qtum hybrid chain"
+    },
+    {
+      "repo": "piplabs/story",
+      "ticker": "IP",
+      "chain": "story",
+      "notes": "Story Protocol chain"
+    },
+    {
+      "repo": "ripple/rippled",
+      "ticker": "XRP",
+      "chain": "xrp",
+      "notes": "XRP Ledger node"
+    },
+    {
+      "repo": "stellar/stellar-core",
+      "ticker": "XLM",
+      "chain": "stellar",
+      "notes": "Stellar consensus node"
+    },
+    {
+      "repo": "near/nearcore",
+      "ticker": "NEAR",
+      "chain": "near",
+      "notes": "NEAR Protocol node"
+    },
+    {
+      "repo": "stacks-network/stacks-core",
+      "ticker": "STX",
+      "chain": "stacks",
+      "notes": "Stacks Bitcoin L2"
+    },
+    {
+      "repo": "iotaledger/wasp",
+      "ticker": "IOTA",
+      "chain": "iota",
+      "notes": "IOTA Smart Contract node"
+    },
+    {
+      "repo": "irisnet/irishub",
+      "ticker": "IRIS",
+      "chain": "iris",
+      "notes": "IRISnet Cosmos SDK chain"
+    },
+    {
+      "repo": "Zilliqa/Zilliqa",
+      "ticker": "ZIL",
+      "chain": "zilliqa",
+      "notes": "Zilliqa sharded chain"
+    },
+    {
+      "repo": "nervosnetwork/ckb",
+      "ticker": "CKB",
+      "chain": "nervos",
+      "notes": "Nervos CKB layer 1"
+    },
+    {
+      "repo": "vechain/thor",
+      "ticker": "VET",
+      "chain": "vechain",
+      "notes": "VeChain Thor node"
+    }
+  ]
+}
