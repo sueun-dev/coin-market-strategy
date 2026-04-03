@@ -40,10 +40,10 @@ def test_format_governance_signal_includes_scope():
         "detected_at": "2026-04-03T19:27:13.279941+00:00",
     })
 
-    assert "[01 GOVERNANCE]" in text
-    assert "Affected: <b>INJ</b>" in text
-    assert "Exchanges: upbit, bithumb" in text
-    assert "Proposal: #628" in text
+    assert "[예상 입출금 정지]" in text
+    assert "<b>업비트, 빗썸</b> 에서 <b>INJ</b> 입출금 정지 가능성이 높습니다." in text
+    assert "영향 코인: <b>INJ</b>" in text
+    assert "근거 프로포절: #628" in text
 
 
 def test_send_signals_counts_successes():
