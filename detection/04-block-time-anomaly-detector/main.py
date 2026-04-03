@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """
 04. Block Time Anomaly Detector — main entry point.
 

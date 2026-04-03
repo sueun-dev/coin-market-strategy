@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 비-Cosmos 체인 거버넌스 클라이언트.
 Polkadot, Tezos, Aptos, Sui, Algorand, Cardano, ICON, Celo 지원.
