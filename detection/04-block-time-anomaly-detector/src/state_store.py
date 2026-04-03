@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 Block time anomaly detector — persistent state store.
 

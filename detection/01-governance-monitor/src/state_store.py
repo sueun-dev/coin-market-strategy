@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 감지한 프로포절 상태 저장소. 중복 시그널 방지 + 상태 변화 추적.
 """

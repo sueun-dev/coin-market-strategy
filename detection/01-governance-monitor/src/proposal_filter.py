@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 프로포절 필터: SoftwareUpgradeProposal만 추출하고 업그레이드 정보를 파싱한다.
 """
