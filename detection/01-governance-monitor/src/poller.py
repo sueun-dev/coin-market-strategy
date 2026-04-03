@@ -7,6 +7,7 @@ from __future__ import annotations
 import json
 import logging
 import time
+from collections.abc import Callable
 from pathlib import Path
 
 from .cosmos_client import CosmosClient
@@ -172,7 +173,7 @@ class GovernancePoller:
                 logger.error("[%s] 폴링 중 오류: %s", chain_id, e, exc_info=True)
         return all_signals
 
-    def run(self):
+    def run(self, on_signals: Callable[[list[dict]], None] | None = None):
         """메인 폴링 루프 (무한 반복)."""
         logger.info(
             "거버넌스 모니터 시작 — %d개 체인, %d초 간격",
@@ -184,6 +185,8 @@ class GovernancePoller:
                 signals = self.poll_all()
                 if signals:
                     logger.info("이번 폴링 결과: %d건 신규 시그널", len(signals))
+                    if on_signals is not None:
+                        on_signals(signals)
                 else:
                     logger.info("이번 폴링 결과: 신규 시그널 없음")
                 logger.info("다음 폴링까지 %d초 대기...", self.poll_interval)
