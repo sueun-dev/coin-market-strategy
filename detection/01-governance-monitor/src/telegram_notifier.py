@@ -20,6 +20,10 @@ ENV_KEY_PAIRS = [
     ("GOVERNANCE_TELEGRAM_BOT_TOKEN", "GOVERNANCE_TELEGRAM_CHAT_ID"),
     ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"),
 ]
+EXCHANGE_NAME_MAP = {
+    "upbit": "업비트",
+    "bithumb": "빗썸",
+}
 
 
 def _parse_env_file(path: Path) -> dict[str, str]:
@@ -52,34 +56,45 @@ def _load_env_settings() -> dict[str, str]:
     return settings
 
 
+def _format_exchange_names(exchanges: list[str]) -> str:
+    labels = [EXCHANGE_NAME_MAP.get(exchange, exchange) for exchange in exchanges]
+    return ", ".join(labels)
+
+
 def format_governance_signal(signal: dict) -> str:
     """Format a governance signal for Telegram."""
     lead = signal.get("lead_time_hours", 0)
     lead_days = lead / 24 if lead else 0
     affected_tickers = signal.get("affected_tickers", [])
     exchanges_affected = signal.get("exchanges_affected", [])
+    affected_label = ", ".join(affected_tickers)
+    exchange_label = _format_exchange_names(exchanges_affected)
 
     status_map = {
-        "PROPOSAL_STATUS_VOTING_PERIOD": "VOTING",
-        "PROPOSAL_STATUS_PASSED": "PASSED",
+        "PROPOSAL_STATUS_VOTING_PERIOD": "투표 중",
+        "PROPOSAL_STATUS_PASSED": "통과",
     }
     status = status_map.get(signal.get("proposal_status", ""), signal.get("proposal_status", ""))
 
     lines = [
-        "🟠 <b>[01 GOVERNANCE] Upgrade Detected</b>",
+        "🟠 <b>[예상 입출금 정지]</b>",
         "",
-        f"Chain: <b>{signal.get('chain', '')} ({signal.get('ticker', '')})</b>",
-        f"Affected: <b>{', '.join(affected_tickers)}</b>" if affected_tickers else "",
-        f"Exchanges: {', '.join(exchanges_affected)}" if exchanges_affected else "",
-        f"Proposal: #{signal.get('proposal_id', '')} — {signal.get('proposal_title', '')}",
-        f"Status: {status}",
-        f"Upgrade: {signal.get('upgrade_name', '')}",
-        f"Target Block: {signal.get('upgrade_height', 'N/A'):,}" if signal.get("upgrade_height") else "Target Block: N/A",
-        f"Remaining: {signal.get('remaining_blocks', 0):,} blocks" if signal.get("remaining_blocks") else "",
-        f"Lead Time: <b>{lead:.1f}h ({lead_days:.1f} days)</b>" if lead else "",
-        f"Approval: {signal.get('vote_yes_pct', 0)}%",
-        f"Confidence: {signal.get('confidence', '')}",
-        f"Detected: {str(signal.get('detected_at', ''))[:19]}",
+        f"<b>{exchange_label}</b> 에서 <b>{affected_label}</b> 입출금 정지 가능성이 높습니다."
+        if exchange_label and affected_label else "",
+        f"체인: <b>{signal.get('chain', '')} ({signal.get('ticker', '')})</b>",
+        f"영향 코인: <b>{affected_label}</b>" if affected_label else "",
+        f"예상 거래소: {exchange_label}" if exchange_label else "",
+        f"근거 프로포절: #{signal.get('proposal_id', '')} — {signal.get('proposal_title', '')}",
+        f"현재 상태: {status}",
+        f"업그레이드: {signal.get('upgrade_name', '')}",
+        f"예상 타겟 블록: {signal.get('upgrade_height', 'N/A'):,}" if signal.get("upgrade_height") else "예상 타겟 블록: N/A",
+        f"남은 블록: {signal.get('remaining_blocks', 0):,}" if signal.get("remaining_blocks") else "",
+        f"예상 리드타임: <b>{lead:.1f}시간 ({lead_days:.1f}일)</b>" if lead else "",
+        f"찬성률: {signal.get('vote_yes_pct', 0)}%",
+        f"신뢰도: {signal.get('confidence', '')}",
+        f"감지 시각: {str(signal.get('detected_at', ''))[:19]}",
+        "",
+        "이 알림은 거래소 공지 전 사전 예측입니다.",
     ]
     return "\n".join(line for line in lines if line or line == "")
 
@@ -154,6 +169,6 @@ class GovernanceTelegramNotifier:
 
     def send_test_message(self) -> bool:
         return self.send_message(
-            "🧪 <b>[01 GOVERNANCE] Telegram Test</b>\n\n"
-            "If you see this, the standalone governance notifier is working."
+            "🧪 <b>[01 거버넌스] 텔레그램 테스트</b>\n\n"
+            "이 메시지가 보이면 01 전용 텔레그램 알림이 정상 동작 중입니다."
         )
