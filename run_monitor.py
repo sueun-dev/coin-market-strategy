@@ -80,6 +80,8 @@ def format_governance_signal(signal: dict) -> str:
     """Format governance upgrade signal for Telegram."""
     lead = signal.get("lead_time_hours", 0)
     lead_days = lead / 24 if lead else 0
+    affected_tickers = signal.get("affected_tickers", [])
+    exchanges_affected = signal.get("exchanges_affected", [])
 
     status_map = {
         "PROPOSAL_STATUS_VOTING_PERIOD": "VOTING",
@@ -91,6 +93,8 @@ def format_governance_signal(signal: dict) -> str:
         f"🟠 <b>[GOVERNANCE] Upgrade Detected</b>",
         "",
         f"Chain: <b>{signal.get('chain', '')} ({signal.get('ticker', '')})</b>",
+        f"Affected: <b>{', '.join(affected_tickers)}</b>" if affected_tickers else "",
+        f"Exchanges: {', '.join(exchanges_affected)}" if exchanges_affected else "",
         f"Proposal: #{signal.get('proposal_id', '')} — {signal.get('proposal_title', '')}",
         f"Status: {status}",
         f"Upgrade: {signal.get('upgrade_name', '')}",
@@ -133,6 +137,8 @@ def format_multi_chain_signal(signal: dict) -> str:
     chain_type = signal.get("chain_type", "unknown").upper()
     ticker = signal.get("ticker", "")
     chain_name = signal.get("chain_name", chain_type)
+    affected_tickers = signal.get("affected_tickers", [])
+    exchanges_affected = signal.get("exchanges_affected", [])
     status = signal.get("status", "")
     plan = signal.get("plan", {})
     plan_name = plan.get("name", "N/A") if plan else "N/A"
@@ -151,6 +157,8 @@ def format_multi_chain_signal(signal: dict) -> str:
         f"{emoji} <b>[MULTI-CHAIN GOV] {chain_name} ({ticker})</b>",
         "",
         f"Type: {chain_type}",
+        f"Affected: <b>{', '.join(affected_tickers)}</b>" if affected_tickers else "",
+        f"Exchanges: {', '.join(exchanges_affected)}" if exchanges_affected else "",
         f"Proposal: #{signal.get('proposal_id', 'N/A')}",
         f"Title: {signal.get('title', 'N/A')}",
         f"Status: <b>{status}</b>",
@@ -294,6 +302,7 @@ def run_multi_chain_governance_poll() -> list[dict]:
     script = """
 import json, sys
 sys.path.insert(0, ".")
+from src.impact_scope import build_impact_scope
 from src.multi_chain_client import MultiChainGovernanceClient
 
 config_path = sys.argv[1]
@@ -303,11 +312,14 @@ with open(config_path) as f:
 results = []
 for chain_cfg in config.get("chains", []):
     client = MultiChainGovernanceClient(chain_cfg)
+    impact_scope = build_impact_scope(chain_cfg)
     try:
         proposals = client.fetch_upgrade_proposals()
         for p in proposals:
             p["ticker"] = chain_cfg["ticker"]
             p["chain_name"] = chain_cfg["name"]
+            p["affected_tickers"] = impact_scope["affected_tickers"]
+            p["exchanges_affected"] = impact_scope["exchanges_affected"]
         results.extend(proposals)
     finally:
         client.close()

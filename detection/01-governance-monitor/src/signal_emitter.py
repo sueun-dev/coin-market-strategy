@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 시그널 발행기. 감지된 업그레이드 프로포절을 구조화된 시그널로 변환하여 출력한다.
 파일 저장 + stdout 출력. 이후 18번(알림 시스템) 연동 시 Telegram 발송 추가 예정.
@@ -28,6 +30,8 @@ class SignalEmitter:
         ticker: str,
         proposal: dict,
         upgrade_estimate: dict,
+        affected_tickers: list[str] | None = None,
+        exchanges_affected: list[str] | None = None,
         confidence: str = "high",
     ) -> dict:
         """시그널 발행.
@@ -37,6 +41,8 @@ class SignalEmitter:
             ticker: 코인 티커 (예: "ATOM")
             proposal: proposal_filter에서 추출한 프로포절 정보
             upgrade_estimate: upgrade_time_estimator의 결과
+            affected_tickers: 영향 받는 티커 목록
+            exchanges_affected: 영향 받는 거래소 목록
             confidence: 신뢰도 ("high", "medium", "low")
 
         Returns:
@@ -50,6 +56,8 @@ class SignalEmitter:
             "signal_type": "governance_upgrade",
             "chain": chain_id,
             "ticker": ticker,
+            "affected_tickers": affected_tickers or [ticker],
+            "exchanges_affected": exchanges_affected or [],
             "proposal_id": proposal["proposal_id"],
             "proposal_title": proposal["title"],
             "proposal_status": proposal["status"],
@@ -104,6 +112,9 @@ class SignalEmitter:
         print(f"🔔 [SIGNAL] 거버넌스 업그레이드 감지")
         print("=" * 60)
         print(f"  체인:        {signal['chain']} ({signal['ticker']})")
+        print(f"  영향 코인:   {', '.join(signal.get('affected_tickers', []))}")
+        if signal.get("exchanges_affected"):
+            print(f"  영향 거래소: {', '.join(signal['exchanges_affected'])}")
         print(f"  프로포절:    #{signal['proposal_id']} - {signal['proposal_title']}")
         print(f"  상태:        {status}")
         print(f"  업그레이드:  {signal['upgrade_name']}")

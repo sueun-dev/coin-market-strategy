@@ -108,7 +108,7 @@
         "https://polygon-bor-rpc.publicnode.com"
       ],
       "avg_block_time": 2.0,
-      "tickers_affected": ["POL"]
+      "tickers_affected": ["POL", "GMT"]
     },
     {
       "chain_id": "arbitrum",
