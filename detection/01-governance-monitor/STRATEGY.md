@@ -53,6 +53,7 @@ THEN:
   Emit signal -> forward to 08-signal-direction-engine
   Included data: {
     chain, coin_ticker, proposal_id,
+    affected_tickers, exchanges_affected,
     upgrade_block_height, estimated_time,
     vote_yes_ratio, proposal_status
   }
@@ -75,6 +76,8 @@ When new PIP detected, emit signal in the same manner
   "signal_type": "governance_upgrade",
   "chain": "cosmos",
   "ticker": "ATOM",
+  "affected_tickers": ["ATOM"],
+  "exchanges_affected": ["upbit", "bithumb"],
   "proposal_id": 1021,
   "upgrade_height": 29288700,
   "estimated_time": "2026-01-09T14:00:00Z",
@@ -152,6 +155,7 @@ THEN:
   시그널 발행 → 08-signal-direction-engine으로 전달
   포함 데이터: {
     chain, coin_ticker, proposal_id,
+    affected_tickers, exchanges_affected,
     upgrade_block_height, estimated_time,
     vote_yes_ratio, proposal_status
   }
@@ -174,6 +178,8 @@ Polygon Governance Forum RSS 구독
   "signal_type": "governance_upgrade",
   "chain": "cosmos",
   "ticker": "ATOM",
+  "affected_tickers": ["ATOM"],
+  "exchanges_affected": ["upbit", "bithumb"],
   "proposal_id": 1021,
   "upgrade_height": 29288700,
   "estimated_time": "2026-01-09T14:00:00Z",

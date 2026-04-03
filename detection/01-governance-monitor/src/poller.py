@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """
 메인 폴링 루프. 모든 체인을 순회하며 업그레이드 프로포절을 감지한다.
 """
@@ -8,6 +10,7 @@ import time
 from pathlib import Path
 
 from .cosmos_client import CosmosClient
+from .impact_scope import build_impact_scope
 from .proposal_filter import filter_upgrade_proposals
 from .upgrade_time_estimator import estimate_upgrade_time
 from .signal_emitter import SignalEmitter
@@ -60,6 +63,7 @@ class GovernancePoller:
         if not chain_config:
             logger.error("체인 %s 설정 없음", chain_id)
             return []
+        impact_scope = build_impact_scope(chain_config)
         signals = []
 
         # 투표 중 + 통과된 프로포절 모두 조회
@@ -144,6 +148,8 @@ class GovernancePoller:
                 ticker=client.ticker,
                 proposal=upgrade,
                 upgrade_estimate=estimate,
+                affected_tickers=impact_scope["affected_tickers"],
+                exchanges_affected=impact_scope["exchanges_affected"],
                 confidence=confidence,
             )
             signals.append(signal)
