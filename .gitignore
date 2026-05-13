@@ -14,6 +14,22 @@ env/
 detection/*/data/detected_*.json
 detection/*/data/signals/*.json
 detection/*/data/chain_state.json
+detection/*/data/*.session
+detection/*/data/*.session-journal
+detection/*/data/*.session-*
+detection/*/bin/*
+!detection/*/bin/*.sh
+
+# Exchange listing sniper local secrets/runtime
+detection/02-exchange-listing-sniper/.env
+detection/02-exchange-listing-sniper/.env.*
+!detection/02-exchange-listing-sniper/.env.example
+detection/02-exchange-listing-sniper/data/*
+!detection/02-exchange-listing-sniper/data/.gitkeep
+!detection/02-exchange-listing-sniper/data/signals/
+detection/02-exchange-listing-sniper/data/signals/*
+!detection/02-exchange-listing-sniper/data/signals/.gitkeep
+detection/02-exchange-listing-sniper/vendor/
 
 # IDE
 .vscode/
@@ -30,3 +46,6 @@ detection/*/data/chain_state.json
 
 # Temp files
 *.tmp
+
+# Rust
+target/
