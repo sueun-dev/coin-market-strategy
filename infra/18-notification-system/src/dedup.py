@@ -6,6 +6,7 @@ Rules from STRATEGY.md:
   - Premium alerts: only send on 10% unit changes
 """
 
+import math
 import time
 from typing import Any, Optional
 
@@ -88,10 +89,13 @@ class DedupFilter:
             self._premium_levels[ticker] = current_premium
             return True
 
-        # Check if premium crossed a step boundary
-        # We track in steps of premium_step_pct (e.g., 10%)
-        last_step = int(last_level / self.premium_step_pct)
-        current_step = int(current_premium / self.premium_step_pct)
+        # Check if premium crossed a step boundary.
+        # We track in steps of premium_step_pct (e.g., 10%). Use floor (not int(),
+        # which truncates toward zero) so that buckets are monotonic across zero:
+        # otherwise +5% and -5% both fall in bucket 0 and a premium reversal
+        # (e.g. +5% -> -5%) would be silently suppressed.
+        last_step = math.floor(last_level / self.premium_step_pct)
+        current_step = math.floor(current_premium / self.premium_step_pct)
 
         if current_step != last_step:
             self._premium_levels[ticker] = current_premium
