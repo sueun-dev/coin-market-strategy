@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """State file for latest seen Telegram post ids."""
+
+from __future__ import annotations
 
 import json
 import os

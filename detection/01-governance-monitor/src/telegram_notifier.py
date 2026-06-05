@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Standalone Telegram sender for the governance monitor."""
+
+from __future__ import annotations
 
 import json
 import logging

@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
-
 """
 01. 거버넌스 프로포절 모니터 — 메인 엔트리포인트.
 
@@ -11,6 +9,8 @@ from __future__ import annotations
   python main.py --chain cosmoshub  # 특정 체인만
   python main.py --test-telegram    # 01 전용 텔레그램 연결 테스트
 """
+
+from __future__ import annotations
 
 import argparse
 import logging

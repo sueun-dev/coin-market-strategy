@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
-
 """
 02. Exchange Listing Sniper - 메인 엔트리포인트.
 
@@ -13,6 +11,8 @@ from __future__ import annotations
   python main.py --realtime
   python main.py --login-source-telegram
 """
+
+from __future__ import annotations
 
 import argparse
 import asyncio

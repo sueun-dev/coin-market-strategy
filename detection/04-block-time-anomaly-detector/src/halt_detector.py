@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 Block time anomaly detector — halt confirmation module.
 
@@ -8,9 +6,11 @@ change. Distinguishes expected vs unexpected halts by cross-referencing
 governance monitor signals when available.
 """
 
+from __future__ import annotations
+
 import logging
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from pathlib import Path
 
 logger = logging.getLogger(__name__)

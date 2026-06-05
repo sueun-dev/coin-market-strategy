@@ -15,7 +15,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 import httpx
 
-from src.chain_monitor import ChainMonitor, BlockInfo, AnomalyLevel
+from src.chain_monitor import ChainMonitor
 
 CONFIG_FILE = Path(__file__).parent.parent / "config" / "chains.json"
 
@@ -25,15 +25,13 @@ def load_chains() -> list[dict]:
         return json.load(f)["chains"]
 
 
-def test_single_chain(chain_config: dict, client: httpx.Client) -> tuple[bool, str]:
-    """Test a single chain's RPC endpoint.
+def check_single_chain(chain_config: dict, client: httpx.Client) -> tuple[bool, str]:
+    """Check a single chain's RPC endpoint.
 
-    Returns (success, message).
+    Returns (success, message). Named ``check_*`` (not ``test_*``) so pytest does
+    not collect it as a test case requiring fixtures; it is a helper driven by
+    ``run_all_tests`` for live RPC verification.
     """
-    chain_id = chain_config["chain_id"]
-    ticker = chain_config["ticker"]
-    rpc_type = chain_config["rpc_type"]
-
     try:
         monitor = ChainMonitor(chain_config, client=client)
         status = monitor.poll()
@@ -80,7 +78,7 @@ def run_all_tests():
     failed_chains: list[str] = []
 
     for chain in chains:
-        success, msg = test_single_chain(chain, client)
+        success, msg = check_single_chain(chain, client)
         label = "PASS" if success else "FAIL"
 
         if success:

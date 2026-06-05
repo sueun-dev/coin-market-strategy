@@ -177,11 +177,11 @@ def test_case_2_atom_v26():
         print(f"  📌 최악 감지 시점:       {detection.strftime('%Y-%m-%d %H:%M UTC')}")
         print(f"  📌 찬성률:               {yes_pct:.2f}%")
         print(f"  📌 업비트 중단 시작일:   {upbit['upbit_notice_date']} [{upbit['notice_confidence']}]")
-        print(f"  ⚠️  주의:                이것은 공지 게시일이 아닌 '입출금 중단 시작일'")
+        print("  ⚠️  주의:                이것은 공지 게시일이 아닌 '입출금 중단 시작일'")
         print(f"  📌 출처:                 {upbit['notice_source']}")
         print()
         print(f"  ⏱️  리드타임 (중단일 대비):  {lead:.1f}시간 ({lead/24:.1f}일) [보수적 추정]")
-        print(f"  📌 실제 공지는 이보다 먼저 → 리드타임은 실제로 더 김")
+        print("  📌 실제 공지는 이보다 먼저 → 리드타임은 실제로 더 김")
 
         assert lead > 24, f"리드타임 {lead:.1f}h < 24h"
         assert yes_pct > 90
@@ -278,14 +278,14 @@ def test_case_5_live_detection():
         print(f"  📌 타겟 블록:      {target_height:,}")
 
         if estimate["already_passed"]:
-            print(f"  📌 업그레이드 이미 완료")
-            print(f"\n  ✅ 업그레이드 완료 — 사후 검증으로 전환 필요")
+            print("  📌 업그레이드 이미 완료")
+            print("\n  ✅ 업그레이드 완료 — 사후 검증으로 전환 필요")
         else:
             print(f"  📌 남은 블록:      {estimate['remaining_blocks']:,}")
             print(f"  📌 예상 시간:      {estimate['estimated_time'][:19]}")
             print(f"  📌 리드타임:       {estimate['lead_time_hours']}시간")
             assert estimate["remaining_blocks"] > 0
-            print(f"\n  ✅ 아직 업그레이드 전 — 포지션 준비 가능")
+            print("\n  ✅ 아직 업그레이드 전 — 포지션 준비 가능")
     finally:
         client.close()
 
@@ -322,7 +322,7 @@ def test_case_6_filter_accuracy():
             if is_upgrade:
                 assert pid in upgrade_ids, f"#{pid} 누락됨"
 
-        print(f"\n  ✅ 필터 정확도 검증 통과")
+        print("\n  ✅ 필터 정확도 검증 통과")
     finally:
         client.close()
 
@@ -354,8 +354,8 @@ def test_case_7_onchain_data_integrity():
 
         print(f"  📌 publicnode submit_time:      {p1['submit_time'][:19]}")
         print(f"  📌 cosmos.directory submit_time: {p2['submit_time'][:19]}")
-        print(f"  📌 일치 확인 ✅")
-        print(f"\n  ✅ 두 RPC 노드 데이터 완전 일치 — 온체인 데이터 신뢰 가능")
+        print("  📌 일치 확인 ✅")
+        print("\n  ✅ 두 RPC 노드 데이터 완전 일치 — 온체인 데이터 신뢰 가능")
     finally:
         c1.close()
         c2.close()

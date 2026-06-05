@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Main poller for exchange listing announcements."""
+
+from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor
 import json

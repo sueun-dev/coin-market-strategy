@@ -1,8 +1,8 @@
-from __future__ import annotations
-
 """
 메인 폴링 루프. 모든 체인을 순회하며 업그레이드 프로포절을 감지한다.
 """
+
+from __future__ import annotations
 
 import json
 import logging

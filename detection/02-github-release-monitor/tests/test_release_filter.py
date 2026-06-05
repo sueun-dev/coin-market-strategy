@@ -3,7 +3,6 @@ Unit tests for the release filter module.
 Tests keyword matching, semantic version detection, and pre-release handling.
 """
 
-import pytest
 import sys
 from pathlib import Path
 
