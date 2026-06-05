@@ -965,13 +965,18 @@ class ExchangeListingPoller:
         except Exception as exc:  # pragma: no cover - background safeguard
             logger.error("백그라운드 작업 실패: %s", exc, exc_info=True)
 
+    # Bybit V5 caps orderLinkId at 36 chars; the C++ ultra engine truncates to
+    # the same bound (see cpp/listing_ultra_engine.cpp). Keep these identical so a
+    # repeated (exchange, message_id, ticker) yields the same orderLinkId on both
+    # paths and Bybit dedups a double-fire.
+    ORDER_LINK_ID_MAX_LEN = 36
+
     @staticmethod
     def _exchange_code(exchange: str) -> str:
-        if exchange == "upbit":
-            return "u"
-        if exchange == "bithumb":
-            return "b"
-        return exchange[:1].lower() or "x"
+        # Must match the C++ ultra engine, which embeds the full exchange name
+        # (`ls-<exchange>-<message_id>-<ticker>`); a 1-letter abbreviation here
+        # would make the two engines' orderLinkIds diverge and defeat dedup.
+        return exchange
 
     def _make_order_link_id(self, *, prefix: str, message_id: int, ticker: str) -> str:
-        return f"{prefix}{message_id}-{ticker}"
+        return f"{prefix}{message_id}-{ticker}"[: self.ORDER_LINK_ID_MAX_LEN]

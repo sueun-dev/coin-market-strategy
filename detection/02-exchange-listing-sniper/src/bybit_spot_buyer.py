@@ -36,6 +36,23 @@ def _is_truthy(value: str | bool | None) -> bool:
     return value.strip().lower() in {"1", "true", "yes", "on"}
 
 
+# Bybit V5 marketUnit only accepts "baseCoin" or "quoteCoin". Map the common
+# shorthands ("quote"/"base", any casing) so a stale config value does not get
+# sent verbatim and rejected by some transports.
+_MARKET_UNIT_ALIASES = {
+    "quotecoin": "quoteCoin",
+    "quote": "quoteCoin",
+    "basecoin": "baseCoin",
+    "base": "baseCoin",
+}
+
+
+def _normalize_market_unit(value: str | None) -> str:
+    if not value:
+        return DEFAULT_BUY_MODE
+    return _MARKET_UNIT_ALIASES.get(value.strip().lower(), value.strip())
+
+
 def _to_float(value: str | float | int | None, default: float = 0.0) -> float:
     try:
         return float(value)
@@ -112,7 +129,7 @@ class BybitSpotBuyer:
             or settings.get("BYBIT_RECV_WINDOW")
             or DEFAULT_RECV_WINDOW
         )
-        self.buy_mode = (
+        self.buy_mode = _normalize_market_unit(
             buy_mode
             or settings.get("BYBIT_SPOT_BUY_MODE")
             or DEFAULT_BUY_MODE
@@ -450,18 +467,75 @@ class BybitSpotBuyer:
             return False
         return True
 
+    # Maps every documented BYBIT_ORDER_TRANSPORT_PREFERENCE token to one of the
+    # internal transports. Accepts both the short names ("cpp", "cpp_ws", "ws")
+    # and the README's explicit names ("cpp_rest", "python_ws", "python_rest").
+    # "python_rest" is the always-last HTTP fallback and has no internal slot, so
+    # it maps to None and only affects ordering of the others.
+    _TRANSPORT_ALIASES = {
+        "cpp": "cpp",
+        "cpp_rest": "cpp",
+        "cpp-rest": "cpp",
+        "cpp_ws": "cpp_ws",
+        "cpp-ws": "cpp_ws",
+        "native_ws": "cpp_ws",
+        "ws": "ws",
+        "websocket": "ws",
+        "python_ws": "ws",
+        "python-ws": "ws",
+        "python_rest": None,
+        "python-rest": None,
+        "rest": None,
+    }
+
+    def _parse_transport_preference(self) -> tuple[str, ...]:
+        """Resolve the configured preference into an ordered transport list.
+
+        Backwards compatible with the legacy single-token forms ("cpp_ws",
+        "ws", or anything else -> cpp-first). Additionally supports the CSV form
+        documented in .env.example (e.g.
+        ``cpp_rest,cpp_ws,python_ws,python_rest``): tokens are mapped via
+        ``_TRANSPORT_ALIASES``, unknown tokens are ignored, and any transport not
+        named is appended in the default order so a partial preference still
+        falls back to the others.
+        """
+        preference = self.order_transport_preference
+
+        # Preserve the exact legacy ordering for the original single tokens.
+        if "," not in preference:
+            if preference in {"cpp_ws", "cpp-ws", "native_ws"}:
+                return ("cpp_ws", "cpp", "ws")
+            if preference in {"ws", "websocket"}:
+                return ("ws", "cpp_ws", "cpp")
+            if preference not in self._TRANSPORT_ALIASES or preference in {
+                "cpp",
+                "cpp_rest",
+                "cpp-rest",
+            }:
+                return ("cpp", "cpp_ws", "ws")
+
+        default_order = ("cpp", "cpp_ws", "ws")
+        ordered: list[str] = []
+        for raw_token in preference.split(","):
+            token = raw_token.strip().lower()
+            if not token or token not in self._TRANSPORT_ALIASES:
+                continue
+            transport = self._TRANSPORT_ALIASES[token]
+            if transport is not None and transport not in ordered:
+                ordered.append(transport)
+        # Append any transports not named in the preference so a partial
+        # preference still falls back to the others.
+        for transport in default_order:
+            if transport not in ordered:
+                ordered.append(transport)
+        return tuple(ordered) if ordered else default_order
+
     def _iter_order_transports(self) -> tuple[str, ...]:
         cpp_ws_enabled = self.cpp_ws_executor.is_enabled()
         fast_enabled = self.fast_executor.is_enabled()
         ws_enabled = self.ws_executor.is_enabled()
-        preference = self.order_transport_preference
 
-        if preference in {"cpp_ws", "cpp-ws", "native_ws"}:
-            ordered = ("cpp_ws", "cpp", "ws")
-        elif preference in {"ws", "websocket"}:
-            ordered = ("ws", "cpp_ws", "cpp")
-        else:
-            ordered = ("cpp", "cpp_ws", "ws")
+        ordered = self._parse_transport_preference()
 
         enabled: list[str] = []
         for transport in ordered:

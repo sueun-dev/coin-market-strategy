@@ -139,6 +139,43 @@ class TestDedupPremiumStep(unittest.TestCase):
         self.assertTrue(self.dedup.should_send(self._make_premium_signal("TT", 35.0)))
         self.assertTrue(self.dedup.should_send(self._make_premium_signal("ETH", 35.0)))
 
+    def _make_signed_premium_signal(self, ticker, premium_val):
+        # Preserve the explicit sign so negative premiums round-trip.
+        return {
+            "priority": "P2",
+            "type": "premium_update",
+            "data": {
+                "ticker": ticker,
+                "premiums": {"Bithumb": f"{premium_val:+}%"},
+            },
+        }
+
+    def test_positive_to_negative_reversal_passes(self):
+        # +5% and -5% must NOT collapse into the same bucket (regression for the
+        # int()-truncates-toward-zero bug: int(0.5)==int(-0.5)==0).
+        self.assertTrue(
+            self.dedup.should_send(self._make_signed_premium_signal("TT", 5.0))
+        )
+        self.assertTrue(
+            self.dedup.should_send(self._make_signed_premium_signal("TT", -5.0))
+        )
+
+    def test_negative_premium_steps(self):
+        # -5% -> bucket -1, -15% -> bucket -2: a deepening discount is a new alert.
+        self.assertTrue(
+            self.dedup.should_send(self._make_signed_premium_signal("TT", -5.0))
+        )
+        self.assertTrue(
+            self.dedup.should_send(self._make_signed_premium_signal("TT", -15.0))
+        )
+        # -5% and -8% share bucket -1, so the second is suppressed.
+        self.assertTrue(
+            self.dedup.should_send(self._make_signed_premium_signal("ETH", -5.0))
+        )
+        self.assertFalse(
+            self.dedup.should_send(self._make_signed_premium_signal("ETH", -8.0))
+        )
+
     def test_premium_with_percent_sign_parsing(self):
         signal = {
             "priority": "P2",

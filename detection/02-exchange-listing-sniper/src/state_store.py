@@ -53,6 +53,15 @@ class StateStore:
             }
 
     def mark_seen(self, channel_id: str, message_id: int, persist: bool = True) -> bool:
+        # NOTE (known limitation): dedup is a single monotonic high-water mark per
+        # channel. A message whose id is <= the highest id already seen is treated
+        # as a duplicate and skipped. Telegram channel message ids are assigned in
+        # increasing order, so out-of-order delivery of a *lower* id (e.g. a brief
+        # API reordering) would cause that listing to be dropped. This is a
+        # deliberate trade-off: a set/window of recently-seen ids would catch that
+        # case but widens the state model and is not the primary double-buy guard
+        # (idempotency ultimately relies on Bybit's orderLinkId dedup). Revisit
+        # only if lower-id reordering is observed in practice.
         with self._lock:
             existing = self._state.get(channel_id, {})
             if message_id <= int(existing.get("last_seen_message_id", 0)):
