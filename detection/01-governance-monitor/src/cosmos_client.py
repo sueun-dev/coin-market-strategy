@@ -1,14 +1,13 @@
-from __future__ import annotations
-
 """
 Cosmos SDK 거버넌스 API 클라이언트.
 각 체인의 REST 엔드포인트에서 프로포절을 조회한다.
 """
 
+from __future__ import annotations
+
 import httpx
 import logging
 from datetime import datetime, timezone
-from typing import Any
 
 logger = logging.getLogger(__name__)
 

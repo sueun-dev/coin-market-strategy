@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Persistent Bybit trade WebSocket order-entry client."""
+
+from __future__ import annotations
 
 import hashlib
 import hmac
@@ -9,7 +9,6 @@ import logging
 import socket
 import threading
 import time
-from pathlib import Path
 
 from .env_loader import load_env_settings
 

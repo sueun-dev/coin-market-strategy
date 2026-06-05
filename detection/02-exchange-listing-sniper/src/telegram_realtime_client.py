@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Realtime Telegram source using a user session via Telethon."""
+
+from __future__ import annotations
 
 import asyncio
 import getpass

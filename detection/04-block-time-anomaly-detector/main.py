@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-from __future__ import annotations
-
 """
 04. Block Time Anomaly Detector — main entry point.
 
@@ -10,6 +8,8 @@ Usage:
   python main.py --chain cosmos   # monitor a specific chain (substring match)
   python main.py --verbose        # debug logging
 """
+
+from __future__ import annotations
 
 import argparse
 import json

@@ -1,11 +1,11 @@
-from __future__ import annotations
-
 """
 Block time anomaly detector — persistent state store.
 
 Tracks each monitored chain's last known block height, block time,
 halt status, and polling history. Persists to JSON file.
 """
+
+from __future__ import annotations
 
 import json
 import logging

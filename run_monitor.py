@@ -17,7 +17,6 @@ import logging
 import os
 import sys
 import time
-import threading
 from pathlib import Path
 from datetime import datetime, timezone
 from dotenv import load_dotenv
@@ -96,7 +95,7 @@ def format_governance_signal(signal: dict) -> str:
     status = status_map.get(signal.get("proposal_status", ""), signal.get("proposal_status", ""))
 
     lines = [
-        f"🟠 <b>[예상 입출금 정지]</b>",
+        "🟠 <b>[예상 입출금 정지]</b>",
         "",
         f"<b>{exchange_label}</b> 에서 <b>{affected_label}</b> 입출금 정지 가능성이 높습니다."
         if exchange_label and affected_label else "",
@@ -240,12 +239,7 @@ def format_chain_resumed_signal(signal: dict) -> str:
 
 def run_governance_poll() -> list[dict]:
     """Run a single governance poll and return new signals."""
-    import importlib.util
-    spec = importlib.util.spec_from_file_location(
-        "gov_poller", GOV_DIR / "src" / "poller.py",
-        submodule_search_locations=[str(GOV_DIR / "src")]
-    )
-    # We need to import all dependencies from the same src directory
+    # Import the governance poller and its dependencies from the module's src/ dir.
     old_path = sys.path.copy()
     sys.path.insert(0, str(GOV_DIR))
     try:
@@ -299,7 +293,7 @@ print(json.dumps(signals))
     except subprocess.TimeoutExpired:
         logger.error("GitHub release poll timed out")
         return []
-    except (json.JSONDecodeError, Exception) as e:
+    except Exception as e:
         logger.error("GitHub release poll failed: %s", e)
         return []
 
@@ -355,7 +349,7 @@ print(json.dumps(results))
     except subprocess.TimeoutExpired:
         logger.error("Multi-chain governance poll timed out")
         return []
-    except (json.JSONDecodeError, Exception) as e:
+    except Exception as e:
         logger.error("Multi-chain governance poll failed: %s", e)
         return []
 

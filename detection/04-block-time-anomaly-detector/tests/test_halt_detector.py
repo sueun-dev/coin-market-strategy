@@ -7,7 +7,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.halt_detector import HaltDetector, HaltRecord
+from src.halt_detector import HaltDetector
 
 
 class TestHaltDetector:

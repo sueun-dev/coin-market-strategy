@@ -95,7 +95,7 @@ def test_e2e_upgrade_detection():
 
             estimate = estimate_upgrade_time(current_height, target_height, bt)
 
-            print(f"  첫 번째 업그레이드:")
+            print("  첫 번째 업그레이드:")
             print(f"    이름: {upgrade['plan']['name']}")
             print(f"    타겟 블록: {target_height:,}")
             print(f"    현재 블록: {current_height:,}")
@@ -133,7 +133,7 @@ if __name__ == "__main__":
         print(f"🔧 {name}")
         try:
             test()
-            print(f"  ✅ PASSED")
+            print("  ✅ PASSED")
             passed += 1
         except AssertionError as e:
             print(f"  ❌ FAILED: {e}")

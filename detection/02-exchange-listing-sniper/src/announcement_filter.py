@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Listing announcement filters for exchange Telegram posts."""
+
+from __future__ import annotations
 
 from collections.abc import Callable
 

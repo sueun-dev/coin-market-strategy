@@ -1,11 +1,11 @@
-from __future__ import annotations
-
 """
 Block time anomaly detector — signal emitter.
 
 Emits block_halt and chain_resumed signals as JSON files, following the
 same pattern as 01-governance-monitor.
 """
+
+from __future__ import annotations
 
 import json
 import logging
@@ -113,7 +113,7 @@ class SignalEmitter:
     def _print_halt_signal(self, signal: dict):
         """Print halt signal to console."""
         print("\n" + "=" * 60)
-        print(f"[SIGNAL] Block Halt Detected")
+        print("[SIGNAL] Block Halt Detected")
         print("=" * 60)
         print(f"  Chain:        {signal['chain']} ({signal['ticker']})")
         print(f"  Affected:     {', '.join(signal['tickers_affected'])}")
@@ -130,7 +130,7 @@ class SignalEmitter:
     def _print_resume_signal(self, signal: dict):
         """Print resume signal to console."""
         print("\n" + "=" * 60)
-        print(f"[SIGNAL] Chain Resumed")
+        print("[SIGNAL] Chain Resumed")
         print("=" * 60)
         print(f"  Chain:        {signal['chain']} ({signal['ticker']})")
         print(f"  Height:       {signal['resumed_height']:,}")

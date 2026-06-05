@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Immediate Bybit spot market buyer for new listing signals."""
+
+from __future__ import annotations
 
 import hashlib
 import hmac

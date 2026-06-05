@@ -1,6 +1,6 @@
-from __future__ import annotations
-
 """Bridge to the latency-critical C++ Bybit fast path process."""
+
+from __future__ import annotations
 
 import json
 import logging

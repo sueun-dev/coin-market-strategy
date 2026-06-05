@@ -1,9 +1,9 @@
-from __future__ import annotations
-
 """
 시그널 발행기. 감지된 업그레이드 프로포절을 구조화된 시그널로 변환하여 출력한다.
 파일 저장 + stdout 출력. 이후 18번(알림 시스템) 연동 시 Telegram 발송 추가 예정.
 """
+
+from __future__ import annotations
 
 import json
 import logging
@@ -109,7 +109,7 @@ class SignalEmitter:
         already = " (이미 완료)" if signal["already_passed"] else ""
 
         print("\n" + "=" * 60)
-        print(f"🔔 [SIGNAL] 거버넌스 업그레이드 감지")
+        print("🔔 [SIGNAL] 거버넌스 업그레이드 감지")
         print("=" * 60)
         print(f"  체인:        {signal['chain']} ({signal['ticker']})")
         print(f"  영향 코인:   {', '.join(signal.get('affected_tickers', []))}")

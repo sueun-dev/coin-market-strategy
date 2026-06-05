@@ -1,15 +1,14 @@
-from __future__ import annotations
-
 """
 비-Cosmos 체인 거버넌스 클라이언트.
 Polkadot, Tezos, Aptos, Sui, Algorand, Cardano, ICON, Celo 지원.
 각 체인의 API 규격에 맞춰 업그레이드 프로포절/상태를 조회한다.
 """
 
+from __future__ import annotations
+
 import httpx
 import logging
-import re
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +55,7 @@ class MultiChainGovernanceClient:
             return []
         try:
             return method()
-        except (ConnectionError, Exception) as e:
+        except Exception as e:
             logger.error("[%s] 조회 실패: %s", self.chain_id, e)
             return []
 
@@ -140,7 +139,6 @@ class MultiChainGovernanceClient:
             kind = period.get("kind", "")
             # proposal, exploration, promotion, adoption 단계가 업그레이드 관련
             if kind in ["proposal", "exploration", "promotion", "adoption", "testing"]:
-                epoch_start = period.get("firstLevel", 0)
                 epoch_end = period.get("lastLevel", 0)
 
                 # 해당 기간의 프로포절 조회

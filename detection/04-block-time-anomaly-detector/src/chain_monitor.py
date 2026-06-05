@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """
 Block time anomaly detector — chain monitor module.
 
@@ -10,10 +8,12 @@ the last block, and detects anomalies at 3 severity levels:
   Level 3 (Critical): elapsed > avg * 10 OR elapsed > 60s absolute
 """
 
+from __future__ import annotations
+
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import datetime
 from enum import Enum
 from typing import Any
 
