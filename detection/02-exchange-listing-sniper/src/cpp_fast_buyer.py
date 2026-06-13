@@ -1,6 +1,6 @@
-"""Bridge to the latency-critical C++ Bybit fast path process."""
-
 from __future__ import annotations
+
+"""Bridge to the latency-critical C++ Bybit fast path process."""
 
 import json
 import logging
@@ -71,6 +71,9 @@ class CppFastBuyerBridge:
         self._lock = threading.Lock()
         self._proc: subprocess.Popen[bytes] | None = None
         self._ping_frame = _encode_frame(b"PING")
+        self._refresh_frame = _encode_frame(b"REFRESH")
+        self._keepwarm_frame = _encode_frame(b"KEEPWARM")
+        self._warmed_once = False
 
     def is_enabled(self) -> bool:
         return self.enabled
@@ -80,7 +83,12 @@ class CppFastBuyerBridge:
             return
         with self._lock:
             self._ensure_process()
-            self._request_locked(self._ping_frame)
+            if self._warmed_once:
+                response = self._request_locked(self._keepwarm_frame)
+            else:
+                response = self._request_locked(self._refresh_frame)
+                self._warmed_once = True
+        return self._parse_warmup_response(response)
 
     def ping(self) -> dict:
         with self._lock:
@@ -89,20 +97,63 @@ class CppFastBuyerBridge:
         return self._parse_ping_response(response)
 
     def buy_market(self, *, symbol: str, quote_amount: float, order_link_id: str) -> dict:
+        return self.buy_market_quote_text(
+            symbol=symbol,
+            quote_amount_text=f"{quote_amount:g}",
+            order_link_id=order_link_id,
+        )
+
+    def buy_market_quote_text(
+        self,
+        *,
+        symbol: str,
+        quote_amount_text: str,
+        order_link_id: str,
+    ) -> dict:
         with self._lock:
             self._ensure_process()
             response = self._request_locked(
                 _encode_frame(
-                    f"BUY\t{symbol}\t{quote_amount:g}\t{order_link_id}".encode("utf-8")
+                    f"BUY\t{symbol}\t{quote_amount_text}\t{order_link_id}".encode("utf-8")
                 )
             )
         payload = self._parse_buy_response(response)
         payload.setdefault("symbol", symbol)
         payload.setdefault("attempted", False)
         payload.setdefault("executed", False)
-        payload["requested_usdt"] = float(quote_amount)
+        try:
+            payload["requested_usdt"] = float(quote_amount_text)
+        except ValueError:
+            payload["requested_usdt"] = 0.0
         payload["transport"] = payload.get("transport", "cpp_fast_path")
         return payload
+
+    def buy_markets_quote_text(
+        self,
+        *,
+        orders: list[tuple[str, str]],
+        quote_amount_text: str,
+    ) -> list[dict]:
+        if not orders:
+            return []
+        if len(orders) == 1:
+            symbol, order_link_id = orders[0]
+            return [
+                self.buy_market_quote_text(
+                    symbol=symbol,
+                    quote_amount_text=quote_amount_text,
+                    order_link_id=order_link_id,
+                )
+            ]
+        payload_parts = ["BUYBULK", quote_amount_text]
+        for symbol, order_link_id in orders:
+            payload_parts.extend((symbol, order_link_id))
+        with self._lock:
+            self._ensure_process()
+            response = self._request_locked(
+                _encode_frame("\t".join(payload_parts).encode("utf-8"))
+            )
+        return self._parse_bulk_buy_response(response, orders, quote_amount_text)
 
     def close(self):
         with self._lock:
@@ -137,6 +188,8 @@ class CppFastBuyerBridge:
                     "BYBIT_RECV_WINDOW",
                     "BYBIT_SPOT_BUY_ENABLED",
                     "BYBIT_SPOT_BUY_USDT_AMOUNT",
+                    "BYBIT_FAST_ORDER_ON_CACHE_MISS",
+                    "BYBIT_TIMESTAMP_BIAS_MS",
                 }
             )
         )
@@ -205,14 +258,38 @@ class CppFastBuyerBridge:
         return json.loads(response.decode("utf-8"))
 
     @staticmethod
+    def _parse_refresh_response(response: bytes) -> dict:
+        if response.startswith(b"REFRESH\t"):
+            parts = response.split(b"\t", 2)
+            return {
+                "ok": len(parts) >= 2 and parts[1] == b"1",
+                "symbol_count": int(parts[2]) if len(parts) >= 3 and parts[2].isdigit() else 0,
+            }
+        return json.loads(response.decode("utf-8"))
+
+    @staticmethod
+    def _parse_warmup_response(response: bytes) -> dict:
+        if response.startswith(b"KEEPWARM\t"):
+            parts = response.split(b"\t", 2)
+            return {
+                "ok": len(parts) >= 2 and parts[1] == b"1",
+                "scheduled": True,
+                "symbol_count": int(parts[2]) if len(parts) >= 3 and parts[2].isdigit() else 0,
+            }
+        return CppFastBuyerBridge._parse_refresh_response(response)
+
+    @staticmethod
     def _parse_buy_response(response: bytes) -> dict:
         if not response.startswith(b"BUY\t"):
             return json.loads(response.decode("utf-8"))
+        return CppFastBuyerBridge._parse_buy_response_line(response)
 
-        parts = response.split(b"\t", 7)
+    @staticmethod
+    def _parse_buy_response_line(line: bytes) -> dict:
+        parts = line.split(b"\t", 7)
         if len(parts) < 8:
             raise RuntimeError(
-                f"Malformed C++ fast executor response: {response!r}"
+                f"Malformed C++ fast executor response: {line!r}"
             )
 
         _, executed, attempted, symbol, order_id, ret_code, transport, reason = parts
@@ -227,3 +304,34 @@ class CppFastBuyerBridge:
         if reason:
             payload["reason"] = reason.decode("utf-8", errors="ignore")
         return payload
+
+    @staticmethod
+    def _parse_bulk_buy_response(
+        response: bytes,
+        orders: list[tuple[str, str]],
+        quote_amount_text: str,
+    ) -> list[dict]:
+        if not response.startswith(b"BULK\t"):
+            payload = json.loads(response.decode("utf-8"))
+            return [payload]
+        lines = response.split(b"\n")
+        try:
+            expected_count = int(lines[0].split(b"\t", 1)[1])
+        except (IndexError, ValueError) as exc:
+            raise RuntimeError(f"Malformed C++ fast executor bulk response: {response!r}") from exc
+
+        payloads: list[dict] = []
+        for index, line in enumerate(lines[1:1 + expected_count]):
+            payload = CppFastBuyerBridge._parse_buy_response_line(line)
+            if index < len(orders):
+                symbol, _ = orders[index]
+                payload.setdefault("symbol", symbol)
+            payload.setdefault("attempted", False)
+            payload.setdefault("executed", False)
+            try:
+                payload["requested_usdt"] = float(quote_amount_text)
+            except ValueError:
+                payload["requested_usdt"] = 0.0
+            payload["transport"] = payload.get("transport", "cpp_fast_path")
+            payloads.append(payload)
+        return payloads

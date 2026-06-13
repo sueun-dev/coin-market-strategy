@@ -14,12 +14,6 @@ constexpr uint32_t MARKET_FLAG_USDT = 4;
 constexpr uint32_t MARKET_FLAG_ETH = 8;
 
 constexpr std::string_view MARKET_CODES[] = {"KRW", "BTC", "USDT", "ETH"};
-constexpr std::string_view UPBIT_LISTING_KEYWORDS[] = {
-    "신규 거래지원",
-    "KRW 마켓 디지털 자산 추가",
-    "BTC 마켓 디지털 자산 추가",
-    "USDT 마켓 디지털 자산 추가",
-};
 constexpr std::string_view UPBIT_EXCLUDE_KEYWORDS[] = {
     "입출금",
     "유통량",
@@ -29,10 +23,6 @@ constexpr std::string_view UPBIT_EXCLUDE_KEYWORDS[] = {
     "이벤트",
     "종료",
     "변경 안내",
-};
-constexpr std::string_view BITHUMB_LISTING_KEYWORDS[] = {
-    "[마켓 추가]",
-    "원화 마켓 추가",
 };
 constexpr std::string_view BITHUMB_EXCLUDE_KEYWORDS[] = {
     "입출금",
@@ -50,25 +40,20 @@ struct NativeListingResult {
     char signal_type[16];
 };
 
+bool is_ascii_space(unsigned char ch) {
+    return ch == ' ' || ch == '\t' || ch == '\n' ||
+           ch == '\r' || ch == '\f' || ch == '\v';
+}
+
 std::string trim_ascii(std::string value) {
-    auto is_space = [](unsigned char ch) { return std::isspace(ch) != 0; };
     value.erase(value.begin(), std::find_if(value.begin(), value.end(), [&](char ch) {
-                    return !is_space(static_cast<unsigned char>(ch));
+                    return !is_ascii_space(static_cast<unsigned char>(ch));
                 }));
     value.erase(std::find_if(value.rbegin(), value.rend(), [&](char ch) {
-                    return !is_space(static_cast<unsigned char>(ch));
+                    return !is_ascii_space(static_cast<unsigned char>(ch));
                 }).base(),
                 value.end());
     return value;
-}
-
-bool contains_any(std::string_view title, const std::string_view* keywords, size_t count) {
-    for (size_t i = 0; i < count; ++i) {
-        if (title.find(keywords[i]) != std::string_view::npos) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool contains_none(std::string_view title, const std::string_view* keywords, size_t count) {
@@ -78,6 +63,11 @@ bool contains_none(std::string_view title, const std::string_view* keywords, siz
         }
     }
     return true;
+}
+
+bool has_bithumb_listing_prefix(std::string_view title) {
+    return title.rfind("[마켓 추가]", 0) == 0 ||
+           title.rfind("[마켓 추가/수수료 이벤트]", 0) == 0;
 }
 
 bool is_ascii_word_char(char ch) {
@@ -114,7 +104,7 @@ std::vector<std::string> extract_ticker_candidates(std::string_view title) {
             break;
         }
         const auto candidate = title.substr(i + 1, end - i - 1);
-        if (candidate.size() < 2 || candidate.size() > 10) {
+        if (candidate.empty() || candidate.size() > 10) {
             i = end;
             continue;
         }
@@ -269,8 +259,6 @@ bool is_allowed_bithumb_market_add_suffix(std::string_view suffix) {
         return true;
     }
     constexpr std::string_view blocked[] = {
-        "거래 오픈",
-        "오픈 예정",
         "시간 변경",
         "연기",
         "입출금",
@@ -283,6 +271,14 @@ bool is_allowed_bithumb_market_add_suffix(std::string_view suffix) {
         if (trimmed.find(keyword) != std::string::npos) {
             return false;
         }
+    }
+    if (trimmed.rfind("(거래 수수료 무료)", 0) == 0 ||
+        trimmed.rfind("(거래수수료 무료)", 0) == 0) {
+        return true;
+    }
+    if (trimmed.find("거래 오픈") != std::string::npos ||
+        trimmed.find("거래 개시") != std::string::npos) {
+        return true;
     }
     const std::string suffix_end = " 안내";
     return trimmed.rfind("및 ", 0) == 0 &&
@@ -317,7 +313,7 @@ bool is_upbit_listing(std::string_view title) {
 }
 
 bool is_bithumb_listing(std::string_view title) {
-    if (title.rfind("[마켓 추가]", 0) != 0 ||
+    if (!has_bithumb_listing_prefix(title) ||
         !contains_none(title, BITHUMB_EXCLUDE_KEYWORDS, std::size(BITHUMB_EXCLUDE_KEYWORDS)) ||
         title.find("원화 마켓 재거래지원 안내") != std::string_view::npos) {
         return false;

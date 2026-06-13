@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-import html
 import logging
 import re
 import urllib.request
+
+from .post_text import clean_telegram_html_text, extract_title
 
 logger = logging.getLogger(__name__)
 
@@ -16,23 +17,6 @@ MESSAGE_RE = re.compile(
     r'<time datetime="([^"]+)" class="time">',
     re.S,
 )
-
-
-def _clean_html_text(raw_html: str) -> str:
-    text = raw_html.replace("<br/>", "\n").replace("<br>", "\n")
-    text = re.sub(r"<mark class=\"highlight\">(.*?)</mark>", r"\1", text)
-    text = re.sub(r"<a [^>]*>(.*?)</a>", r"\1", text)
-    text = re.sub(r"<[^>]+>", "", text)
-    return html.unescape(text).strip()
-
-
-def _first_nonempty_line(text: str) -> str:
-    for line in text.splitlines():
-        stripped = line.strip()
-        if stripped:
-            return stripped
-    return ""
-
 
 class TelegramChannelClient:
     """Fetch recent posts from public Telegram channel pages."""
@@ -53,7 +37,7 @@ class TelegramChannelClient:
     def _parse_posts(self, raw_html: str, channel_handle: str) -> list[dict]:
         posts: list[dict] = []
         for message_id, text_html, published_at in MESSAGE_RE.findall(raw_html):
-            text = _clean_html_text(text_html)
+            text = clean_telegram_html_text(text_html)
             if not text:
                 continue
 
@@ -62,7 +46,7 @@ class TelegramChannelClient:
                     "channel_handle": channel_handle,
                     "message_id": int(message_id),
                     "published_at": published_at,
-                    "title": _first_nonempty_line(text),
+                    "title": extract_title(text),
                     "text": text,
                     "post_url": f"https://t.me/{channel_handle}/{message_id}",
                 }

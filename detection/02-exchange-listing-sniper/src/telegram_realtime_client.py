@@ -9,15 +9,26 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from telethon import TelegramClient, events, utils
-from telethon.errors import SessionPasswordNeededError
-from telethon.network.connection.tcpabridged import ConnectionTcpAbridged
-
 from .env_loader import MODULE_DIR, load_env_settings
+from .post_text import extract_title as extract_post_title
+from .post_text import has_nonspace as text_has_nonspace
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_SESSION_PATH = MODULE_DIR / "data" / "listing_source.session"
+
+
+def _load_telethon():
+    try:
+        from telethon import TelegramClient, events, utils
+        from telethon.errors import SessionPasswordNeededError
+        from telethon.network.connection.tcpabridged import ConnectionTcpAbridged
+    except ImportError as exc:
+        raise RuntimeError(
+            "telethon is required for the Telethon realtime backend. "
+            "Install telethon, or use HTML polling / another realtime backend."
+        ) from exc
+    return TelegramClient, events, utils, SessionPasswordNeededError, ConnectionTcpAbridged
 
 
 class RealtimeTelegramChannelClient:
@@ -59,7 +70,8 @@ class RealtimeTelegramChannelClient:
     def has_session_file(self) -> bool:
         return self.session_path.exists()
 
-    def create_client(self) -> TelegramClient:
+    def create_client(self):
+        TelegramClient, _, _, _, ConnectionTcpAbridged = _load_telethon()
         # Abridged transport reduces MTProto framing overhead compared with TcpFull.
         return TelegramClient(
             str(self.session_path),
@@ -75,6 +87,7 @@ class RealtimeTelegramChannelClient:
         if not self.is_configured():
             raise RuntimeError("LISTING_SOURCE_TELEGRAM_API_ID/API_HASH 설정이 필요합니다.")
 
+        _, _, _, SessionPasswordNeededError, _ = _load_telethon()
         client = self.create_client()
         await client.connect()
         try:
@@ -114,6 +127,7 @@ class RealtimeTelegramChannelClient:
         if not self.is_configured():
             raise RuntimeError("LISTING_SOURCE_TELEGRAM_API_ID/API_HASH 설정이 필요합니다.")
 
+        _, events, utils, _, _ = _load_telethon()
         client = self.create_client()
         await client.connect()
         if not await client.is_user_authorized():
@@ -276,22 +290,8 @@ class RealtimeTelegramChannelClient:
 
     @staticmethod
     def extract_title(text: str) -> str:
-        if not text:
-            return ""
-        length = len(text)
-        start = 0
-        while start < length and text[start].isspace():
-            start += 1
-        if start >= length:
-            return ""
-        end = text.find("\n", start)
-        if end == -1:
-            return text[start:].strip()
-        return text[start:end].strip()
+        return extract_post_title(text)
 
     @staticmethod
     def has_nonspace(text: str) -> bool:
-        for char in text:
-            if not char.isspace():
-                return True
-        return False
+        return text_has_nonspace(text)

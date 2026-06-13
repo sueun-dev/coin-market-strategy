@@ -12,12 +12,17 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.bybit_spot_buyer import BybitSpotBuyer, _normalize_market_unit
+from src.bybit_spot_buyer import (
+    BybitSpotBuyer,
+    _normalize_buy_mode,
+    _normalize_market_unit,
+)
 
 
 class TestMarketUnitNormalization:
     def test_quote_shorthand_maps_to_quoteCoin(self):
         assert _normalize_market_unit("quote") == "quoteCoin"
+        assert _normalize_buy_mode("quote") == "quoteCoin"
 
     def test_base_shorthand_maps_to_baseCoin(self):
         assert _normalize_market_unit("base") == "baseCoin"
@@ -33,6 +38,7 @@ class TestMarketUnitNormalization:
     def test_empty_falls_back_to_default(self):
         assert _normalize_market_unit("") == "quoteCoin"
         assert _normalize_market_unit(None) == "quoteCoin"
+        assert _normalize_buy_mode("") == "quoteCoin"
 
     def test_unknown_value_passed_through_stripped(self):
         # Not a known alias: leave it to Bybit to reject, but trimmed.

@@ -11,6 +11,7 @@ from pathlib import Path
 from .env_loader import MODULE_DIR, load_env_settings
 
 logger = logging.getLogger(__name__)
+MAX_ULTRA_TRADES = 16
 
 
 def _is_truthy(value: str | bool | None) -> bool:
@@ -30,7 +31,7 @@ def _library_suffix() -> str:
     return ".so"
 
 
-class NativeUltraResultStruct(ctypes.Structure):
+class NativeUltraResultV1Struct(ctypes.Structure):
     _fields_ = [
         ("matched", ctypes.c_int),
         ("duplicate", ctypes.c_int),
@@ -49,6 +50,45 @@ class NativeUltraResultStruct(ctypes.Structure):
     ]
 
 
+class NativeUltraResultV2Struct(ctypes.Structure):
+    _fields_ = [
+        ("matched", ctypes.c_int),
+        ("duplicate", ctypes.c_int),
+        ("market_flags", ctypes.c_uint32),
+        ("attempted", ctypes.c_int),
+        ("executed", ctypes.c_int),
+        ("ret_code", ctypes.c_int),
+        ("trade_count", ctypes.c_int),
+        ("attempted_count", ctypes.c_int),
+        ("executed_count", ctypes.c_int),
+        ("ticker", ctypes.c_char * 16),
+        ("asset_name", ctypes.c_char * 128),
+        ("signal_type", ctypes.c_char * 16),
+        ("symbol", ctypes.c_char * 24),
+        ("order_id", ctypes.c_char * 64),
+        ("order_link_id", ctypes.c_char * 40),
+        ("transport", ctypes.c_char * 32),
+        ("reason", ctypes.c_char * 128),
+    ]
+
+
+class NativeUltraTradeResultStruct(ctypes.Structure):
+    _fields_ = [
+        ("attempted", ctypes.c_int),
+        ("executed", ctypes.c_int),
+        ("ret_code", ctypes.c_int),
+        ("ticker", ctypes.c_char * 16),
+        ("symbol", ctypes.c_char * 24),
+        ("order_id", ctypes.c_char * 64),
+        ("order_link_id", ctypes.c_char * 40),
+        ("transport", ctypes.c_char * 32),
+        ("reason", ctypes.c_char * 128),
+    ]
+
+
+NativeUltraResultStruct = NativeUltraResultV1Struct
+
+
 MARKET_FLAGS = (
     ("KRW", 1),
     ("BTC", 2),
@@ -65,32 +105,53 @@ def _markets_from_flags(flags: int) -> list[str]:
     return [name for name, bit in MARKET_FLAGS if flags & bit]
 
 
-def _payload_from_native_result(result: NativeUltraResultStruct) -> dict | None:
+def _trade_payload_from_native_result(result) -> dict:
+    reason = _decode_c_string(result.reason)
+    return {
+        "enabled": reason != "buy_disabled",
+        "attempted": bool(result.attempted),
+        "executed": bool(result.executed),
+        "ret_code": int(result.ret_code),
+        "ticker": _decode_c_string(getattr(result, "ticker", b"")),
+        "symbol": _decode_c_string(result.symbol),
+        "order_id": _decode_c_string(result.order_id),
+        "order_link_id": _decode_c_string(result.order_link_id),
+        "transport": _decode_c_string(result.transport),
+        "reason": reason,
+    }
+
+
+def _payload_from_native_result(result, trades: list[dict] | None = None) -> dict | None:
     if result.duplicate:
         return {
             "duplicate": True,
             "matched": False,
+            "reason": _decode_c_string(result.reason),
         }
     if not result.matched:
         return None
+    trades = trades or []
+    primary_trade = (
+        trades[0]
+        if trades
+        else _trade_payload_from_native_result(result)
+    )
+    tickers = [trade["ticker"] for trade in trades if trade.get("ticker")]
+    if not tickers:
+        tickers = [_decode_c_string(result.ticker)]
     return {
         "duplicate": False,
         "matched": True,
         "signal_type": _decode_c_string(result.signal_type),
         "ticker": _decode_c_string(result.ticker),
+        "tickers": tickers,
         "asset_name": _decode_c_string(result.asset_name),
         "markets": _markets_from_flags(int(result.market_flags)),
-        "trade": {
-            "enabled": True,
-            "attempted": bool(result.attempted),
-            "executed": bool(result.executed),
-            "ret_code": int(result.ret_code),
-            "symbol": _decode_c_string(result.symbol),
-            "order_id": _decode_c_string(result.order_id),
-            "order_link_id": _decode_c_string(result.order_link_id),
-            "transport": _decode_c_string(result.transport),
-            "reason": _decode_c_string(result.reason),
-        },
+        "trade_count": int(getattr(result, "trade_count", len(trades) or 1)),
+        "attempted_count": int(getattr(result, "attempted_count", int(primary_trade["attempted"]))),
+        "executed_count": int(getattr(result, "executed_count", int(primary_trade["executed"]))),
+        "trade": primary_trade,
+        "trades": trades or [primary_trade],
     }
 
 
@@ -125,6 +186,8 @@ class CppUltraListingEngineBridge:
         self._lib = None
         self._warmup = None
         self._handle = None
+        self._get_trades = None
+        self._result_struct = NativeUltraResultV1Struct
         self._load_error: str | None = None
         self._load()
 
@@ -144,12 +207,15 @@ class CppUltraListingEngineBridge:
         message_id: int,
         title: str,
     ) -> dict | None:
+        raw_result = self.handle_post_raw(
+            exchange=exchange,
+            message_id=message_id,
+            title=title,
+        )
         return self.payload_from_raw(
-            self.handle_post_raw(
-                exchange=exchange,
-                message_id=message_id,
-                title=title,
-            )
+            raw_result,
+            exchange=exchange,
+            message_id=message_id,
         )
 
     def handle_post_raw(
@@ -158,10 +224,10 @@ class CppUltraListingEngineBridge:
         exchange: str,
         message_id: int,
         title: str,
-    ) -> NativeUltraResultStruct:
+    ):
         if not self.is_enabled():
-            return NativeUltraResultStruct()
-        result = NativeUltraResultStruct()
+            return self._result_struct()
+        result = self._result_struct()
         status = self._handle(
             exchange.encode("utf-8"),
             int(message_id),
@@ -172,9 +238,40 @@ class CppUltraListingEngineBridge:
             raise RuntimeError(f"cpp_ultra_engine_error:{status}")
         return result
 
-    @staticmethod
-    def payload_from_raw(result: NativeUltraResultStruct) -> dict | None:
-        return _payload_from_native_result(result)
+    def payload_from_raw(
+        self,
+        result,
+        *,
+        exchange: str | None = None,
+        message_id: int | None = None,
+    ) -> dict | None:
+        trades = self._fetch_trades(result, exchange=exchange, message_id=message_id)
+        return _payload_from_native_result(result, trades)
+
+    def _fetch_trades(
+        self,
+        result,
+        *,
+        exchange: str | None,
+        message_id: int | None,
+    ) -> list[dict]:
+        if int(getattr(result, "trade_count", 0)) <= 1 or self._get_trades is None:
+            return []
+        if exchange is None or message_id is None:
+            return []
+        trade_results = (NativeUltraTradeResultStruct * MAX_ULTRA_TRADES)()
+        count = self._get_trades(
+            exchange.encode("utf-8"),
+            int(message_id),
+            trade_results,
+            MAX_ULTRA_TRADES,
+        )
+        if count <= 0:
+            return []
+        return [
+            _trade_payload_from_native_result(trade_results[index])
+            for index in range(min(int(count), MAX_ULTRA_TRADES))
+        ]
 
     def _load(self):
         if not self.enabled:
@@ -188,16 +285,31 @@ class CppUltraListingEngineBridge:
             self._warmup.argtypes = []
             self._warmup.restype = ctypes.c_int
             self._handle = self._lib.handle_listing_post
+            try:
+                self._get_trades = self._lib.get_listing_trades
+            except AttributeError:
+                self._get_trades = None
+                self._result_struct = NativeUltraResultV1Struct
+            else:
+                self._result_struct = NativeUltraResultV2Struct
+                self._get_trades.argtypes = [
+                    ctypes.c_char_p,
+                    ctypes.c_longlong,
+                    ctypes.POINTER(NativeUltraTradeResultStruct),
+                    ctypes.c_int,
+                ]
+                self._get_trades.restype = ctypes.c_int
             self._handle.argtypes = [
                 ctypes.c_char_p,
                 ctypes.c_longlong,
                 ctypes.c_char_p,
-                ctypes.POINTER(NativeUltraResultStruct),
+                ctypes.POINTER(self._result_struct),
             ]
             self._handle.restype = ctypes.c_int
         except Exception as exc:
             self._handle = None
             self._warmup = None
+            self._get_trades = None
             self._load_error = str(exc)
             logger.warning("Failed to load C++ ultra engine: %s", exc)
 
@@ -212,7 +324,10 @@ class CppUltraListingEngineBridge:
                 "BYBIT_SPOT_BUY_ENABLED",
                 "BYBIT_SPOT_BUY_USDT_AMOUNT",
                 "BYBIT_PREFER_CACHED_SYMBOL_CHECK",
+                "BYBIT_TIMESTAMP_BIAS_MS",
                 "LISTING_CPP_ULTRA_ENGINE_ENABLED",
+                "LISTING_CPP_ULTRA_ORDER_ON_CACHE_MISS",
+                "LISTING_CPP_ULTRA_ORDER_PREFLIGHT_ONLY",
             }
         )
         for key, value in settings.items():

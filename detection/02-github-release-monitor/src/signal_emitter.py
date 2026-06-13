@@ -3,6 +3,8 @@ Signal emitter for GitHub release monitor.
 Emits detected upgrade/hardfork signals as JSON files and console output.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os

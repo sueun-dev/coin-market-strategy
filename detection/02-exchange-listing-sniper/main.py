@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+from __future__ import annotations
+
 """
 02. Exchange Listing Sniper - 메인 엔트리포인트.
 
@@ -12,14 +14,14 @@
   python main.py --login-source-telegram
 """
 
-from __future__ import annotations
-
 import argparse
 import asyncio
 import logging
+import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 try:
     import uvloop
@@ -30,17 +32,130 @@ except ImportError:
 
 sys.path.insert(0, str(Path(__file__).parent))
 
-from src.poller import ExchangeListingPoller
-from src.race_realtime_client import RaceRealtimeChannelClient
-from src.tdlib_realtime_client import TdlibRealtimeChannelClient
-from src.telegram_notifier import ExchangeListingTelegramNotifier
-from src.telegram_realtime_client import RealtimeTelegramChannelClient
+from src.env_loader import load_env_settings
+
+if TYPE_CHECKING:
+    from src.telegram_notifier import ExchangeListingTelegramNotifier
+
+
+def _env_truthy(name: str, default: bool = False) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        value = load_env_settings({name}).get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    if value is None:
+        value = load_env_settings({name}).get(name)
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except ValueError:
+        return default
+
+
+def _env_csv_set(name: str) -> set[str]:
+    value = os.environ.get(name)
+    if value is None:
+        value = load_env_settings({name}).get(name)
+    if not value:
+        return set()
+    return {
+        item.strip().lower()
+        for item in value.split(",")
+        if item.strip()
+    }
+
+
+def _race_run_options_from_env(default_min_ready: int = 1) -> dict:
+    options = {
+        "min_ready_backends": _env_int(
+            "LISTING_RACE_MIN_READY_BACKENDS",
+            default_min_ready,
+        ),
+    }
+    required_backends = _env_csv_set("LISTING_RACE_REQUIRED_BACKENDS")
+    if required_backends:
+        options["required_backends"] = required_backends
+    return options
+
+
+def _tdlib_native_buy_base_enabled(args, realtime_mode: bool) -> bool:
+    return (
+        realtime_mode
+        and args.ultra_buy
+        and _env_truthy("LISTING_TDLIB_NATIVE_BUY_ENABLED", default=True)
+        and (not args.no_trade)
+        and (not args.source_only)
+    )
+
+
+def _tdlib_native_buy_exclusive(args, realtime_mode: bool) -> bool:
+    return (
+        _tdlib_native_buy_base_enabled(args, realtime_mode)
+        and args.realtime_backend == "tdlib"
+    )
+
+
+def _tdlib_native_buy_parallel_race(args, realtime_mode: bool) -> bool:
+    return (
+        _tdlib_native_buy_base_enabled(args, realtime_mode)
+        and args.realtime_backend == "race"
+        and _env_truthy("LISTING_RACE_TDLIB_NATIVE_BUY_ENABLED", default=False)
+    )
+
+
+def _tdlib_native_buy_relay_active(args, realtime_mode: bool) -> bool:
+    return (
+        _tdlib_native_buy_exclusive(args, realtime_mode)
+        or _tdlib_native_buy_parallel_race(args, realtime_mode)
+    )
+
+
+def _python_bybit_order_path_enabled(args, realtime_mode: bool) -> bool:
+    return (
+        (not args.source_only)
+        and (not args.no_trade)
+        and (not _tdlib_native_buy_relay_active(args, realtime_mode))
+    )
+
+
+def _create_realtime_client(backend: str):
+    if backend == "race":
+        from src.race_realtime_client import RaceRealtimeChannelClient
+
+        return RaceRealtimeChannelClient()
+    if backend == "tdlib":
+        from src.tdlib_realtime_client import TdlibRealtimeChannelClient
+
+        return TdlibRealtimeChannelClient()
+    if backend == "pyrogram":
+        from src.pyrogram_realtime_client import PyrogramRealtimeChannelClient
+
+        return PyrogramRealtimeChannelClient()
+
+    from src.telegram_realtime_client import RealtimeTelegramChannelClient
+
+    return RealtimeTelegramChannelClient()
+
+
+def _create_notifier(disabled: bool):
+    if disabled:
+        return None
+    from src.telegram_notifier import ExchangeListingTelegramNotifier
+
+    return ExchangeListingTelegramNotifier()
 
 
 class AsyncSignalNotifier:
     """Offload Telegram sends so the hot path can return immediately."""
 
-    def __init__(self, notifier: ExchangeListingTelegramNotifier | None):
+    def __init__(self, notifier: "ExchangeListingTelegramNotifier | None"):
         self.notifier = notifier
         self._executor = (
             ThreadPoolExecutor(max_workers=1, thread_name_prefix="listing-telegram")
@@ -176,17 +291,8 @@ def main():
 
     setup_logging(args.verbose)
     logger = logging.getLogger(__name__)
-    notifier = None if args.no_telegram else ExchangeListingTelegramNotifier()
-    if args.realtime_backend == "race":
-        realtime_client = RaceRealtimeChannelClient()
-    elif args.realtime_backend == "tdlib":
-        realtime_client = TdlibRealtimeChannelClient()
-    elif args.realtime_backend == "pyrogram":
-        from src.pyrogram_realtime_client import PyrogramRealtimeChannelClient
-
-        realtime_client = PyrogramRealtimeChannelClient()
-    else:
-        realtime_client = RealtimeTelegramChannelClient()
+    notifier = _create_notifier(args.no_telegram)
+    realtime_client = _create_realtime_client(args.realtime_backend)
     realtime_mode = args.realtime or (args.loop and realtime_client.is_configured())
 
     if (args.realtime or args.login_source_telegram) and not realtime_client.is_configured():
@@ -201,17 +307,30 @@ def main():
         print("Test message sent!" if ok else "Failed to send test message.")
         return
 
+    tdlib_native_buy_active = _tdlib_native_buy_exclusive(args, realtime_mode)
+    tdlib_native_buy_relay_active = _tdlib_native_buy_relay_active(args, realtime_mode)
+    python_bybit_order_path_enabled = _python_bybit_order_path_enabled(args, realtime_mode)
+
+    from src.poller import ExchangeListingPoller
+
     poller = ExchangeListingPoller(
         poll_interval=args.interval,
         enable_trading=(not args.no_trade) and (not args.source_only),
         defer_persistence=realtime_mode,
         prefer_cached_lookup=realtime_mode,
         latency_trace_enabled=args.latency_trace,
-        keep_warm_enabled=realtime_mode and (not args.source_only) and (not args.no_trade),
+        keep_warm_enabled=realtime_mode and python_bybit_order_path_enabled,
         keep_warm_interval_sec=args.keep_warm_interval,
         persist_source_events=args.persist_source_events,
         state_flush_interval_sec=args.state_flush_interval,
-        enable_bybit_warmup=(not args.source_only) and (not args.no_trade),
+        enable_bybit_warmup=python_bybit_order_path_enabled,
+        enable_channel_client=not realtime_mode,
+        enable_python_spot_buyer=python_bybit_order_path_enabled,
+        enable_cpp_ultra_warmup=python_bybit_order_path_enabled,
+        require_cpp_ultra_warmup=(
+            python_bybit_order_path_enabled
+            and _env_truthy("LISTING_CPP_ULTRA_REQUIRE_WARMUP", default=False)
+        ),
         defer_post_trade_work=(
             realtime_mode
             and args.ultra_buy
@@ -271,10 +390,19 @@ def main():
                 ", ".join(channel_handles),
                 args.realtime_backend,
             )
-            if args.ultra_buy and not args.source_only:
+            if args.ultra_buy and (not args.no_trade) and not args.source_only:
                 logger.info("ultra-buy 활성: 주문 이후 작업은 백그라운드로 이관")
             if args.memory_state or args.ultra_buy or args.source_only:
                 logger.info("memory-state 활성: dedup/state는 메모리 우선 flush")
+            os.environ["LISTING_TDLIB_NATIVE_BUY_ACTIVE"] = (
+                "1" if tdlib_native_buy_relay_active else "0"
+            )
+            if tdlib_native_buy_active:
+                logger.info("TDLib native-buy 활성: TDLib C++ relay에서 직접 주문")
+            elif tdlib_native_buy_relay_active:
+                logger.info(
+                    "race TDLib native-buy 병렬 활성: TDLib C++ relay도 같은 orderLinkId로 직접 주문"
+                )
 
             def _on_post(post: dict):
                 channel_id = poller.get_channel_id_by_handle(post["channel_handle"])
@@ -290,14 +418,22 @@ def main():
                     signals = signal if isinstance(signal, list) else [signal]
                     dispatch_signals_to_telegram(notifier_dispatcher, signals)
 
-            asyncio.run(
-                realtime_client.run(
-                    channel_handles=channel_handles,
-                    on_post=_on_post,
-                    minimal_post=args.source_only and not args.persist_source_events,
-                    trade_post=args.ultra_buy and not args.source_only,
+            run_kwargs = {
+                "channel_handles": channel_handles,
+                "on_post": _on_post,
+                "minimal_post": args.source_only and not args.persist_source_events,
+                "trade_post": args.ultra_buy and not args.source_only,
+            }
+            if args.realtime_backend == "race":
+                race_options = _race_run_options_from_env(
+                    default_min_ready=2 if tdlib_native_buy_relay_active else 1
                 )
-            )
+                if tdlib_native_buy_relay_active:
+                    required_backends = set(race_options.get("required_backends", set()))
+                    required_backends.add("tdlib")
+                    race_options["required_backends"] = required_backends
+                run_kwargs.update(race_options)
+            asyncio.run(realtime_client.run(**run_kwargs))
             return
         if args.exchange:
             logger.info("단일 거래소 폴링: %s", args.exchange)

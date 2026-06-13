@@ -3,6 +3,8 @@ State store for tracking already-detected releases.
 Prevents duplicate signal emission. Uses JSON file with atomic writes.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import os

@@ -8,6 +8,10 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.halt_detector import HaltDetector
+from src.signal_emitter import SignalEmitter
+from src.state_store import StateStore
+import main as block_main
+from src.chain_monitor import AnomalyLevel, BlockInfo, ChainStatus
 
 
 class TestHaltDetector:
@@ -111,6 +115,94 @@ class TestHaltDetector:
         """is_halted should return False for unknown chains."""
         detector = HaltDetector()
         assert not detector.is_halted("nonexistent")
+
+
+class _StaticHeightMonitor:
+    chain_id = "test_chain"
+    name = "Test Chain"
+    ticker = "TST"
+    rpc_type = "mock"
+    avg_block_time = 1.0
+    tickers_affected = ["TST"]
+
+    def __init__(self, height: int):
+        self.height = height
+
+    def poll(self):
+        block = BlockInfo(
+            height=self.height,
+            timestamp=1_700_000_000.0,
+            chain_id=self.chain_id,
+        )
+        return ChainStatus(
+            chain_id=self.chain_id,
+            chain_name=self.name,
+            ticker=self.ticker,
+            rpc_type=self.rpc_type,
+            latest_block=block,
+            avg_block_time=self.avg_block_time,
+            anomaly_level=AnomalyLevel.CRITICAL,
+            seconds_since_last_block=120.0,
+        )
+
+
+def test_halt_state_survives_short_lived_subprocess_style_polls(tmp_path):
+    state_store = StateStore(state_file=tmp_path / "chain_state.json")
+    signals_dir = tmp_path / "signals"
+
+    for attempt in range(3):
+        detector = HaltDetector(consecutive_threshold=3)
+        emitter = SignalEmitter(signals_dir=signals_dir)
+        block_main.poll_all(
+            [_StaticHeightMonitor(500)],
+            detector,
+            emitter,
+            state_store,
+        )
+        emitted = emitter.get_emitted()
+        if attempt < 2:
+            assert emitted == []
+        else:
+            assert len(emitted) == 1
+            assert emitted[0]["signal_type"] == "block_halt"
+            assert emitted[0]["chain"] == "test_chain"
+
+    # A fourth short-lived poll at the same height should not duplicate the halt.
+    detector = HaltDetector(consecutive_threshold=3)
+    emitter = SignalEmitter(signals_dir=signals_dir)
+    block_main.poll_all(
+        [_StaticHeightMonitor(500)],
+        detector,
+        emitter,
+        state_store,
+    )
+    assert emitter.get_emitted() == []
+
+
+def test_persisted_halt_resumes_from_new_height(tmp_path):
+    state_store = StateStore(state_file=tmp_path / "chain_state.json")
+    signals_dir = tmp_path / "signals"
+
+    for _ in range(3):
+        block_main.poll_all(
+            [_StaticHeightMonitor(500)],
+            HaltDetector(consecutive_threshold=3),
+            SignalEmitter(signals_dir=signals_dir),
+            state_store,
+        )
+
+    emitter = SignalEmitter(signals_dir=signals_dir)
+    block_main.poll_all(
+        [_StaticHeightMonitor(501)],
+        HaltDetector(consecutive_threshold=3),
+        emitter,
+        state_store,
+    )
+
+    emitted = emitter.get_emitted()
+    assert len(emitted) == 1
+    assert emitted[0]["signal_type"] == "chain_resumed"
+    assert emitted[0]["chain"] == "test_chain"
 
 
 def run_tests():

@@ -31,6 +31,7 @@ ROOT = Path(__file__).parent
 GOV_DIR = ROOT / "detection" / "01-governance-monitor"
 GITHUB_DIR = ROOT / "detection" / "02-github-release-monitor"
 BLOCK_DIR = ROOT / "detection" / "04-block-time-anomaly-detector"
+MULTI_CHAIN_STATE_FILE = GOV_DIR / "data" / "detected_multi_chain_proposals.json"
 
 sys.path.insert(0, str(GOV_DIR))
 sys.path.insert(0, str(BLOCK_DIR))
@@ -46,6 +47,79 @@ EXCHANGE_NAME_MAP = {
     "upbit": "업비트",
     "bithumb": "빗썸",
 }
+MULTI_CHAIN_ACTIONABLE_STATUSES = {
+    "UPGRADE_PENDING",
+    "TEZOS_PROPOSAL",
+    "TEZOS_EXPLORATION",
+    "TEZOS_PROMOTION",
+    "TEZOS_TESTING",
+    "TEZOS_ADOPTION",
+}
+
+
+def is_multi_chain_actionable(signal: dict) -> bool:
+    status = str(signal.get("status", ""))
+    return status in MULTI_CHAIN_ACTIONABLE_STATUSES or "VOTING" in status.upper()
+
+
+def _load_json_state(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        with open(path) as f:
+            data = json.load(f)
+        return data if isinstance(data, dict) else {}
+    except (OSError, json.JSONDecodeError):
+        logger.warning("State file unreadable, reinitializing: %s", path)
+        return {}
+
+
+def _save_json_state(path: Path, state: dict):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    tmp = path.with_suffix(".tmp")
+    with open(tmp, "w") as f:
+        json.dump(state, f, indent=2, ensure_ascii=False)
+    os.replace(tmp, path)
+
+
+def _multi_chain_signal_key(signal: dict) -> str:
+    plan = signal.get("plan") or {}
+    chain_id = signal.get("chain_id") or signal.get("chain_name") or signal.get("ticker") or "unknown"
+    proposal_id = signal.get("proposal_id") or plan.get("name") or signal.get("title") or "unknown"
+    status = signal.get("status") or "unknown"
+    height = plan.get("height")
+    return f"{chain_id}:{proposal_id}:{status}:{height}"
+
+
+def filter_new_multi_chain_signals(
+    signals: list[dict],
+    state_file: Path = MULTI_CHAIN_STATE_FILE,
+) -> list[dict]:
+    """Return only newly seen actionable multi-chain governance signals."""
+    state = _load_json_state(state_file)
+    fresh: list[dict] = []
+    changed = False
+
+    for signal in signals:
+        if not is_multi_chain_actionable(signal):
+            continue
+        key = _multi_chain_signal_key(signal)
+        if key in state:
+            continue
+        state[key] = {
+            "chain_id": signal.get("chain_id"),
+            "ticker": signal.get("ticker"),
+            "proposal_id": signal.get("proposal_id"),
+            "status": signal.get("status"),
+            "title": signal.get("title"),
+            "detected_at": datetime.now(timezone.utc).isoformat(),
+        }
+        fresh.append(signal)
+        changed = True
+
+    if changed:
+        _save_json_state(state_file, state)
+    return fresh
 
 
 def send_telegram(text: str, priority: str = "P1"):
@@ -320,6 +394,7 @@ for chain_cfg in config.get("chains", []):
     try:
         proposals = client.fetch_upgrade_proposals()
         for p in proposals:
+            p["chain_id"] = chain_cfg["chain_id"]
             p["ticker"] = chain_cfg["ticker"]
             p["chain_name"] = chain_cfg["name"]
             p["affected_tickers"] = impact_scope["affected_tickers"]
@@ -430,17 +505,13 @@ def poll_once(run_gov: bool = True, run_block: bool = True):
 
         logger.info("[%s] Multi-chain governance poll starting...", now)
         try:
-            mc_signals = run_multi_chain_governance_poll()
+            mc_signals = filter_new_multi_chain_signals(
+                run_multi_chain_governance_poll()
+            )
             for signal in mc_signals:
                 msg = format_multi_chain_signal(signal)
-                # Only send telegram for actionable statuses, log the rest
+                send_telegram(msg, "P1")
                 status = signal.get("status", "")
-                actionable = status in {
-                    "UPGRADE_PENDING", "TEZOS_PROPOSAL", "TEZOS_EXPLORATION",
-                    "TEZOS_PROMOTION", "TEZOS_TESTING", "TEZOS_ADOPTION",
-                } or "VOTING" in status.upper()
-                if actionable:
-                    send_telegram(msg, "P1")
                 logger.info("Multi-chain: %s %s [%s]", signal.get("ticker"), signal.get("title", "")[:60], status)
         except Exception as e:
             logger.error("Multi-chain governance poll failed: %s", e)
@@ -514,15 +585,11 @@ def run_loop(gov_interval: int = 600, block_interval: int = 10):
                     logger.error("Gov poll error: %s", e)
 
                 try:
-                    mc_signals = run_multi_chain_governance_poll()
+                    mc_signals = filter_new_multi_chain_signals(
+                        run_multi_chain_governance_poll()
+                    )
                     for signal in mc_signals:
-                        status = signal.get("status", "")
-                        actionable = status in {
-                            "UPGRADE_PENDING", "TEZOS_PROPOSAL", "TEZOS_EXPLORATION",
-                            "TEZOS_PROMOTION", "TEZOS_TESTING", "TEZOS_ADOPTION",
-                        } or "VOTING" in status.upper()
-                        if actionable:
-                            send_telegram(format_multi_chain_signal(signal), "P1")
+                        send_telegram(format_multi_chain_signal(signal), "P1")
                 except Exception as e:
                     logger.error("Multi-chain gov poll error: %s", e)
 

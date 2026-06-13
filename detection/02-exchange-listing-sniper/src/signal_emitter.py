@@ -7,14 +7,25 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 SIGNAL_DIR = Path(__file__).parent.parent / "data" / "signals"
+TRADE_PROOF_DIR = Path(__file__).parent.parent / "data" / "trade_proofs"
 
 
 class SignalEmitter:
     """Persist listing signals as JSON files."""
 
-    def __init__(self, signal_dir: Path | str = SIGNAL_DIR):
+    def __init__(
+        self,
+        signal_dir: Path | str = SIGNAL_DIR,
+        trade_proof_dir: Path | str | None = None,
+    ):
         self.signal_dir = Path(signal_dir)
         self.signal_dir.mkdir(parents=True, exist_ok=True)
+        self.trade_proof_dir = (
+            Path(trade_proof_dir)
+            if trade_proof_dir is not None
+            else TRADE_PROOF_DIR
+        )
+        self.trade_proof_dir.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def _to_iso8601(value) -> str:
@@ -72,8 +83,55 @@ class SignalEmitter:
             f"{timestamp}_{signal['exchange']}_{signal['ticker']}_{signal['message_id']}.json"
         )
         out_path = self.signal_dir / filename
-        with open(out_path, "w") as handle:
+        with open(out_path, "w", encoding="utf-8") as handle:
             json.dump(signal, handle, indent=2, ensure_ascii=False)
+        return out_path
+
+    def persist_trade_proof(self, *, post: dict, listing: dict, trade: dict) -> Path:
+        now = datetime.now(timezone.utc)
+        proof = {
+            "recorded_at": now.isoformat(),
+            "exchange": listing.get("exchange"),
+            "ticker": listing.get("ticker"),
+            "asset_name": listing.get("asset_name"),
+            "markets": listing.get("markets"),
+            "channel_handle": post.get("channel_handle"),
+            "message_id": post.get("message_id"),
+            "title": post.get("title", post.get("text", "")),
+            "post_url": post.get(
+                "post_url",
+                f"https://t.me/{post.get('channel_handle', '')}/{post.get('message_id', '')}",
+            ),
+            "published_at": self._to_iso8601(post.get("published_at")),
+            "received_monotonic_ns": post.get("received_monotonic_ns"),
+            "received_python_monotonic_ns": post.get("received_python_monotonic_ns"),
+            "relay_received_monotonic_ns": post.get("relay_received_monotonic_ns"),
+            "trade": trade or {},
+        }
+        if trade and trade.get("trade_finished_monotonic_ns") is not None:
+            try:
+                received_ns = int(post.get("received_monotonic_ns"))
+                finished_ns = int(trade["trade_finished_monotonic_ns"])
+            except (TypeError, ValueError):
+                pass
+            else:
+                elapsed_ns = max(0, finished_ns - received_ns)
+                proof["receive_to_trade_finished_ns"] = elapsed_ns
+                proof["receive_to_trade_finished_ms"] = elapsed_ns / 1_000_000.0
+        if trade and trade.get("order_send_started_monotonic_ns") is not None:
+            try:
+                received_ns = int(post.get("received_monotonic_ns"))
+                send_started_ns = int(trade["order_send_started_monotonic_ns"])
+            except (TypeError, ValueError):
+                pass
+            else:
+                elapsed_ns = max(0, send_started_ns - received_ns)
+                proof["receive_to_order_send_started_ns"] = elapsed_ns
+                proof["receive_to_order_send_started_ms"] = elapsed_ns / 1_000_000.0
+        out_path = self.trade_proof_dir / f"{now:%Y%m%d}_native_trades.jsonl"
+        with open(out_path, "a", encoding="utf-8") as handle:
+            json.dump(proof, handle, ensure_ascii=False, separators=(",", ":"))
+            handle.write("\n")
         return out_path
 
     def emit(

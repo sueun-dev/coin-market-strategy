@@ -24,12 +24,6 @@ constexpr uint32_t MARKET_FLAG_USDT = 4;
 constexpr uint32_t MARKET_FLAG_ETH = 8;
 
 constexpr std::string_view MARKET_CODES[] = {"KRW", "BTC", "USDT", "ETH"};
-constexpr std::string_view UPBIT_LISTING_KEYWORDS[] = {
-    "신규 거래지원",
-    "KRW 마켓 디지털 자산 추가",
-    "BTC 마켓 디지털 자산 추가",
-    "USDT 마켓 디지털 자산 추가",
-};
 constexpr std::string_view UPBIT_EXCLUDE_KEYWORDS[] = {
     "입출금",
     "유통량",
@@ -39,10 +33,6 @@ constexpr std::string_view UPBIT_EXCLUDE_KEYWORDS[] = {
     "이벤트",
     "종료",
     "변경 안내",
-};
-constexpr std::string_view BITHUMB_LISTING_KEYWORDS[] = {
-    "[마켓 추가]",
-    "원화 마켓 추가",
 };
 constexpr std::string_view BITHUMB_EXCLUDE_KEYWORDS[] = {
     "입출금",
@@ -56,6 +46,7 @@ struct ListingMatch {
   std::string exchange;
   std::string signal_type;
   std::string ticker;
+  std::vector<std::string> tickers;
   std::string asset_name;
   uint32_t market_flags{0};
 };
@@ -143,15 +134,6 @@ std::optional<std::string> extract_json_string(const std::string& body, const st
   return std::nullopt;
 }
 
-bool contains_any(std::string_view title, const std::string_view* keywords, size_t count) {
-  for (size_t i = 0; i < count; ++i) {
-    if (title.find(keywords[i]) != std::string_view::npos) {
-      return true;
-    }
-  }
-  return false;
-}
-
 bool contains_none(std::string_view title, const std::string_view* keywords, size_t count) {
   for (size_t i = 0; i < count; ++i) {
     if (title.find(keywords[i]) != std::string_view::npos) {
@@ -159,6 +141,11 @@ bool contains_none(std::string_view title, const std::string_view* keywords, siz
     }
   }
   return true;
+}
+
+bool has_bithumb_listing_prefix(std::string_view title) {
+  return title.rfind("[마켓 추가]", 0) == 0 ||
+         title.rfind("[마켓 추가/수수료 이벤트]", 0) == 0;
 }
 
 bool is_ascii_word_char(char ch) {
@@ -193,7 +180,7 @@ std::vector<std::string> extract_ticker_candidates(std::string_view title) {
       break;
     }
     const auto candidate = title.substr(i + 1, end - i - 1);
-    if (candidate.size() < 2 || candidate.size() > 10) {
+    if (candidate.empty() || candidate.size() > 10) {
       i = end;
       continue;
     }
@@ -231,6 +218,19 @@ std::string extract_primary_ticker(std::string_view title) {
   return "";
 }
 
+std::vector<std::string> extract_listing_tickers(std::string_view title) {
+  std::vector<std::string> tickers;
+  for (const auto& candidate : extract_ticker_candidates(title)) {
+    if (is_market_code(candidate)) {
+      continue;
+    }
+    if (std::find(tickers.begin(), tickers.end(), candidate) == tickers.end()) {
+      tickers.push_back(candidate);
+    }
+  }
+  return tickers;
+}
+
 uint32_t extract_market_flags(std::string_view title) {
   uint32_t flags = 0;
   if (title.find("원화 마켓") != std::string_view::npos || has_ascii_word(title, "KRW")) {
@@ -262,13 +262,17 @@ uint32_t extract_market_flags(std::string_view title) {
   return flags;
 }
 
+bool is_ascii_space(unsigned char ch) {
+  return ch == ' ' || ch == '\t' || ch == '\n' ||
+         ch == '\r' || ch == '\f' || ch == '\v';
+}
+
 std::string trim_ascii(std::string value) {
-  auto is_space = [](unsigned char ch) { return std::isspace(ch) != 0; };
   value.erase(value.begin(), std::find_if(value.begin(), value.end(), [&](char ch) {
-                return !is_space(static_cast<unsigned char>(ch));
+                return !is_ascii_space(static_cast<unsigned char>(ch));
               }));
   value.erase(std::find_if(value.rbegin(), value.rend(), [&](char ch) {
-                return !is_space(static_cast<unsigned char>(ch));
+                return !is_ascii_space(static_cast<unsigned char>(ch));
               }).base(),
               value.end());
   return value;
@@ -345,8 +349,6 @@ bool is_allowed_bithumb_market_add_suffix(std::string_view suffix) {
     return true;
   }
   constexpr std::string_view blocked[] = {
-      "거래 오픈",
-      "오픈 예정",
       "시간 변경",
       "연기",
       "입출금",
@@ -359,6 +361,14 @@ bool is_allowed_bithumb_market_add_suffix(std::string_view suffix) {
     if (trimmed.find(keyword) != std::string::npos) {
       return false;
     }
+  }
+  if (trimmed.rfind("(거래 수수료 무료)", 0) == 0 ||
+      trimmed.rfind("(거래수수료 무료)", 0) == 0) {
+    return true;
+  }
+  if (trimmed.find("거래 오픈") != std::string::npos ||
+      trimmed.find("거래 개시") != std::string::npos) {
+    return true;
   }
   const std::string suffix_end = " 안내";
   return trimmed.rfind("및 ", 0) == 0 &&
@@ -391,7 +401,7 @@ bool is_upbit_listing(std::string_view title) {
 }
 
 bool is_bithumb_listing(std::string_view title) {
-  if (title.rfind("[마켓 추가]", 0) != 0 ||
+  if (!has_bithumb_listing_prefix(title) ||
       !contains_none(title, BITHUMB_EXCLUDE_KEYWORDS, std::size(BITHUMB_EXCLUDE_KEYWORDS)) ||
       title.find("원화 마켓 재거래지원 안내") != std::string_view::npos) {
     return false;
@@ -422,14 +432,15 @@ std::optional<ListingMatch> classify_listing_title(const std::string& exchange, 
   if (!matched) {
     return std::nullopt;
   }
-  const std::string ticker = extract_primary_ticker(title);
-  if (ticker.empty()) {
+  std::vector<std::string> tickers = extract_listing_tickers(title);
+  if (tickers.empty()) {
     return std::nullopt;
   }
   return ListingMatch{
       exchange,
       signal_type,
-      ticker,
+      tickers.front(),
+      std::move(tickers),
       extract_asset_name(title),
       extract_market_flags(title),
   };
@@ -468,6 +479,20 @@ std::string market_flags_json(uint32_t flags) {
   }
   if (flags & MARKET_FLAG_ETH) {
     append("ETH");
+  }
+  result += "]";
+  return result;
+}
+
+std::string tickers_json(const std::vector<std::string>& tickers) {
+  std::string result = "[";
+  for (size_t i = 0; i < tickers.size(); ++i) {
+    if (i != 0) {
+      result += ",";
+    }
+    result += "\"";
+    result += json_escape(tickers[i]);
+    result += "\"";
   }
   result += "]";
   return result;
@@ -548,14 +573,36 @@ bool maybe_emit_listing_matched(
             << "\"title\":\"" << json_escape(*text) << "\","
             << "\"signal_type\":\"" << json_escape(listing->signal_type) << "\","
             << "\"ticker\":\"" << json_escape(listing->ticker) << "\","
+            << "\"tickers\":" << tickers_json(listing->tickers) << ","
             << "\"asset_name\":\"" << json_escape(listing->asset_name) << "\","
             << "\"markets\":" << market_flags_json(listing->market_flags)
             << "}" << std::endl;
   return true;
 }
+
+int run_classify_title_cli(const std::string& exchange, const std::string& title) {
+  const auto listing = classify_listing_title(exchange, title);
+  if (!listing.has_value()) {
+    std::cout << "{\"matched\":false}" << std::endl;
+    return 0;
+  }
+  std::cout << "{\"matched\":true,"
+            << "\"exchange\":\"" << json_escape(listing->exchange) << "\","
+            << "\"signal_type\":\"" << json_escape(listing->signal_type) << "\","
+            << "\"ticker\":\"" << json_escape(listing->ticker) << "\","
+            << "\"tickers\":" << tickers_json(listing->tickers) << ","
+            << "\"asset_name\":\"" << json_escape(listing->asset_name) << "\","
+            << "\"markets\":" << market_flags_json(listing->market_flags)
+            << "}" << std::endl;
+  return 0;
+}
 }  // namespace
 
-int main() {
+int main(int argc, char** argv) {
+  if (argc > 3 && std::string_view(argv[1]) == "--classify-title") {
+    return run_classify_title_cli(argv[2], argv[3]);
+  }
+
   td_json_client_execute(
       nullptr,
       R"({"@type":"setLogVerbosityLevel","new_verbosity_level":0})");

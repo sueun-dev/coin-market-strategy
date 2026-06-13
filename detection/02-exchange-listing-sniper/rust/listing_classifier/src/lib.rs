@@ -37,6 +37,11 @@ fn contains_none(title: &str, keywords: &[&str]) -> bool {
     keywords.iter().all(|keyword| !title.contains(keyword))
 }
 
+fn has_bithumb_listing_prefix(title: &str) -> bool {
+    title.starts_with("[마켓 추가]")
+        || title.starts_with("[마켓 추가/수수료 이벤트]")
+}
+
 fn is_allowed_bithumb_market_add_suffix(suffix: &str) -> bool {
     let trimmed = suffix.trim();
     if trimmed.is_empty()
@@ -45,9 +50,7 @@ fn is_allowed_bithumb_market_add_suffix(suffix: &str) -> bool {
     {
         return true;
     }
-    const BLOCKED: [&str; 9] = [
-        "거래 오픈",
-        "오픈 예정",
+    const BLOCKED: [&str; 7] = [
         "시간 변경",
         "연기",
         "입출금",
@@ -56,9 +59,14 @@ fn is_allowed_bithumb_market_add_suffix(suffix: &str) -> bool {
         "중단",
         "종료",
     ];
-    !BLOCKED.iter().any(|keyword| trimmed.contains(keyword))
-        && trimmed.starts_with("및 ")
-        && trimmed.ends_with(" 안내")
+    if BLOCKED.iter().any(|keyword| trimmed.contains(keyword)) {
+        return false;
+    }
+    trimmed.starts_with("(거래 수수료 무료)")
+        || trimmed.starts_with("(거래수수료 무료)")
+        || trimmed.contains("거래 오픈")
+        || trimmed.contains("거래 개시")
+        || (trimmed.starts_with("및 ") && trimmed.ends_with(" 안내"))
 }
 
 fn is_ascii_word_char(ch: char) -> bool {
@@ -102,7 +110,7 @@ fn extract_ticker_candidates(title: &str) -> Vec<String> {
             break;
         }
         let candidate = &title[i + 1..end];
-        if (2..=10).contains(&candidate.len())
+        if (1..=10).contains(&candidate.len())
             && candidate
                 .bytes()
                 .all(|b| b.is_ascii_uppercase() || b.is_ascii_digit())
@@ -256,7 +264,7 @@ pub unsafe extern "C" fn classify_listing_title(
             "new_listing",
         ),
         "bithumb" => (
-            title.starts_with("[마켓 추가]")
+            has_bithumb_listing_prefix(title)
                 && contains_none(title, &BITHUMB_EXCLUDE_KEYWORDS)
                 && !title.contains("원화 마켓 재거래지원 안내")
                 && title

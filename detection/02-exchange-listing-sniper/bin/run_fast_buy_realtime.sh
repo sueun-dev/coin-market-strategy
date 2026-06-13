@@ -37,6 +37,14 @@ if [[ "${LISTING_TDLIB_RELAY_AUTO_BUILD:-1}" == "1" ]]; then
   fi
 fi
 
+if [[ "${LISTING_CLASSIFIER_VERIFY:-1}" == "1" ]]; then
+  if ! VERIFY_OUTPUT="$("$PYTHON_BIN" "$ROOT_DIR/bin/verify_listing_classifiers.py" --require-tdlib-relay 2>&1)"; then
+    echo "$VERIFY_OUTPUT" >&2
+    echo "Listing classifier fixture verification failed; refusing to start realtime buy." >&2
+    exit 1
+  fi
+fi
+
 cd "$ROOT_DIR"
 
 exec "$PYTHON_BIN" main.py \

@@ -89,6 +89,46 @@ def print_status_table(statuses: list[ChainStatus]):
     print("=" * 90)
 
 
+def _safe_int(value, default: int = 0) -> int:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _safe_float(value) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _restore_halt_record_from_state(
+    halt_detector: HaltDetector,
+    state_store: StateStore,
+    chain_id: str,
+):
+    """Seed a fresh HaltDetector from persisted state for subprocess polling."""
+    if halt_detector.get_record(chain_id) is not None:
+        return
+    previous = state_store.get(chain_id)
+    if not previous:
+        return
+    last_height = previous.get("last_height")
+    if last_height is None:
+        return
+
+    stalled_height = previous.get("stalled_height", last_height)
+    halt_detector.restore(
+        chain_id,
+        stalled_height=_safe_int(stalled_height),
+        consecutive_stalls=_safe_int(previous.get("consecutive_stalls"), 1),
+        halt_confirmed=bool(previous.get("is_halted")),
+        halt_confirmed_at=_safe_float(previous.get("halt_confirmed_at")),
+        halt_type=str(previous.get("halt_type") or "unexpected"),
+    )
+
+
 def poll_all(
     monitors: list[ChainMonitor],
     halt_detector: HaltDetector,
@@ -111,6 +151,7 @@ def poll_all(
             continue
 
         # Feed halt detector
+        _restore_halt_record_from_state(halt_detector, state_store, status.chain_id)
         halt_rec = halt_detector.observe(status.chain_id, block.height)
 
         # Update persistent state
@@ -120,6 +161,11 @@ def poll_all(
             block_time=block.timestamp,
             anomaly_level=status.anomaly_level.value,
             is_halted=halt_rec.halt_confirmed,
+            stalled_height=halt_rec.stalled_height,
+            consecutive_stalls=halt_rec.consecutive_stalls,
+            halt_confirmed_at=halt_rec.halt_confirmed_at,
+            halt_type=halt_rec.halt_type,
+            resumed_at=halt_rec.resumed_at,
         )
 
         # Emit halt signal if newly confirmed
@@ -174,6 +220,10 @@ def main():
         "--reset", action="store_true",
         help="Clear persisted state before running"
     )
+    parser.add_argument(
+        "--json", action="store_true",
+        help="Print newly emitted signals as JSON lines for ChainPulse"
+    )
     args = parser.parse_args()
 
     setup_logging(args.verbose)
@@ -204,22 +254,33 @@ def main():
                 "Starting continuous monitoring (interval=%ds, Ctrl+C to stop)",
                 args.interval,
             )
+            emitted_count = 0
             while True:
                 statuses = poll_all(monitors, halt_detector, signal_emitter, state_store)
-                print_status_table(statuses)
+                if args.json:
+                    emitted = signal_emitter.get_emitted()
+                    for signal in emitted[emitted_count:]:
+                        print(json.dumps(signal, ensure_ascii=False), flush=True)
+                    emitted_count = len(emitted)
+                else:
+                    print_status_table(statuses)
                 time.sleep(args.interval)
         else:
             # Single poll
             statuses = poll_all(monitors, halt_detector, signal_emitter, state_store)
-            print_status_table(statuses)
+            if args.json:
+                for signal in signal_emitter.get_emitted():
+                    print(json.dumps(signal, ensure_ascii=False), flush=True)
+            else:
+                print_status_table(statuses)
 
-            # Summary
-            errors = [s for s in statuses if s.error]
-            anomalies = [s for s in statuses if s.anomaly_level != AnomalyLevel.NONE and not s.error]
-            print(f"\nPolled {len(statuses)} chains: "
-                  f"{len(statuses) - len(errors)} OK, "
-                  f"{len(errors)} errors, "
-                  f"{len(anomalies)} anomalies")
+                # Summary
+                errors = [s for s in statuses if s.error]
+                anomalies = [s for s in statuses if s.anomaly_level != AnomalyLevel.NONE and not s.error]
+                print(f"\nPolled {len(statuses)} chains: "
+                      f"{len(statuses) - len(errors)} OK, "
+                      f"{len(errors)} errors, "
+                      f"{len(anomalies)} anomalies")
     except KeyboardInterrupt:
         print("\nStopping monitor...")
     finally:

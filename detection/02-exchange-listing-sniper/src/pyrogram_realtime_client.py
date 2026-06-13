@@ -8,15 +8,24 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
-from pyrogram import Client, filters
-from pyrogram.handlers import MessageHandler
-
 from .env_loader import MODULE_DIR, load_env_settings
 from .telegram_realtime_client import RealtimeTelegramChannelClient
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_SESSION_PATH = MODULE_DIR / "data" / "listing_source_pyrogram"
+
+
+def _load_pyrogram():
+    try:
+        from pyrogram import Client, filters
+        from pyrogram.handlers import MessageHandler
+    except ImportError as exc:
+        raise RuntimeError(
+            "pyrogram is required for the Pyrogram realtime backend. "
+            "Install pyrogram, or use HTML polling / another realtime backend."
+        ) from exc
+    return Client, filters, MessageHandler
 
 
 class PyrogramRealtimeChannelClient:
@@ -61,7 +70,8 @@ class PyrogramRealtimeChannelClient:
         session_file = self.session_path.with_suffix(".session")
         return session_file.exists()
 
-    def create_client(self) -> Client:
+    def create_client(self):
+        Client, _, _ = _load_pyrogram()
         return Client(
             name=str(self.session_path),
             api_id=self.api_id,
@@ -93,6 +103,7 @@ class PyrogramRealtimeChannelClient:
         if not self.is_configured():
             raise RuntimeError("LISTING_SOURCE_TELEGRAM_API_ID/API_HASH 설정이 필요합니다.")
 
+        _, filters, MessageHandler = _load_pyrogram()
         client = self.create_client()
         await client.start()
 

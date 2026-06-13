@@ -9,6 +9,7 @@ import threading
 from pathlib import Path
 
 STATE_FILE = Path(__file__).parent.parent / "data" / "detected_listing_posts.json"
+MAX_SEEN_MESSAGE_IDS = 512
 
 
 class StateStore:
@@ -19,13 +20,18 @@ class StateStore:
         self.state_file.parent.mkdir(parents=True, exist_ok=True)
         self._lock = threading.Lock()
         self._state = self._load()
+        self._replay_floor = {
+            channel_id: self._payload_last_seen(payload)
+            for channel_id, payload in self._state.items()
+        }
 
     def _load(self) -> dict:
         if not self.state_file.exists():
             return {}
         try:
             with open(self.state_file, "r") as handle:
-                return json.load(handle)
+                payload = json.load(handle)
+                return payload if isinstance(payload, dict) else {}
         except (json.JSONDecodeError, IOError):
             return {}
 
@@ -43,32 +49,82 @@ class StateStore:
 
     def get_last_seen(self, channel_id: str) -> int:
         with self._lock:
-            return int(self._state.get(channel_id, {}).get("last_seen_message_id", 0))
+            return self._payload_last_seen(self._state.get(channel_id, {}))
 
     def snapshot_last_seen(self) -> dict[str, int]:
         with self._lock:
             return {
-                channel_id: int(payload.get("last_seen_message_id", 0))
+                channel_id: self._payload_last_seen(payload)
                 for channel_id, payload in self._state.items()
             }
 
-    def mark_seen(self, channel_id: str, message_id: int, persist: bool = True) -> bool:
-        # NOTE (known limitation): dedup is a single monotonic high-water mark per
-        # channel. A message whose id is <= the highest id already seen is treated
-        # as a duplicate and skipped. Telegram channel message ids are assigned in
-        # increasing order, so out-of-order delivery of a *lower* id (e.g. a brief
-        # API reordering) would cause that listing to be dropped. This is a
-        # deliberate trade-off: a set/window of recently-seen ids would catch that
-        # case but widens the state model and is not the primary double-buy guard
-        # (idempotency ultimately relies on Bybit's orderLinkId dedup). Revisit
-        # only if lower-id reordering is observed in practice.
+    def snapshot_seen_message_ids(self) -> dict[str, list[int]]:
+        with self._lock:
+            return {
+                channel_id: self._payload_seen_ids(payload)
+                for channel_id, payload in self._state.items()
+            }
+
+    @staticmethod
+    def _bounded_seen_ids(values) -> list[int]:
+        seen_ids: set[int] = set()
+        for value in values:
+            try:
+                seen_ids.add(int(value))
+            except (TypeError, ValueError):
+                continue
+        return sorted(seen_ids)[-MAX_SEEN_MESSAGE_IDS:]
+
+    def can_mark_seen(self, channel_id: str, message_id: int) -> bool:
         with self._lock:
             existing = self._state.get(channel_id, {})
-            if message_id <= int(existing.get("last_seen_message_id", 0)):
+            seen_message_ids = set(self._payload_seen_ids(existing))
+            message_id = int(message_id)
+            return (
+                message_id not in seen_message_ids
+                and message_id > int(self._replay_floor.get(channel_id, 0))
+            )
+
+    def has_seen_listing(self, channel_id: str, ticker: str) -> bool:
+        key = ticker.upper()
+        with self._lock:
+            payload = self._state.get(channel_id, {})
+            seen = payload.get("seen_listing_tickers", {}) if isinstance(payload, dict) else {}
+            return key in seen
+
+    def mark_listing_seen(
+        self,
+        channel_id: str,
+        ticker: str,
+        message_id: int,
+        persist: bool = True,
+    ) -> bool:
+        key = ticker.upper()
+        with self._lock:
+            existing = self._payload_dict(self._state.get(channel_id, {}))
+            seen = dict(existing.get("seen_listing_tickers", {}))
+            if key in seen:
                 return False
-            self._state[channel_id] = {
-                "last_seen_message_id": int(message_id),
-            }
+            seen[key] = int(message_id)
+            existing["seen_listing_tickers"] = seen
+            self._state[channel_id] = existing
+            if persist:
+                self._save()
+            return True
+
+    def mark_seen(self, channel_id: str, message_id: int, persist: bool = True) -> bool:
+        with self._lock:
+            existing = self._payload_dict(self._state.get(channel_id, {}))
+            message_id = int(message_id)
+            seen_message_ids = set(self._payload_seen_ids(existing))
+            if message_id in seen_message_ids:
+                return False
+            if message_id <= int(self._replay_floor.get(channel_id, 0)):
+                return False
+            seen_message_ids.add(message_id)
+            existing["seen_message_ids"] = self._bounded_seen_ids(seen_message_ids)
+            existing["last_seen_message_id"] = max(self._payload_last_seen(existing), message_id)
+            self._state[channel_id] = existing
             if persist:
                 self._save()
             return True
@@ -79,12 +135,48 @@ class StateStore:
         persist: bool = True,
     ):
         with self._lock:
-            self._state = {
-                channel_id: {"last_seen_message_id": int(message_id)}
-                for channel_id, message_id in snapshot.items()
-            }
+            for channel_id, message_id in snapshot.items():
+                existing = self._payload_dict(self._state.get(channel_id, {}))
+                existing["last_seen_message_id"] = max(
+                    self._payload_last_seen(existing),
+                    int(message_id),
+                )
+                self._state[channel_id] = existing
             if persist:
                 self._save()
+
+    def replace_message_state_snapshot(
+        self,
+        last_seen_snapshot: dict[str, int],
+        seen_message_ids_snapshot: dict[str, list[int] | set[int]],
+        persist: bool = True,
+    ):
+        with self._lock:
+            channel_ids = set(last_seen_snapshot) | set(seen_message_ids_snapshot)
+            for channel_id in channel_ids:
+                existing = self._payload_dict(self._state.get(channel_id, {}))
+                existing["last_seen_message_id"] = max(
+                    self._payload_last_seen(existing),
+                    int(last_seen_snapshot.get(channel_id, 0)),
+                )
+                existing["seen_message_ids"] = self._bounded_seen_ids(
+                    seen_message_ids_snapshot.get(channel_id, set())
+                )
+                self._state[channel_id] = existing
+            if persist:
+                self._save()
+
+    def replace_hot_state_snapshot(
+        self,
+        last_seen_snapshot: dict[str, int],
+        seen_message_ids_snapshot: dict[str, list[int] | set[int]],
+        persist: bool = True,
+    ):
+        self.replace_message_state_snapshot(
+            last_seen_snapshot,
+            seen_message_ids_snapshot,
+            persist=persist,
+        )
 
     def flush(self):
         with self._lock:
@@ -93,4 +185,39 @@ class StateStore:
     def clear(self):
         with self._lock:
             self._state = {}
+            self._replay_floor = {}
             self._save()
+
+    @staticmethod
+    def _payload_last_seen(payload) -> int:
+        if isinstance(payload, dict):
+            try:
+                return int(payload.get("last_seen_message_id", 0))
+            except (TypeError, ValueError):
+                return 0
+        try:
+            return int(payload)
+        except (TypeError, ValueError):
+            return 0
+
+    @staticmethod
+    def _payload_dict(payload) -> dict:
+        if isinstance(payload, dict):
+            return dict(payload)
+        last_seen = StateStore._payload_last_seen(payload)
+        return {"last_seen_message_id": last_seen} if last_seen else {}
+
+    @staticmethod
+    def _payload_seen_ids(payload) -> list[int]:
+        if not isinstance(payload, dict):
+            return []
+        raw_ids = payload.get("seen_message_ids", [])
+        if not isinstance(raw_ids, list):
+            return []
+        seen_ids = []
+        for value in raw_ids:
+            try:
+                seen_ids.append(int(value))
+            except (TypeError, ValueError):
+                continue
+        return seen_ids

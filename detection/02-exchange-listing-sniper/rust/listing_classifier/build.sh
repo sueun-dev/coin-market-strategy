@@ -6,7 +6,16 @@ CRATE_DIR="$ROOT_DIR/rust/listing_classifier"
 BIN_DIR="$ROOT_DIR/bin"
 
 mkdir -p "$BIN_DIR"
-. "$HOME/.cargo/env"
+
+if [[ -f "$HOME/.cargo/env" ]]; then
+  . "$HOME/.cargo/env"
+fi
+
+if ! command -v cargo >/dev/null 2>&1; then
+  echo "cargo is required to build the Rust listing classifier." >&2
+  echo "Install Rust/Cargo or set PATH so cargo is available." >&2
+  exit 1
+fi
 
 cd "$CRATE_DIR"
 cargo build --release

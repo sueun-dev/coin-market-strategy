@@ -5,6 +5,8 @@ Supports authenticated requests via GITHUB_TOKEN env var (5000 req/hr)
 and unauthenticated requests (60 req/hr).
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import time

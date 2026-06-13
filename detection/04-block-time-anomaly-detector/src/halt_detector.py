@@ -49,6 +49,34 @@ class HaltDetector:
         self.threshold = consecutive_threshold
         self._records: dict[str, HaltRecord] = {}
 
+    def restore(
+        self,
+        chain_id: str,
+        *,
+        stalled_height: int | None,
+        consecutive_stalls: int = 0,
+        halt_confirmed: bool = False,
+        halt_confirmed_at: float | None = None,
+        halt_type: str = "unexpected",
+    ) -> HaltRecord:
+        """Restore a chain record from persistent state.
+
+        ChainPulse invokes this module as a short-lived subprocess. Without
+        restoring the last stalled height and count, "3 consecutive polls" would
+        reset to one on every subprocess call and root-level halt alerts would
+        never fire.
+        """
+        rec = HaltRecord(
+            chain_id=chain_id,
+            stalled_height=stalled_height,
+            consecutive_stalls=max(0, int(consecutive_stalls or 0)),
+            halt_confirmed=bool(halt_confirmed),
+            halt_confirmed_at=halt_confirmed_at,
+            halt_type=halt_type or "unexpected",
+        )
+        self._records[chain_id] = rec
+        return rec
+
     def observe(self, chain_id: str, height: int | None) -> HaltRecord:
         """Record a new block height observation and return the halt record.
 

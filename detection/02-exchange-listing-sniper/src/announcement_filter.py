@@ -8,12 +8,6 @@ from .native_classifier import get_native_classifier_manager
 
 MARKET_CODES = {"KRW", "BTC", "USDT", "ETH"}
 
-UPBIT_LISTING_KEYWORDS = (
-    "신규 거래지원",
-    "KRW 마켓 디지털 자산 추가",
-    "BTC 마켓 디지털 자산 추가",
-    "USDT 마켓 디지털 자산 추가",
-)
 UPBIT_EXCLUDE_KEYWORDS = (
     "입출금",
     "유통량",
@@ -24,10 +18,6 @@ UPBIT_EXCLUDE_KEYWORDS = (
     "종료",
     "변경 안내",
 )
-BITHUMB_LISTING_KEYWORDS = (
-    "[마켓 추가]",
-    "원화 마켓 추가",
-)
 BITHUMB_EXCLUDE_KEYWORDS = (
     "입출금",
     "유의촉구",
@@ -35,14 +25,20 @@ BITHUMB_EXCLUDE_KEYWORDS = (
     "시세알림",
     "종료",
 )
+BITHUMB_LISTING_PREFIXES = (
+    "[마켓 추가]",
+    "[마켓 추가/수수료 이벤트]",
+)
 BITHUMB_ALLOWED_MARKET_ADD_SUFFIXES = {
     "",
     "및 재단 에어드랍 안내",
     "및 에어드랍 안내",
 }
+BITHUMB_ALLOWED_FEE_SUFFIX_PREFIXES = (
+    "(거래 수수료 무료)",
+    "(거래수수료 무료)",
+)
 BITHUMB_BLOCKED_MARKET_ADD_SUFFIX_KEYWORDS = (
-    "거래 오픈",
-    "오픈 예정",
     "시간 변경",
     "연기",
     "입출금",
@@ -71,7 +67,7 @@ def _contains_token(title: str, token: str) -> bool:
 
 
 def _is_symbol_token(value: str) -> bool:
-    return 2 <= len(value) <= 10 and value.isascii() and all(
+    return 1 <= len(value) <= 10 and value.isascii() and all(
         char.isupper() or char.isdigit() for char in value
     )
 
@@ -124,7 +120,11 @@ def _collect_parenthesized_tokens(title: str) -> list[str]:
 
 
 def _normalize_asset_segment(value: str) -> str:
-    return value.strip().lstrip(",").strip()
+    segment = value.strip().lstrip(",").strip()
+    for prefix in ("및 ", "and ", "& ", "/ ", "· "):
+        if segment.startswith(prefix):
+            return segment[len(prefix) :].strip()
+    return segment
 
 
 def _collect_asset_ticker_pairs(title: str) -> list[dict[str, str]]:
@@ -237,12 +237,20 @@ def _has_bithumb_won_market(title: str) -> bool:
     return "원화 마켓" in title
 
 
+def _has_bithumb_listing_prefix(title: str) -> bool:
+    return any(title.startswith(prefix) for prefix in BITHUMB_LISTING_PREFIXES)
+
+
 def _is_allowed_bithumb_market_add_suffix(suffix: str) -> bool:
     suffix = suffix.strip()
     if suffix in BITHUMB_ALLOWED_MARKET_ADD_SUFFIXES:
         return True
     if any(keyword in suffix for keyword in BITHUMB_BLOCKED_MARKET_ADD_SUFFIX_KEYWORDS):
         return False
+    if suffix.startswith(BITHUMB_ALLOWED_FEE_SUFFIX_PREFIXES):
+        return True
+    if "거래 오픈" in suffix or "거래 개시" in suffix:
+        return True
     return suffix.startswith("및 ") and suffix.endswith(" 안내")
 
 
@@ -264,7 +272,7 @@ def _is_upbit_listing(title: str) -> bool:
 
 
 def _is_bithumb_listing(title: str) -> bool:
-    if not title.startswith("[마켓 추가]"):
+    if not _has_bithumb_listing_prefix(title):
         return False
     if any(keyword in title for keyword in BITHUMB_EXCLUDE_KEYWORDS):
         return False
@@ -331,6 +339,14 @@ def make_listing_title_classifier(
     display_name: str,
     minimal: bool = False,
 ) -> Callable[[str], dict | None]:
+    def _classify_python(title: str) -> dict | None:
+        return classify_listing_title_python(
+            exchange=exchange,
+            title=title,
+            display_name=display_name,
+            include_details=not minimal,
+        )
+
     native_manager = get_native_classifier_manager()
     native_backend = native_manager.get_backend()
     if native_backend is not None:
@@ -343,9 +359,9 @@ def make_listing_title_classifier(
                 else:
                     listing = bound_backend.classify_dict(title)
             except Exception:
-                return None
+                return _classify_python(title)
             if listing is None:
-                return None
+                return _classify_python(title)
             return _attach_listing_context(
                 listing,
                 exchange=exchange,
@@ -354,14 +370,6 @@ def make_listing_title_classifier(
             )
 
         return _classify_native
-
-    def _classify_python(title: str) -> dict | None:
-        return classify_listing_title_python(
-            exchange=exchange,
-            title=title,
-            display_name=display_name,
-            include_details=not minimal,
-        )
 
     return _classify_python
 

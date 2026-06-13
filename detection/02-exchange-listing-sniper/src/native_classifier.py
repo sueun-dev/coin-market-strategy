@@ -29,6 +29,23 @@ MARKET_FLAGS = (
 BENCHMARK_TITLE_POSITIVE = "[거래] 베니스토큰(VVV) 신규 거래지원 안내 (KRW, BTC 마켓)"
 BENCHMARK_TITLE_NEGATIVE = "[거래] 유통량 계획표 변경 안내 : 오르카(ORCA)"
 BENCHMARK_ITERS = 20_000
+SEMANTIC_CANARIES = (
+    (
+        "bithumb",
+        "[마켓 추가/수수료 이벤트] 팔콘 파이낸스(FF) 원화 마켓 추가 (거래 수수료 무료)",
+        {"signal_type": "market_add", "ticker": "FF", "markets": ["KRW"]},
+    ),
+    (
+        "bithumb",
+        "[마켓 추가] 밈코어(M) 원화 마켓 추가",
+        {"signal_type": "market_add", "ticker": "M", "markets": ["KRW"]},
+    ),
+    (
+        "bithumb",
+        "[마켓 추가] 비쓰리(B3) 원화 마켓 추가 (거래 오픈 시간 변경)",
+        None,
+    ),
+)
 
 SETTINGS = load_env_settings(
     {
@@ -267,12 +284,36 @@ class NativeClassifierManager:
             if not path.exists():
                 continue
             try:
-                available[name] = NativeClassifierBackend(name=name, library_path=path)
+                backend = NativeClassifierBackend(name=name, library_path=path)
             except Exception as exc:
                 if not self._load_error_logged:
                     logger.warning("Native classifier load failed for %s: %s", name, exc)
                 self._load_error_logged = True
+                continue
+            if not self._backend_matches_semantic_canaries(backend):
+                logger.warning(
+                    "Native classifier %s failed semantic canary checks; ignoring %s",
+                    name,
+                    path,
+                )
+                continue
+            available[name] = backend
         return available
+
+    @staticmethod
+    def _backend_matches_semantic_canaries(backend: NativeClassifierBackend) -> bool:
+        for exchange, title, expected in SEMANTIC_CANARIES:
+            result = backend.classify_dict(exchange, title)
+            if expected is None:
+                if result is not None:
+                    return False
+                continue
+            if result is None:
+                return False
+            for key, value in expected.items():
+                if result.get(key) != value:
+                    return False
+        return True
 
     def _read_cached_winner(
         self,

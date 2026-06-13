@@ -3,6 +3,8 @@ Release filter for detecting blockchain upgrade/hardfork releases.
 Filters GitHub releases by keywords, semantic version changes, and pre-release markers.
 """
 
+from __future__ import annotations
+
 import logging
 import re
 
@@ -26,6 +28,45 @@ UPGRADE_KEYWORDS = [
     "state migration",
     "genesis restart",
 ]
+
+STRONG_UPGRADE_KEYWORDS = {
+    "hardfork",
+    "hard fork",
+    "hard-fork",
+    "breaking change",
+    "consensus",
+    "network upgrade",
+    "mandatory update",
+    "chain halt",
+    "chain upgrade",
+    "mainnet upgrade",
+    "state migration",
+    "genesis restart",
+}
+
+WEAK_UPGRADE_KEYWORDS = {
+    "upgrade",
+    "migration",
+    "node update",
+}
+
+ACTIONABLE_CONTEXT_RE = re.compile(
+    r"\b("
+    r"chain|mainnet|network|protocol|consensus|runtime|validator|validators|"
+    r"node operator|node operators|hardfork|hard fork|governance|genesis|"
+    r"state migration|software upgrade|halt height|upgrade height"
+    r")\b",
+    re.IGNORECASE,
+)
+
+FALSE_POSITIVE_CONTEXT_RE = re.compile(
+    r"\b("
+    r"dependenc(?:y|ies)|deps|package|packages|library|libraries|"
+    r"ci|docs?|readme|changelog|docker|helm|chart|charts|"
+    r"database migration|schema migration|sql migration|test(?:s|ing)?"
+    r")\b",
+    re.IGNORECASE,
+)
 
 # Pre-release tag indicators
 PRE_RELEASE_PATTERNS = ["rc", "alpha", "beta", "preview", "dev"]
@@ -101,6 +142,16 @@ def detect_version_jump(
     return None
 
 
+def _has_false_positive_context(search_text: str) -> bool:
+    """Return True for maintenance releases that only sound like upgrades."""
+    return bool(FALSE_POSITIVE_CONTEXT_RE.search(search_text))
+
+
+def _has_actionable_upgrade_context(search_text: str) -> bool:
+    """Return True when weak words are tied to chain/runtime upgrade context."""
+    return bool(ACTIONABLE_CONTEXT_RE.search(search_text))
+
+
 def filter_release(release: dict, previous_tags: list[str] | None = None) -> dict | None:
     """Filter a single release for upgrade/hardfork relevance.
 
@@ -138,9 +189,36 @@ def filter_release(release: dict, previous_tags: list[str] | None = None) -> dic
     # Check pre-release status
     is_pre = is_pre_release_tag(tag) or is_github_prerelease
 
+    strong_keywords = [kw for kw in keywords_matched if kw in STRONG_UPGRADE_KEYWORDS]
+    weak_keywords = [kw for kw in keywords_matched if kw in WEAK_UPGRADE_KEYWORDS]
+    has_false_positive_context = _has_false_positive_context(search_text)
+    has_actionable_context = _has_actionable_upgrade_context(search_text)
+    major_jump_only = (
+        version_jump is not None
+        and version_jump["type"] == "major"
+        and not strong_keywords
+        and not (weak_keywords and has_actionable_context and not has_false_positive_context)
+    )
+    minor_jump_only = (
+        version_jump is not None
+        and version_jump["type"] == "minor"
+        and not strong_keywords
+        and not (weak_keywords and has_actionable_context and not has_false_positive_context)
+    )
+
+    # Weak words like "upgrade" and "migration" are common in dependency,
+    # database, docs, and CI releases. Emit only when tied to chain/runtime
+    # context, or when a major version jump deserves a low-priority warning.
+    if not strong_keywords:
+        weak_contextual = weak_keywords and has_actionable_context and not has_false_positive_context
+        if not weak_contextual and not major_jump_only:
+            return None
+    if minor_jump_only:
+        return None
+
     # Determine if this is a breaking/mandatory change
     is_breaking = any(
-        kw in keywords_matched
+        kw in strong_keywords
         for kw in [
             "hardfork", "hard fork", "hard-fork",
             "breaking change", "consensus", "chain halt",
@@ -150,11 +228,11 @@ def filter_release(release: dict, previous_tags: list[str] | None = None) -> dic
         is_breaking
         or "mandatory update" in keywords_matched
         or "mandatory" in search_text
-        or (version_jump is not None and version_jump["type"] == "major")
+        or ("network upgrade" in keywords_matched and "validator" in search_text)
     )
 
     # Only emit if there's something interesting
-    has_keywords = len(keywords_matched) > 0
+    has_keywords = bool(strong_keywords or weak_keywords)
     has_version_jump = version_jump is not None
 
     if not has_keywords and not has_version_jump:
@@ -163,12 +241,14 @@ def filter_release(release: dict, previous_tags: list[str] | None = None) -> dic
     # Determine confidence
     if is_breaking and not is_pre:
         confidence = "high"
-    elif has_keywords and has_version_jump:
+    elif strong_keywords and has_version_jump:
         confidence = "high"
-    elif has_keywords:
+    elif strong_keywords:
         confidence = "medium"
-    elif has_version_jump:
+    elif weak_keywords and has_actionable_context:
         confidence = "medium"
+    elif major_jump_only:
+        confidence = "low"
     else:
         confidence = "low"
 
@@ -176,7 +256,7 @@ def filter_release(release: dict, previous_tags: list[str] | None = None) -> dic
     if is_pre and confidence == "high":
         confidence = "medium"
 
-    signal_level = "pre-warning" if is_pre else "alert"
+    signal_level = "pre-warning" if is_pre or major_jump_only else "alert"
 
     return {
         "tag": tag,

@@ -1,10 +1,11 @@
-"""Realtime Telegram source using TDLib via a lightweight relay process."""
-
 from __future__ import annotations
+
+"""Realtime Telegram source using TDLib via a lightweight relay process."""
 
 import asyncio
 import json
 import logging
+import os
 import subprocess
 import threading
 import time
@@ -14,12 +15,215 @@ from pathlib import Path
 from queue import Empty, Queue
 
 from .env_loader import MODULE_DIR, load_env_settings
-from .telegram_realtime_client import RealtimeTelegramChannelClient
+from .payload_normalization import string_list
 
 logger = logging.getLogger(__name__)
 
 DEFAULT_RELAY_PATH = MODULE_DIR / "bin" / "tdlib_json_relay"
 DEFAULT_DB_DIR = MODULE_DIR / "data" / "tdlib_source_db"
+DEFAULT_WATCH_CHAT_CACHE_PATH = MODULE_DIR / "data" / "tdlib_watch_chats.json"
+TDLIB_RELAY_ENV_KEYS = {
+    "BYBIT_API_KEY",
+    "BYBIT_API_SECRET",
+    "BYBIT_API_BASE_URL",
+    "BYBIT_RECV_WINDOW",
+    "BYBIT_TIMESTAMP_BIAS_MS",
+    "BYBIT_SPOT_BUY_ENABLED",
+    "BYBIT_SPOT_BUY_USDT_AMOUNT",
+    "LISTING_BYBIT_HTTP_TIMEOUT_MS",
+    "LISTING_BYBIT_ORDER_RESPONSE_TIMEOUT_MS",
+    "LISTING_BYBIT_CONNECT_TIMEOUT_MS",
+    "LISTING_TDLIB_RECEIVE_TIMEOUT_SEC",
+    "LISTING_TDLIB_FLUSH_LISTING_EVENTS",
+    "LISTING_TDLIB_EMIT_LISTING_EVENTS",
+    "LISTING_TDLIB_DISABLE_QOS_BOOST",
+    "LISTING_TDLIB_DISABLE_BACKGROUND_QOS_LOWER",
+    "LISTING_TDLIB_NATIVE_TIMING_ENABLED",
+    "LISTING_TDLIB_NATIVE_KEEPWARM_INTERVAL",
+    "LISTING_TDLIB_NATIVE_SYMBOL_REFRESH_INTERVAL",
+    "LISTING_TDLIB_NATIVE_PARALLEL_KEEPWARM_CLIENTS",
+    "LISTING_TDLIB_NATIVE_ORDER_CLIENT_KEEPWARM_ENABLED",
+    "LISTING_TDLIB_NATIVE_IMMEDIATE_KEEPWARM_REFRESH",
+    "LISTING_TDLIB_NATIVE_BLOCKING_HOT_ORDER_WARMUP",
+    "LISTING_TDLIB_NATIVE_ASYNC_ORDER_DISPATCH",
+    "LISTING_TDLIB_NATIVE_WORKER_SPIN_WAIT",
+    "LISTING_TDLIB_NATIVE_WORKER_SPIN_COUNT",
+    "LISTING_TDLIB_NATIVE_ORDER_START_SPIN_COUNT",
+    "LISTING_TDLIB_NATIVE_ORDER_ON_CACHE_MISS",
+    "LISTING_TDLIB_NATIVE_SYMBOL_CACHE_PATH",
+    "LISTING_TDLIB_NATIVE_SYMBOL_CACHE_MAX_AGE_SEC",
+    "LISTING_TDLIB_NATIVE_SYMBOL_CACHE_MIN_COUNT",
+}
+
+
+def _is_truthy(value: str | bool | None, default: bool = False) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    return value.strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _handle_key(handle: str) -> str:
+    return handle.strip().lstrip("@").casefold()
+
+
+def _parse_watch_chat_ids(value: str | None) -> dict[str, int]:
+    """Parse optional TDLib chat-id cache.
+
+    Supported forms:
+    - -100123:upbit_news,-100456:BithumbExchange
+    - upbit_news=-100123,BithumbExchange=-100456
+    """
+    if not value:
+        return {}
+
+    chat_ids: dict[str, int] = {}
+    for raw_item in value.replace(";", ",").split(","):
+        item = raw_item.strip()
+        if not item:
+            continue
+
+        if "=" in item:
+            handle, chat_id_text = item.split("=", 1)
+        elif ":" in item:
+            left, right = item.split(":", 1)
+            if left.strip().lstrip("-").isdigit():
+                chat_id_text, handle = left, right
+            else:
+                handle, chat_id_text = left, right
+        else:
+            logger.warning("Ignoring invalid LISTING_TDLIB_WATCH_CHATS item: %s", item)
+            continue
+
+        key = _handle_key(handle)
+        if not key:
+            logger.warning("Ignoring LISTING_TDLIB_WATCH_CHATS item with empty handle: %s", item)
+            continue
+
+        try:
+            chat_ids[key] = int(chat_id_text.strip())
+        except ValueError:
+            logger.warning("Ignoring LISTING_TDLIB_WATCH_CHATS item with invalid chat id: %s", item)
+    return chat_ids
+
+
+def _native_listing_defaults(channel_handle: str) -> tuple[str, str]:
+    normalized = _handle_key(channel_handle)
+    if normalized == "upbit_news":
+        return "upbit", "new_listing"
+    if normalized == "bithumbexchange":
+        return "bithumb", "market_add"
+    return "", ""
+
+
+def _build_listing_matched_post(
+    *,
+    payload: dict,
+    event_received_monotonic_ns: int,
+    clock_offset_ns: int,
+) -> dict:
+    relay_received_monotonic_ns = int(
+        payload.get(
+            "relay_received_monotonic_ns",
+            event_received_monotonic_ns,
+        )
+    )
+    received_python_monotonic_ns = relay_received_monotonic_ns - clock_offset_ns
+    published_at = datetime.fromtimestamp(
+        int(payload.get("published_at_unix", 0)),
+        tz=timezone.utc,
+    )
+    channel_handle = str(payload["channel_handle"])
+    message_id = int(payload["message_id"])
+    default_exchange, default_signal_type = _native_listing_defaults(channel_handle)
+    ticker = str(payload.get("ticker", ""))
+    tickers = string_list(payload.get("tickers"))
+    if not tickers and ticker:
+        tickers = [ticker]
+
+    native_listing = {
+        "exchange": payload.get("exchange") or default_exchange,
+        "signal_type": payload.get("signal_type") or default_signal_type,
+        "ticker": ticker,
+        "tickers": tickers,
+        "markets": string_list(payload.get("markets")) or ["KRW"],
+    }
+    asset_name = payload.get("asset_name")
+    if asset_name:
+        native_listing["asset_name"] = asset_name
+
+    post = {
+        "channel_handle": channel_handle,
+        "message_id": message_id,
+        "published_at": published_at.isoformat(),
+        "received_monotonic_ns": relay_received_monotonic_ns,
+        "received_python_monotonic_ns": received_python_monotonic_ns,
+        "relay_received_monotonic_ns": relay_received_monotonic_ns,
+        "title": payload.get("title", ""),
+        "text": payload.get("title", ""),
+        "post_url": f"https://t.me/{channel_handle}/{message_id}",
+        "native_listing": native_listing,
+    }
+    native_trade = payload.get("native_trade")
+    if isinstance(native_trade, dict):
+        post["native_trade"] = native_trade
+    native_trades = payload.get("native_trades")
+    if isinstance(native_trades, list):
+        post["native_trades"] = [
+            item for item in native_trades if isinstance(item, dict)
+        ]
+    return post
+
+
+def _tdlib_relay_env() -> dict[str, str]:
+    env = os.environ.copy()
+    env.update(load_env_settings(TDLIB_RELAY_ENV_KEYS))
+    return env
+
+
+def _realtime_telegram_client_class():
+    from .telegram_realtime_client import RealtimeTelegramChannelClient
+
+    return RealtimeTelegramChannelClient
+
+
+def _load_watch_chat_cache(path: Path = DEFAULT_WATCH_CHAT_CACHE_PATH) -> dict[str, int]:
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return {}
+    except (OSError, json.JSONDecodeError) as exc:
+        logger.warning("TDLib watch chat cache read failed: %s", exc)
+        return {}
+
+    if not isinstance(raw, dict):
+        logger.warning("Ignoring invalid TDLib watch chat cache: %s", path)
+        return {}
+
+    chat_ids: dict[str, int] = {}
+    for handle, chat_id in raw.items():
+        key = _handle_key(str(handle))
+        if not key:
+            continue
+        try:
+            chat_ids[key] = int(chat_id)
+        except (TypeError, ValueError):
+            logger.warning("Ignoring invalid cached TDLib chat id for %s: %r", handle, chat_id)
+    return chat_ids
+
+
+def _save_watch_chat_cache(chat_ids: dict[str, int], path: Path = DEFAULT_WATCH_CHAT_CACHE_PATH):
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = path.with_suffix(path.suffix + ".tmp")
+        tmp_path.write_text(
+            json.dumps(chat_ids, ensure_ascii=False, sort_keys=True),
+            encoding="utf-8",
+        )
+        tmp_path.replace(path)
+    except OSError as exc:
+        logger.warning("TDLib watch chat cache write failed: %s", exc)
 
 
 class _TdlibEvent:
@@ -34,6 +238,7 @@ class _TdlibRelay:
         self.proc: subprocess.Popen[str] | None = None
         self.queue: Queue[_TdlibEvent] = Queue()
         self.clock_queue: Queue[int] = Queue()
+        self.native_status_queue: Queue[dict] = Queue()
         self._reader: threading.Thread | None = None
         self._async_loop: asyncio.AbstractEventLoop | None = None
         self._async_queue: asyncio.Queue[_TdlibEvent] | None = None
@@ -48,6 +253,7 @@ class _TdlibRelay:
             stderr=subprocess.STDOUT,
             text=True,
             bufsize=1,
+            env=_tdlib_relay_env(),
         )
         assert self.proc.stdout is not None
         line = self.proc.stdout.readline().strip()
@@ -67,6 +273,26 @@ class _TdlibRelay:
                     self.clock_queue.put(int(value))
                 except ValueError:
                     pass
+                continue
+            if line.startswith("__native_buy_status__\t"):
+                try:
+                    _, payload = line.split("\t", 1)
+                    status = json.loads(payload)
+                except (ValueError, json.JSONDecodeError):
+                    continue
+                self.native_status_queue.put(status)
+                if not status.get("active"):
+                    logger.info(
+                        "TDLib native-buy inactive: %s",
+                        status.get("reason", "inactive"),
+                    )
+                elif status.get("ready"):
+                    logger.info("TDLib native-buy ready: %s", status.get("reason", "ready"))
+                else:
+                    logger.warning(
+                        "TDLib native-buy not ready: %s",
+                        status.get("reason", "unknown"),
+                    )
                 continue
             if not line or "\t" not in line:
                 continue
@@ -138,12 +364,18 @@ class _TdlibRelay:
             start_ns = time.monotonic_ns()
             self.proc.stdin.write("__clock__\n")
             self.proc.stdin.flush()
-            relay_ns = self.clock_queue.get(timeout=5)
+            try:
+                relay_ns = self.clock_queue.get(timeout=5)
+            except Empty as exc:
+                raise TimeoutError("TDLib relay clock calibration timed out") from exc
             end_ns = time.monotonic_ns()
             midpoint_ns = (start_ns + end_ns) // 2
             samples.append((end_ns - start_ns, relay_ns - midpoint_ns))
         samples.sort(key=lambda item: item[0])
         return samples[0][1]
+
+    def wait_for_native_status(self, timeout: float = 15.0) -> dict:
+        return self.native_status_queue.get(timeout=timeout)
 
     def close(self):
         if self.proc is not None and self.proc.stdin is not None:
@@ -313,6 +545,110 @@ class TdlibRealtimeChannelClient:
         finally:
             await asyncio.to_thread(relay.close)
 
+    async def _resolve_watch_chats(
+        self,
+        relay: _TdlibRelay,
+        channel_handles: list[str],
+    ) -> dict[int, str]:
+        chat_id_to_handle: dict[int, str] = {}
+        cached_chat_ids = _load_watch_chat_cache()
+        configured_chat_ids = dict(cached_chat_ids)
+        configured_chat_ids.update(
+            _parse_watch_chat_ids(os.environ.get("LISTING_TDLIB_WATCH_CHATS"))
+        )
+        resolved_chat_ids: dict[str, int] = {}
+        for handle in channel_handles:
+            username = handle.lstrip("@")
+            username_key = _handle_key(username)
+            configured_chat_id = configured_chat_ids.get(username_key)
+            if configured_chat_id is not None:
+                chat_id_to_handle[configured_chat_id] = username
+                logger.info(
+                    "TDLib chat id cache 사용: %s=%s",
+                    username,
+                    configured_chat_id,
+                )
+                continue
+
+            response = await asyncio.to_thread(
+                relay.send_request,
+                {"@type": "searchPublicChat", "username": username},
+                20,
+            )
+            if response.get("@type") != "chat":
+                raise RuntimeError(f"TDLib failed to resolve chat {username}: {response}")
+            resolved_chat_id = int(response["id"])
+            chat_id_to_handle[resolved_chat_id] = username
+            logger.info(
+                "TDLib chat resolved: %s=%s (LISTING_TDLIB_WATCH_CHATS에 넣으면 재시작 resolve 생략)",
+                username,
+                resolved_chat_id,
+            )
+            resolved_chat_ids[username_key] = resolved_chat_id
+
+        if resolved_chat_ids:
+            cache_to_save = dict(cached_chat_ids)
+            cache_to_save.update(resolved_chat_ids)
+            asyncio.create_task(asyncio.to_thread(_save_watch_chat_cache, cache_to_save))
+
+        return chat_id_to_handle
+
+    @staticmethod
+    def _watch_spec(chat_id_to_handle: dict[int, str]) -> str:
+        return ",".join(
+            f"{chat_id}:{handle}"
+            for chat_id, handle in chat_id_to_handle.items()
+        )
+
+    async def run_native_buy_relay_only(
+        self,
+        channel_handles: list[str],
+        on_ready=None,
+    ):
+        """Start only the TDLib C++ relay native-buy path and keep it alive."""
+        if not self.is_configured():
+            raise RuntimeError("LISTING_SOURCE_TELEGRAM_API_ID/API_HASH/PHONE 설정이 필요합니다.")
+        if not _is_truthy(os.environ.get("LISTING_TDLIB_NATIVE_BUY_ACTIVE")):
+            raise RuntimeError("TDLib native relay-only mode requires LISTING_TDLIB_NATIVE_BUY_ACTIVE=1")
+        if not _is_truthy(
+            os.environ.get("LISTING_TDLIB_NATIVE_BUY_ENABLED"),
+            default=True,
+        ):
+            raise RuntimeError("TDLib native relay-only mode requires LISTING_TDLIB_NATIVE_BUY_ENABLED=1")
+
+        relay = _TdlibRelay(self.relay_path)
+        await asyncio.to_thread(relay.start)
+        try:
+            await asyncio.to_thread(self._ensure_ready, relay, False)
+            chat_id_to_handle = await self._resolve_watch_chats(relay, channel_handles)
+            watch_spec = self._watch_spec(chat_id_to_handle)
+            if not watch_spec:
+                raise RuntimeError("TDLib native relay-only mode has no watch chats")
+
+            await asyncio.to_thread(relay.send_raw, f"__native_start__\t{watch_spec}")
+            native_status = await asyncio.to_thread(
+                relay.wait_for_native_status,
+                30.0,
+            )
+            if not native_status.get("ready"):
+                raise RuntimeError(
+                    "TDLib native-buy requested but not ready: "
+                    f"{native_status.get('reason', 'unknown')}"
+                )
+
+            logger.info(
+                "실시간 텔레그램 감시 시작 (TDLib native relay-only) — %s",
+                ", ".join(channel_handles),
+            )
+            if on_ready is not None:
+                maybe_ready = on_ready()
+                if hasattr(maybe_ready, "__await__"):
+                    await maybe_ready
+
+            await asyncio.Event().wait()
+        finally:
+            await asyncio.to_thread(relay.close)
+
     @staticmethod
     def _extract_text(payload: dict) -> str:
         if payload.get("@type") != "updateNewMessage":
@@ -329,6 +665,7 @@ class TdlibRealtimeChannelClient:
         on_post,
         minimal_post: bool = False,
         trade_post: bool = False,
+        on_ready=None,
     ):
         if not self.is_configured():
             raise RuntimeError("LISTING_SOURCE_TELEGRAM_API_ID/API_HASH/PHONE 설정이 필요합니다.")
@@ -337,35 +674,63 @@ class TdlibRealtimeChannelClient:
         await asyncio.to_thread(relay.start)
         try:
             await asyncio.to_thread(self._ensure_ready, relay, False)
-            clock_offset_ns = await asyncio.to_thread(relay.measure_clock_offset_ns)
+            skip_clock_calibration = _is_truthy(
+                os.environ.get("LISTING_TDLIB_SKIP_CLOCK_CALIBRATION"),
+                default=trade_post,
+            )
+            if skip_clock_calibration:
+                clock_offset_ns = 0
+                logger.info("TDLib clock calibration skipped for hot path startup")
+            else:
+                try:
+                    clock_offset_ns = await asyncio.to_thread(relay.measure_clock_offset_ns)
+                except TimeoutError as exc:
+                    logger.warning(
+                        "TDLib relay clock calibration failed; using raw relay timestamps: %s",
+                        exc,
+                    )
+                    clock_offset_ns = 0
 
-            chat_id_to_handle: dict[int, str] = {}
-            for handle in channel_handles:
-                username = handle.lstrip("@")
-                response = await asyncio.to_thread(
-                    relay.send_request,
-                    {"@type": "searchPublicChat", "username": username},
-                    20,
+            native_listing_mode = bool(trade_post)
+            native_buy_enabled = (
+                native_listing_mode
+                and _is_truthy(os.environ.get("LISTING_TDLIB_NATIVE_BUY_ACTIVE"))
+                and _is_truthy(
+                    os.environ.get("LISTING_TDLIB_NATIVE_BUY_ENABLED"),
+                    default=True,
                 )
-                if response.get("@type") != "chat":
-                    raise RuntimeError(f"TDLib failed to resolve chat {username}: {response}")
-                chat_id_to_handle[int(response["id"])] = username
+            )
+            chat_id_to_handle = await self._resolve_watch_chats(relay, channel_handles)
 
             relay.attach_async_loop(asyncio.get_running_loop())
 
-            native_listing_mode = bool(trade_post)
             if native_listing_mode:
-                watch_spec = ",".join(
-                    f"{chat_id}:{handle}"
-                    for chat_id, handle in chat_id_to_handle.items()
-                )
-                await asyncio.to_thread(relay.send_raw, f"__watch_chats__\t{watch_spec}")
-                await asyncio.to_thread(relay.send_raw, "__native_listing_on__")
+                watch_spec = self._watch_spec(chat_id_to_handle)
+                if native_buy_enabled:
+                    await asyncio.to_thread(relay.send_raw, f"__native_start__\t{watch_spec}")
+                    native_status = await asyncio.to_thread(
+                        relay.wait_for_native_status,
+                        30.0,
+                    )
+                    if not native_status.get("ready"):
+                        raise RuntimeError(
+                            "TDLib native-buy requested but not ready: "
+                            f"{native_status.get('reason', 'unknown')}"
+                        )
+                else:
+                    await asyncio.to_thread(relay.send_raw, f"__watch_chats__\t{watch_spec}")
+                    await asyncio.to_thread(relay.send_raw, "__native_buy_off__")
+                    await asyncio.to_thread(relay.wait_for_native_status, 10.0)
+                    await asyncio.to_thread(relay.send_raw, "__native_listing_on__")
 
             logger.info(
                 "실시간 텔레그램 감시 시작 (TDLib) — %s",
                 ", ".join(channel_handles),
             )
+            if on_ready is not None:
+                maybe_ready = on_ready()
+                if hasattr(maybe_ready, "__await__"):
+                    await maybe_ready
 
             while True:
                 event = await relay.async_wait_for(
@@ -374,27 +739,11 @@ class TdlibRealtimeChannelClient:
                 )
                 payload = event.payload
                 if payload.get("@type") == "listingMatched":
-                    received_monotonic_ns = int(event.received_monotonic_ns) - clock_offset_ns
-                    published_at = datetime.fromtimestamp(
-                        int(payload.get("published_at_unix", 0)),
-                        tz=timezone.utc,
+                    post = _build_listing_matched_post(
+                        payload=payload,
+                        event_received_monotonic_ns=int(event.received_monotonic_ns),
+                        clock_offset_ns=clock_offset_ns,
                     )
-                    post = {
-                        "channel_handle": payload["channel_handle"],
-                        "message_id": int(payload["message_id"]),
-                        "published_at": published_at.isoformat(),
-                        "received_monotonic_ns": received_monotonic_ns,
-                        "title": payload.get("title", ""),
-                        "text": payload.get("title", ""),
-                        "post_url": f"https://t.me/{payload['channel_handle']}/{int(payload['message_id'])}",
-                        "native_listing": {
-                            "exchange": payload.get("exchange", ""),
-                            "signal_type": payload.get("signal_type", ""),
-                            "ticker": payload.get("ticker", ""),
-                            "asset_name": payload.get("asset_name", ""),
-                            "markets": list(payload.get("markets", [])),
-                        },
-                    }
                     maybe_result = on_post(post)
                     if hasattr(maybe_result, "__await__"):
                         await maybe_result
@@ -413,11 +762,12 @@ class TdlibRealtimeChannelClient:
                     tz=timezone.utc,
                 )
                 received_monotonic_ns = int(event.received_monotonic_ns) - clock_offset_ns
+                realtime_client = _realtime_telegram_client_class()
                 if trade_post:
-                    title = RealtimeTelegramChannelClient.extract_title(text)
+                    title = realtime_client.extract_title(text)
                     if not title:
                         continue
-                    post = RealtimeTelegramChannelClient.build_trade_post(
+                    post = realtime_client.build_trade_post(
                         channel_handle=handle,
                         message_id=int(message["id"]),
                         text=text,
@@ -426,10 +776,10 @@ class TdlibRealtimeChannelClient:
                         title=title,
                     )
                 elif minimal_post:
-                    if not RealtimeTelegramChannelClient.has_nonspace(text):
+                    if not realtime_client.has_nonspace(text):
                         continue
                     received_at = datetime.now(timezone.utc)
-                    post = RealtimeTelegramChannelClient.build_minimal_post(
+                    post = realtime_client.build_minimal_post(
                         channel_handle=handle,
                         message_id=int(message["id"]),
                         text=text,
@@ -438,10 +788,10 @@ class TdlibRealtimeChannelClient:
                         received_monotonic_ns=received_monotonic_ns,
                     )
                 else:
-                    if not RealtimeTelegramChannelClient.has_nonspace(text):
+                    if not realtime_client.has_nonspace(text):
                         continue
                     received_at = datetime.now(timezone.utc)
-                    post = RealtimeTelegramChannelClient.build_post(
+                    post = realtime_client.build_post(
                         channel_handle=handle,
                         message_id=int(message["id"]),
                         text=text,

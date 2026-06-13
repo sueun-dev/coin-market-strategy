@@ -6,13 +6,21 @@
 
 import sys
 import json
+import os
 from pathlib import Path
+
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src.multi_chain_client import MultiChainGovernanceClient
 
 CONFIG_FILE = Path(__file__).parent.parent / "config" / "multi_chains.json"
+
+pytestmark = pytest.mark.skipif(
+    os.getenv("RUN_LIVE_GOV_TESTS") != "1",
+    reason="live governance API tests require RUN_LIVE_GOV_TESTS=1",
+)
 
 
 def load_config():
@@ -34,10 +42,9 @@ def test_polkadot():
             print(f"    #{p['proposal_id']}: [{p['status']}] {p['title'][:50]}")
         assert isinstance(proposals, list), "응답이 list가 아님"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -57,10 +64,9 @@ def test_tezos():
         assert isinstance(proposals, list), "응답이 list가 아님"
         assert len(proposals) > 0, "프로포절이 하나도 없음 (투표 기간이 항상 존재해야 함)"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -82,10 +88,9 @@ def test_aptos():
         assert isinstance(proposals, list), "응답이 list가 아님"
         assert len(proposals) > 0, "체인 상태도 못 가져옴"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -108,10 +113,9 @@ def test_sui():
         pv = proposals[0].get("plan", {}).get("name", "")
         assert pv.startswith("v"), f"프로토콜 버전 형식 이상: {pv}"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -136,10 +140,9 @@ def test_algorand():
         assert isinstance(proposals, list), "응답이 list가 아님"
         assert len(proposals) > 0, "상태 조회 실패"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -159,10 +162,9 @@ def test_cardano():
         assert isinstance(proposals, list), "응답이 list가 아님"
         assert len(proposals) > 0, "에포크 정보도 못 가져옴"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -182,10 +184,9 @@ def test_icon():
         assert isinstance(proposals, list), "응답이 list가 아님"
         assert len(proposals) > 0, "블록 상태도 못 가져옴"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -205,10 +206,9 @@ def test_celo():
         assert isinstance(proposals, list), "응답이 list가 아님"
         assert len(proposals) > 0, "블록 높이도 못 가져옴"
         print("  ✅ PASSED")
-        return True
     except Exception as e:
         print(f"  ❌ FAILED: {e}")
-        return False
+        raise
     finally:
         client.close()
 
@@ -231,11 +231,8 @@ if __name__ == "__main__":
 
     for test in tests:
         try:
-            if test():
-                passed += 1
-            else:
-                failed += 1
-                failed_names.append(test.__name__)
+            test()
+            passed += 1
         except Exception as e:
             print(f"  ❌ ERROR: {type(e).__name__}: {e}")
             failed += 1

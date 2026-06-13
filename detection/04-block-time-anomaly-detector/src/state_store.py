@@ -48,10 +48,16 @@ class StateStore:
         block_time: float,
         anomaly_level: str = "none",
         is_halted: bool = False,
+        stalled_height: int | None = None,
+        consecutive_stalls: int = 0,
+        halt_confirmed_at: float | None = None,
+        halt_type: str = "unexpected",
+        resumed_at: float | None = None,
     ):
         """Update state for a chain after a poll."""
         now = datetime.now(timezone.utc).isoformat()
         existing = self._state.get(chain_id, {})
+        was_halted = bool(existing.get("is_halted"))
 
         self._state[chain_id] = {
             "chain_id": chain_id,
@@ -60,8 +66,13 @@ class StateStore:
             "last_polled": now,
             "anomaly_level": anomaly_level,
             "is_halted": is_halted,
+            "stalled_height": stalled_height,
+            "consecutive_stalls": int(consecutive_stalls or 0),
+            "halt_confirmed_at": halt_confirmed_at,
+            "halt_type": halt_type,
+            "resumed_at": resumed_at,
             "first_seen": existing.get("first_seen", now),
-            "halt_count": existing.get("halt_count", 0) + (1 if is_halted and not existing.get("is_halted") else 0),
+            "halt_count": existing.get("halt_count", 0) + (1 if is_halted and not was_halted else 0),
         }
         self._save()
 

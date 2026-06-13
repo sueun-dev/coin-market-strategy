@@ -3,6 +3,8 @@ Main polling loop for the GitHub Release Monitor.
 Loads repo config, polls each repo, filters releases, and emits signals.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import time

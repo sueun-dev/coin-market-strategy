@@ -26,6 +26,7 @@ DEFAULT_RECV_WINDOW = 5000
 DEFAULT_TIMEOUT = 10
 DEFAULT_BUY_MODE = "quoteCoin"
 DEFAULT_ORDER_TRANSPORT_PREFERENCE = "cpp"
+DEFAULT_TIMESTAMP_BIAS_MS = -50
 
 
 def _is_truthy(value: str | bool | None) -> bool:
@@ -39,23 +40,35 @@ def _is_truthy(value: str | bool | None) -> bool:
 # Bybit V5 marketUnit only accepts "baseCoin" or "quoteCoin". Map the common
 # shorthands ("quote"/"base", any casing) so a stale config value does not get
 # sent verbatim and rejected by some transports.
-_MARKET_UNIT_ALIASES = {
+BUY_MODE_ALIASES = {
     "quotecoin": "quoteCoin",
     "quote": "quoteCoin",
     "basecoin": "baseCoin",
     "base": "baseCoin",
 }
+_MARKET_UNIT_ALIASES = BUY_MODE_ALIASES
+
+
+def _normalize_buy_mode(value: str | None) -> str:
+    if not value:
+        return DEFAULT_BUY_MODE
+    return BUY_MODE_ALIASES.get(value.strip().lower(), value.strip())
 
 
 def _normalize_market_unit(value: str | None) -> str:
-    if not value:
-        return DEFAULT_BUY_MODE
-    return _MARKET_UNIT_ALIASES.get(value.strip().lower(), value.strip())
+    return _normalize_buy_mode(value)
 
 
 def _to_float(value: str | float | int | None, default: float = 0.0) -> float:
     try:
         return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _to_int(value: str | float | int | None, default: int = 0) -> int:
+    try:
+        return int(float(value))
     except (TypeError, ValueError):
         return default
 
@@ -86,6 +99,9 @@ class BybitSpotBuyer:
         ws_executor: BybitTradeWebSocketExecutor | None = None,
         prefer_cached_symbol_check: bool | None = None,
         order_transport_preference: str | None = None,
+        resolve_duplicate_order_link_id: bool | None = None,
+        require_fast_executor_warmup: bool | None = None,
+        timestamp_bias_ms: int | None = None,
         timeout: int = DEFAULT_TIMEOUT,
         market_client: BybitClient | None = None,
     ):
@@ -100,15 +116,22 @@ class BybitSpotBuyer:
                 "BYBIT_SPOT_BUY_MODE",
                 "BYBIT_QUERY_FILL_AFTER_BUY",
                 "BYBIT_FAST_EXECUTOR_ENABLED",
+                "BYBIT_REQUIRE_FAST_EXECUTOR_WARMUP",
                 "BYBIT_WS_ORDER_ENABLED",
                 "BYBIT_CPP_WS_EXECUTOR_ENABLED",
                 "BYBIT_PREFER_CACHED_SYMBOL_CHECK",
                 "BYBIT_ORDER_TRANSPORT_PREFERENCE",
+                "BYBIT_RESOLVE_DUPLICATE_ORDER_LINK_ID",
+                "BYBIT_TIMESTAMP_BIAS_MS",
             }
         )
 
-        self.api_key = api_key or settings.get("BYBIT_API_KEY", "")
-        self.api_secret = api_secret or settings.get("BYBIT_API_SECRET", "")
+        self.api_key = (
+            settings.get("BYBIT_API_KEY", "") if api_key is None else api_key
+        )
+        self.api_secret = (
+            settings.get("BYBIT_API_SECRET", "") if api_secret is None else api_secret
+        )
         self.base_url = (
             base_url
             or settings.get("BYBIT_API_BASE_URL")
@@ -129,7 +152,7 @@ class BybitSpotBuyer:
             or settings.get("BYBIT_RECV_WINDOW")
             or DEFAULT_RECV_WINDOW
         )
-        self.buy_mode = _normalize_market_unit(
+        self.buy_mode = _normalize_buy_mode(
             buy_mode
             or settings.get("BYBIT_SPOT_BUY_MODE")
             or DEFAULT_BUY_MODE
@@ -149,6 +172,21 @@ class BybitSpotBuyer:
             or settings.get("BYBIT_ORDER_TRANSPORT_PREFERENCE")
             or DEFAULT_ORDER_TRANSPORT_PREFERENCE
         ).strip().lower()
+        self.resolve_duplicate_order_link_id = (
+            _is_truthy(settings.get("BYBIT_RESOLVE_DUPLICATE_ORDER_LINK_ID", "1"))
+            if resolve_duplicate_order_link_id is None
+            else bool(resolve_duplicate_order_link_id)
+        )
+        self.require_fast_executor_warmup = (
+            _is_truthy(settings.get("BYBIT_REQUIRE_FAST_EXECUTOR_WARMUP", "0"))
+            if require_fast_executor_warmup is None
+            else bool(require_fast_executor_warmup)
+        )
+        self.timestamp_bias_ms = (
+            _to_int(settings.get("BYBIT_TIMESTAMP_BIAS_MS"), DEFAULT_TIMESTAMP_BIAS_MS)
+            if timestamp_bias_ms is None
+            else int(timestamp_bias_ms)
+        )
         self.timeout = timeout
         self.market_client = market_client or BybitClient(timeout=timeout)
         self.fast_executor = (
@@ -192,8 +230,16 @@ class BybitSpotBuyer:
                 logger.warning("Bybit trade WS warmup failed: %s", exc)
         if self.fast_executor.is_enabled():
             try:
-                self.fast_executor.warmup()
+                warmup_result = self.fast_executor.warmup()
+                if (
+                    self.require_fast_executor_warmup
+                    and isinstance(warmup_result, dict)
+                    and not warmup_result.get("ok")
+                ):
+                    raise RuntimeError(f"C++ fast executor warmup not ready: {warmup_result}")
             except Exception as exc:
+                if self.require_fast_executor_warmup:
+                    raise RuntimeError("C++ fast executor warmup is required") from exc
                 logger.warning("C++ fast executor warmup failed: %s", exc)
         self._transport_order = self._iter_order_transports()
         self._buy_market_impl = self._select_buy_market_impl()
@@ -229,9 +275,18 @@ class BybitSpotBuyer:
 
         if self.fast_executor.is_enabled():
             try:
-                self.fast_executor.warmup()
+                warmup_result = self.fast_executor.warmup()
                 warmed["fast_executor_warmed"] = True
+                warmed["fast_executor_result"] = warmup_result
+                if (
+                    self.require_fast_executor_warmup
+                    and isinstance(warmup_result, dict)
+                    and not warmup_result.get("ok")
+                ):
+                    raise RuntimeError(f"C++ fast executor warmup not ready: {warmup_result}")
             except Exception as exc:  # pragma: no cover - warmup safeguard
+                if self.require_fast_executor_warmup:
+                    raise RuntimeError("C++ fast executor warmup is required") from exc
                 logger.warning("C++ fast executor warmup failed: %s", exc)
         return warmed
 
@@ -256,6 +311,29 @@ class BybitSpotBuyer:
             order_link_id=order_link_id,
         )
 
+    def buy_markets(self, orders: list[dict]) -> list[dict]:
+        if not orders:
+            return []
+        if len(orders) == 1:
+            order = orders[0]
+            return [
+                self.buy_market(
+                    ticker=order["ticker"],
+                    order_link_id=order["order_link_id"],
+                )
+            ]
+        if self._transport_order == ("cpp",) and callable(
+            getattr(self.fast_executor, "buy_markets_quote_text", None)
+        ):
+            return self._buy_markets_cpp_only(orders)
+        return [
+            self.buy_market(
+                ticker=order["ticker"],
+                order_link_id=order["order_link_id"],
+            )
+            for order in orders
+        ]
+
     def _buy_market_general(
         self,
         *,
@@ -264,18 +342,7 @@ class BybitSpotBuyer:
     ) -> dict:
         trade_started_ns = time.monotonic_ns()
         symbol = f"{ticker.upper()}USDT"
-        result = {
-            "enabled": self.buy_enabled,
-            "attempted": False,
-            "executed": False,
-            "symbol": symbol,
-            "side": "Buy",
-            "order_type": "Market",
-            "market_unit": self.buy_mode,
-            "requested_usdt": self.buy_usdt_amount,
-            "qty": self._market_buy_qty,
-            "order_link_id": order_link_id,
-        }
+        result = self._build_buy_result(symbol=symbol, order_link_id=order_link_id)
 
         if not self.buy_enabled:
             result["reason"] = "buy_disabled"
@@ -314,11 +381,23 @@ class BybitSpotBuyer:
                 continue
 
             if transport == "cpp":
-                fast_result = self.fast_executor.buy_market(
-                    symbol=symbol,
-                    quote_amount=self.buy_usdt_amount,
-                    order_link_id=order_link_id,
+                buy_market_quote_text = getattr(
+                    self.fast_executor,
+                    "buy_market_quote_text",
+                    None,
                 )
+                if callable(buy_market_quote_text):
+                    fast_result = buy_market_quote_text(
+                        symbol=symbol,
+                        quote_amount_text=self._market_buy_qty_str,
+                        order_link_id=order_link_id,
+                    )
+                else:
+                    fast_result = self.fast_executor.buy_market(
+                        symbol=symbol,
+                        quote_amount=self.buy_usdt_amount,
+                        order_link_id=order_link_id,
+                    )
                 result.update(fast_result)
                 if result.get("executed"):
                     return self._annotate_trade_timing(result, trade_started_ns)
@@ -396,7 +475,111 @@ class BybitSpotBuyer:
     ) -> dict:
         trade_started_ns = time.monotonic_ns()
         symbol = f"{ticker.upper()}USDT"
-        result = {
+
+        def build_result() -> dict:
+            return self._build_buy_result(
+                symbol=symbol,
+                order_link_id=order_link_id,
+            )
+
+        if not self.buy_enabled:
+            result = build_result()
+            result["reason"] = "buy_disabled"
+            return self._annotate_trade_timing(result, trade_started_ns)
+
+        if not self.is_configured():
+            result = build_result()
+            result["reason"] = "missing_api_config"
+            return self._annotate_trade_timing(result, trade_started_ns)
+
+        if self._market_buy_qty <= 0:
+            result = build_result()
+            result["reason"] = self._market_buy_reason
+            return self._annotate_trade_timing(result, trade_started_ns)
+
+        buy_market_quote_text = getattr(self.fast_executor, "buy_market_quote_text", None)
+        if callable(buy_market_quote_text):
+            fast_result = buy_market_quote_text(
+                symbol=symbol,
+                quote_amount_text=self._market_buy_qty_str,
+                order_link_id=order_link_id,
+            )
+        else:
+            fast_result = self.fast_executor.buy_market(
+                symbol=symbol,
+                quote_amount=self.buy_usdt_amount,
+                order_link_id=order_link_id,
+            )
+        result = build_result()
+        result.update(fast_result)
+        if result.get("executed"):
+            return self._annotate_trade_timing(result, trade_started_ns)
+        result["reason"] = result.get("reason", "cpp_fast_path_failed")
+        self._resolve_duplicate_order(result, order_link_id)
+        return self._annotate_trade_timing(result, trade_started_ns)
+
+    def _buy_markets_cpp_only(self, orders: list[dict]) -> list[dict]:
+        trade_started_ns = time.monotonic_ns()
+        symbols = [f"{str(order['ticker']).upper()}USDT" for order in orders]
+
+        def build_result(index: int) -> dict:
+            return self._build_buy_result(
+                symbol=symbols[index],
+                order_link_id=orders[index]["order_link_id"],
+            )
+
+        if not self.buy_enabled:
+            trades = []
+            for index in range(len(orders)):
+                result = build_result(index)
+                result["reason"] = "buy_disabled"
+                trades.append(self._annotate_trade_timing(result, trade_started_ns))
+            return trades
+
+        if not self.is_configured():
+            trades = []
+            for index in range(len(orders)):
+                result = build_result(index)
+                result["reason"] = "missing_api_config"
+                trades.append(self._annotate_trade_timing(result, trade_started_ns))
+            return trades
+
+        if self._market_buy_qty <= 0:
+            trades = []
+            for index in range(len(orders)):
+                result = build_result(index)
+                result["reason"] = self._market_buy_reason
+                trades.append(self._annotate_trade_timing(result, trade_started_ns))
+            return trades
+
+        fast_results = self.fast_executor.buy_markets_quote_text(
+            orders=[
+                (symbols[index], orders[index]["order_link_id"])
+                for index in range(len(orders))
+            ],
+            quote_amount_text=self._market_buy_qty_str,
+        )
+        trades: list[dict] = []
+        for index, fast_result in enumerate(fast_results[:len(orders)]):
+            result = build_result(index)
+            result.update(fast_result)
+            if not result.get("executed"):
+                result["reason"] = result.get("reason", "cpp_fast_path_failed")
+                self._resolve_duplicate_order(result, orders[index]["order_link_id"])
+            trades.append(self._annotate_trade_timing(result, trade_started_ns))
+        for index in range(len(trades), len(orders)):
+            result = build_result(index)
+            result["reason"] = "cpp_fast_path_bulk_missing_response"
+            trades.append(self._annotate_trade_timing(result, trade_started_ns))
+        return trades
+
+    def _spot_symbol_available(self, symbol: str) -> bool:
+        if self.prefer_cached_symbol_check and self.market_client.is_cache_ready():
+            return self.market_client.has_symbol_cached("spot", symbol)
+        return self.market_client.has_symbol("spot", symbol)
+
+    def _build_buy_result(self, *, symbol: str, order_link_id: str) -> dict:
+        return {
             "enabled": self.buy_enabled,
             "attempted": False,
             "executed": False,
@@ -409,36 +592,9 @@ class BybitSpotBuyer:
             "order_link_id": order_link_id,
         }
 
-        if not self.buy_enabled:
-            result["reason"] = "buy_disabled"
-            return self._annotate_trade_timing(result, trade_started_ns)
-
-        if not self.is_configured():
-            result["reason"] = "missing_api_config"
-            return self._annotate_trade_timing(result, trade_started_ns)
-
-        if self._market_buy_qty <= 0:
-            result["reason"] = self._market_buy_reason
-            return self._annotate_trade_timing(result, trade_started_ns)
-
-        fast_result = self.fast_executor.buy_market(
-            symbol=symbol,
-            quote_amount=self.buy_usdt_amount,
-            order_link_id=order_link_id,
-        )
-        result.update(fast_result)
-        if result.get("executed"):
-            return self._annotate_trade_timing(result, trade_started_ns)
-        result["reason"] = result.get("reason", "cpp_fast_path_failed")
-        self._resolve_duplicate_order(result, order_link_id)
-        return self._annotate_trade_timing(result, trade_started_ns)
-
-    def _spot_symbol_available(self, symbol: str) -> bool:
-        if self.prefer_cached_symbol_check and self.market_client.is_cache_ready():
-            return self.market_client.has_symbol_cached("spot", symbol)
-        return self.market_client.has_symbol("spot", symbol)
-
     def _resolve_duplicate_order(self, result: dict, order_link_id: str) -> bool:
+        if not self.resolve_duplicate_order_link_id:
+            return False
         reason = str(result.get("reason", ""))
         if "duplicate" not in reason.lower():
             return False
@@ -746,7 +902,7 @@ class BybitSpotBuyer:
             return {"retCode": -1, "retMsg": str(exc)}
 
     def _build_auth_headers(self, payload: str) -> dict[str, str]:
-        timestamp = str(int(time.time() * 1000))
+        timestamp = str(int(time.time() * 1000) + self.timestamp_bias_ms)
         recv_window = str(self.recv_window)
         plain = f"{timestamp}{self.api_key}{recv_window}{payload}"
         signature = hmac.new(
@@ -763,9 +919,14 @@ class BybitSpotBuyer:
 
     def close(self):
         self._http.close()
-        self.cpp_ws_executor.close()
-        self.ws_executor.close()
-        self.fast_executor.close()
+        for executor in (
+            self.cpp_ws_executor,
+            self.ws_executor,
+            self.fast_executor,
+        ):
+            close = getattr(executor, "close", None)
+            if callable(close):
+                close()
 
     @staticmethod
     def _annotate_trade_timing(result: dict, trade_started_ns: int) -> dict:

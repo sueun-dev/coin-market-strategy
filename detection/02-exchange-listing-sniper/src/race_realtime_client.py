@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections import OrderedDict
 
 from .tdlib_realtime_client import TdlibRealtimeChannelClient
 from .telegram_realtime_client import RealtimeTelegramChannelClient
@@ -27,16 +28,29 @@ def _get_pyrogram_client_class():
     return _pyrogram_client_class
 
 
+def _has_native_trade(post: dict) -> bool:
+    if isinstance(post.get("native_trade"), dict):
+        return True
+    native_trades = post.get("native_trades")
+    return isinstance(native_trades, list) and any(
+        isinstance(trade, dict) for trade in native_trades
+    )
+
+
 class _FirstArrivalGate:
     def __init__(self, max_entries: int = 8192):
-        self._last_message_id_by_channel: dict[str, int] = {}
+        self._max_entries = max(1, int(max_entries))
+        self._seen: OrderedDict[tuple[str, int], None] = OrderedDict()
 
     def claim(self, channel_handle: str, message_id: int) -> bool:
-        message_id = int(message_id)
-        last_message_id = self._last_message_id_by_channel.get(channel_handle, 0)
-        if message_id <= last_message_id:
+        if not isinstance(message_id, int):
+            message_id = int(message_id)
+        key = (channel_handle, message_id)
+        if key in self._seen:
             return False
-        self._last_message_id_by_channel[channel_handle] = message_id
+        self._seen[key] = None
+        if len(self._seen) > self._max_entries:
+            self._seen.popitem(last=False)
         return True
 
 
@@ -109,13 +123,18 @@ class RaceRealtimeChannelClient:
         on_post,
         minimal_post: bool = False,
         trade_post: bool = False,
+        required_backends: set[str] | None = None,
+        min_ready_backends: int = 1,
     ):
+        required_backend_names = set(required_backends or ())
+        min_ready_backends = max(1, int(min_ready_backends))
+
         async def _first_wins(post: dict):
             claimed = self._gate.claim(
                 post["channel_handle"],
                 int(post["message_id"]),
             )
-            if not claimed:
+            if not claimed and not _has_native_trade(post):
                 return None
             maybe_result = on_post(post)
             if hasattr(maybe_result, "__await__"):
@@ -133,6 +152,9 @@ class RaceRealtimeChannelClient:
             except asyncio.CancelledError:
                 raise
             except Exception as exc:
+                if name in required_backend_names:
+                    logger.error("%s required realtime backend dropped out: %s", name, exc)
+                    raise
                 logger.warning("%s realtime backend dropped out: %s", name, exc)
 
         active_backends = self._session_ready_backends()
@@ -143,6 +165,18 @@ class RaceRealtimeChannelClient:
             )
 
         backend_names = [name for name, _ in active_backends]
+        if len(backend_names) < min_ready_backends:
+            raise RuntimeError(
+                "race realtime 백엔드 세션 수 부족: "
+                f"ready={len(backend_names)} required={min_ready_backends} "
+                f"active={', '.join(backend_names) or 'none'}"
+            )
+        missing_required = sorted(required_backend_names.difference(backend_names))
+        if missing_required:
+            raise RuntimeError(
+                "race realtime 필수 백엔드 세션이 없습니다: "
+                + ", ".join(missing_required)
+            )
         logger.info("%d-way race 활성: %s", len(backend_names), " + ".join(name.title() for name in backend_names))
         tasks = [
             asyncio.create_task(

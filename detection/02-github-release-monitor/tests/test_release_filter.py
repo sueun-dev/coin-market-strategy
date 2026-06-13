@@ -192,7 +192,7 @@ class TestFilterRelease:
         assert result["signal_level"] == "pre-warning"
 
     def test_version_jump_only(self):
-        """Major version jump alone should trigger even without keywords."""
+        """Major version jump alone is only a low-priority pre-warning."""
         release = self._make_release(
             tag="v3.0.0",
             name="v3.0.0",
@@ -201,6 +201,35 @@ class TestFilterRelease:
         result = filter_release(release, ["v2.8.1"])
         assert result is not None
         assert result["version_jump"]["type"] == "major"
+        assert result["confidence"] == "low"
+        assert result["signal_level"] == "pre-warning"
+
+    def test_minor_version_jump_only_is_ignored(self):
+        release = self._make_release(
+            tag="v2.9.0",
+            name="v2.9.0",
+            body="Regular client release.",
+        )
+        result = filter_release(release, ["v2.8.1"])
+        assert result is None
+
+    def test_dependency_upgrade_is_not_chain_upgrade_signal(self):
+        release = self._make_release(
+            tag="v1.2.0",
+            name="Dependency upgrade",
+            body="Upgrade dependencies, Docker image, CI, and test packages.",
+        )
+        result = filter_release(release, ["v1.1.0"])
+        assert result is None
+
+    def test_database_migration_is_not_chain_upgrade_signal(self):
+        release = self._make_release(
+            tag="v1.2.0",
+            name="Database migration tools",
+            body="Adds SQL migration helpers for indexer schema changes.",
+        )
+        result = filter_release(release, ["v1.1.0"])
+        assert result is None
 
     def test_migration_keyword(self):
         release = self._make_release(
