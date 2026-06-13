@@ -36,7 +36,7 @@ class MultiChainGovernanceClient:
             return resp.json()
         except (httpx.HTTPError, httpx.TimeoutException) as e:
             logger.warning("[%s] GET 실패 %s: %s", self.chain_id, url, e)
-            raise ConnectionError(f"[{self.chain_id}] {url}: {e}")
+            raise ConnectionError(f"[{self.chain_id}] {url}: {e}") from e
 
     def _post(self, url: str, json_data: dict, headers: dict | None = None) -> dict:
         try:
@@ -45,7 +45,7 @@ class MultiChainGovernanceClient:
             return resp.json()
         except (httpx.HTTPError, httpx.TimeoutException) as e:
             logger.warning("[%s] POST 실패 %s: %s", self.chain_id, url, e)
-            raise ConnectionError(f"[{self.chain_id}] {url}: {e}")
+            raise ConnectionError(f"[{self.chain_id}] {url}: {e}") from e
 
     def fetch_upgrade_proposals(self) -> list[dict]:
         """체인 타입에 따라 적절한 메서드 호출."""
@@ -69,8 +69,8 @@ class MultiChainGovernanceClient:
 
         results = []
 
-        # 최근 레퍼렌덤 조회 (활성 + 최근 완료)
-        for status_filter in ["active", "all"]:
+        # 최근 레퍼렌덤 조회: 결과를 얻을 때까지 최대 2회 재시도.
+        for _attempt in range(2):
             try:
                 params = {
                     "proposalType": "referendums_v2",
