@@ -281,8 +281,14 @@ def format_github_release_signal(signal: dict) -> str:
     ]
     if signal.get("keywords_matched"):
         lines.append(f"Keywords: {', '.join(signal['keywords_matched'])}")
-    if signal.get("version_jump"):
-        lines.append(f"Version: {signal['version_jump']}")
+    version_jump = signal.get("version_jump")
+    if version_jump:
+        if isinstance(version_jump, dict):
+            version_text = version_jump.get("description") or version_jump.get("type", "")
+        else:
+            version_text = str(version_jump)
+        if version_text:
+            lines.append(f"Version: {version_text}")
     lines.extend([
         f"Mandatory: {mandatory}",
         f"Pre-release: {pre}",

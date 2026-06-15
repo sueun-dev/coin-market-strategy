@@ -154,10 +154,3 @@ class BybitClient:
 
     def close(self):
         self._http.close()
-
-    @staticmethod
-    def _parse_lookup_response(body: dict) -> bool:
-        if body.get("retCode") != 0:
-            return False
-        result = body.get("result", {})
-        return bool(result.get("list"))
