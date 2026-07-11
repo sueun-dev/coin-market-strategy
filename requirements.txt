@@ -1,0 +1,6 @@
+httpx
+python-dotenv
+pyrogram
+telethon
+uvloop; platform_system != "Windows"
+websocket-client

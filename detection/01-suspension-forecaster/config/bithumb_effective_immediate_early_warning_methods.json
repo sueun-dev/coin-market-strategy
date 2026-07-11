@@ -1,0 +1,597 @@
+{
+  "generated_at": "2026-07-11T19:41:53.488540+00:00",
+  "source_file": "config/bithumb_effective_immediate_suspensions.json",
+  "summary": {
+    "total_cases": 29,
+    "high": 24,
+    "medium": 1,
+    "low": 4
+  },
+  "legend": {
+    "high": "체인/네트워크 외부 신호만으로도 notice 이전 또는 same-minute 선포착이 가능한 유형",
+    "medium": "부분 선포착은 가능하지만 거래소 stop timing까지는 미리 확정하기 어려운 유형",
+    "low": "거래소 내부 지갑/월렛 점검 성격이라 외부 체인 데이터만으로는 사실상 사전 불가 유형"
+  },
+  "cases": [
+    {
+      "notice_id": "1652530",
+      "official_url": "https://feed.bithumb.com/notice/1652530",
+      "notice_published_at_kst": "2026-04-02 03:07:55",
+      "asset_scope": "DRIFT",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "security_issue",
+      "delta_label": "-55s",
+      "predictability": "medium",
+      "lead_time_expectation": "수분~수시간 전 부분 선포착 가능",
+      "context": "Drift 프로토콜과 Solana 생태계",
+      "watch_channels": [
+        "프로젝트 공식 X/Discord/GitHub 보안 공지",
+        "온체인 exploit alert, treasury/bridge 대량 이동 알림",
+        "거래유의종목/유의촉구 공지와 빗썸 공지 피드"
+      ],
+      "practical_prewarning_rule": "Drift 프로토콜과 Solana 생태계 보안 사고는 체인 halt보다 프로젝트/보안 채널이 먼저 반응하므로 exploit 알림과 공식 보안 공지를 가장 먼저 봤어야 한다.",
+      "case_note": "체인 halt가 아니라 보안 이슈이므로 프로젝트 보안 채널과 exploit 알림이 핵심이다.",
+      "hard_limit": "보안 이슈는 거래소 내부 판단이 섞이므로 exact stop time을 미리 맞히는 것은 어렵다."
+    },
+    {
+      "notice_id": "1652398",
+      "official_url": "https://feed.bithumb.com/notice/1652398",
+      "notice_published_at_kst": "2026-03-23 23:10:34",
+      "asset_scope": "PEAQ",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "-34s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "peaq 메인넷",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "peaq 메인넷에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "peaq 체인 블록 생성 정지 여부를 explorer와 validator 채널에서 먼저 잡았어야 한다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1652352",
+      "official_url": "https://feed.bithumb.com/notice/1652352",
+      "notice_published_at_kst": "2026-03-20 09:33:51",
+      "asset_scope": "WAXP",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "wallet_system_check",
+      "delta_label": "+69s",
+      "predictability": "low",
+      "lead_time_expectation": "사전 예고 거의 불가, 공지와 동시 포착",
+      "context": "WAX 자산의 빗썸 지갑 경로",
+      "watch_channels": [
+        "빗썸 공지 피드",
+        "빗썸 assetsstatus endpoint",
+        "동일 자산의 반복 점검 패턴과 재개 공지 이력"
+      ],
+      "practical_prewarning_rule": "WAX 자산의 빗썸 지갑 경로는 체인 문제라기보다 거래소 내부 지갑 점검이어서 외부 체인 모니터링만으로는 미리 알기 어렵고, 빗썸 자체 신호를 가장 빠르게 읽어야 한다.",
+      "case_note": "체인 문제보다 빗썸 내부 wallet system check 성격이 강해서 거래소 신호 의존도가 높다.",
+      "hard_limit": "거래소 내부 월렛 점검은 공개 체인 데이터로 사전 포착하기 거의 불가능하다."
+    },
+    {
+      "notice_id": "1652147",
+      "official_url": "https://feed.bithumb.com/notice/1652147",
+      "notice_published_at_kst": "2026-02-28 15:36:52",
+      "asset_scope": "0G",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "delta_label": "+188s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "0G 메인넷",
+      "watch_channels": [
+        "공식 explorer/RPC health, block lag, transaction failure rate",
+        "공식 status/X/Discord/Telegram의 incident 공지",
+        "빗썸 공지 피드와 assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "0G 메인넷의 explorer 지연, RPC 오류, 공식 incident 공지가 동시에 나오면 `빗썸 입출금 중단 가능성 높음`으로 봤어야 한다.",
+      "case_note": "explorer 최신 블록 시간과 공식 장애 공지를 보면 notice 이전에 이상 징후를 잡을 수 있는 유형이다.",
+      "hard_limit": "네트워크 이슈는 잡기 쉽지만, 거래소가 실제로 몇 분 뒤에 막을지는 거래소 정책에 따라 달라진다."
+    },
+    {
+      "notice_id": "1652079",
+      "official_url": "https://feed.bithumb.com/notice/1652079",
+      "notice_published_at_kst": "2026-02-24 11:20:00",
+      "asset_scope": "FLOW",
+      "scope": "withdrawal_only",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "0s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Flow 네트워크 출금 경로",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Flow 네트워크 출금 경로에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "입출금 전체가 아니라 출금만 막혔어도 근본 원인은 Flow 체인 측 문제라 chain-side 감시가 유효했다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1652078",
+      "official_url": "https://feed.bithumb.com/notice/1652078",
+      "notice_published_at_kst": "2026-02-23 20:57:49",
+      "asset_scope": "POKT",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+131s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Pocket Network",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Pocket Network에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "블록 생성 중단형이라 explorer halt와 validator 채널이 가장 중요한 선행 지표다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1652002",
+      "official_url": "https://feed.bithumb.com/notice/1652002",
+      "notice_published_at_kst": "2026-02-13 08:46:44",
+      "asset_scope": "REI",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+196s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "REI Network",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "REI Network에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "REI explorer/RPC sync와 공식 X·Discord를 같이 봤어야 하는 전형적 halt 케이스다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1651944",
+      "official_url": "https://feed.bithumb.com/notice/1651944",
+      "notice_published_at_kst": "2026-02-09 23:05:00",
+      "asset_scope": "VANA",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "node_sync_issue",
+      "delta_label": "0s",
+      "predictability": "high",
+      "lead_time_expectation": "수분 전 선포착 가능",
+      "context": "Vana 메인넷",
+      "watch_channels": [
+        "공식 explorer와 공개 RPC의 sync lag",
+        "노드 운영자/validator 공지",
+        "빗썸 공지 피드와 assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Vana 메인넷 노드 sync lag가 쌓이면 거래소 지갑도 곧 막힐 확률이 높으므로 공식 status와 explorer를 같이 봤어야 한다.",
+      "case_note": "노드 sync lag가 핵심이므로 공개 RPC와 explorer의 head lag를 봤어야 한다.",
+      "hard_limit": "외부에서 노드 sync 문제를 볼 수 있어도, 거래소가 실제 중지 버튼을 누르는 시점은 별도다."
+    },
+    {
+      "notice_id": "1651736",
+      "official_url": "https://feed.bithumb.com/notice/1651736",
+      "notice_published_at_kst": "2026-01-31 04:10:00",
+      "asset_scope": "USDT-Tron",
+      "scope": "withdrawal_only",
+      "trigger_type": "wallet_system_check",
+      "delta_label": "0s",
+      "predictability": "low",
+      "lead_time_expectation": "사전 예고 거의 불가, 공지와 동시 포착",
+      "context": "USDT의 Tron 출금 경로",
+      "watch_channels": [
+        "빗썸 공지 피드",
+        "빗썸 assetsstatus endpoint",
+        "동일 자산의 반복 점검 패턴과 재개 공지 이력"
+      ],
+      "practical_prewarning_rule": "USDT의 Tron 출금 경로는 체인 문제라기보다 거래소 내부 지갑 점검이어서 외부 체인 모니터링만으로는 미리 알기 어렵고, 빗썸 자체 신호를 가장 빠르게 읽어야 한다.",
+      "case_note": "TRON 전체 장애가 아니라 빗썸 지갑 점검 경로라 사실상 빗썸 notice/assetsstatus가 최초 신호다.",
+      "hard_limit": "거래소 내부 월렛 점검은 공개 체인 데이터로 사전 포착하기 거의 불가능하다."
+    },
+    {
+      "notice_id": "1651542",
+      "official_url": "https://feed.bithumb.com/notice/1651542",
+      "notice_published_at_kst": "2026-01-19 12:55:37",
+      "asset_scope": "USDT-Tron",
+      "scope": "withdrawal_only",
+      "trigger_type": "wallet_system_check",
+      "delta_label": "-37s",
+      "predictability": "low",
+      "lead_time_expectation": "사전 예고 거의 불가, 공지와 동시 포착",
+      "context": "USDT의 Tron 출금 경로",
+      "watch_channels": [
+        "빗썸 공지 피드",
+        "빗썸 assetsstatus endpoint",
+        "동일 자산의 반복 점검 패턴과 재개 공지 이력"
+      ],
+      "practical_prewarning_rule": "USDT의 Tron 출금 경로는 체인 문제라기보다 거래소 내부 지갑 점검이어서 외부 체인 모니터링만으로는 미리 알기 어렵고, 빗썸 자체 신호를 가장 빠르게 읽어야 한다.",
+      "case_note": "같은 유형의 재발 사례라 `USDT-Tron wallet check 반복` 자체는 패턴으로 학습할 수 있었지만 사전 확정은 어렵다.",
+      "hard_limit": "거래소 내부 월렛 점검은 공개 체인 데이터로 사전 포착하기 거의 불가능하다."
+    },
+    {
+      "notice_id": "1651445",
+      "official_url": "https://feed.bithumb.com/notice/1651445",
+      "notice_published_at_kst": "2026-01-05 20:59:50",
+      "asset_scope": "STRK",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+10s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Starknet",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Starknet에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Starknet sequencer/status와 explorer 최신 블록 시간을 같이 봤어야 했다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1650998",
+      "official_url": "https://feed.bithumb.com/notice/1650998",
+      "notice_published_at_kst": "2025-12-03 14:40:53",
+      "asset_scope": "DIS",
+      "scope": "withdrawal_only",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+67s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "DIS 프로젝트 네트워크 경로",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "DIS 프로젝트 네트워크 경로에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "프로젝트 네트워크 halt 여부와 공식 채널 incident를 먼저 감시했어야 하는 유형이다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1650802",
+      "official_url": "https://feed.bithumb.com/notice/1650802",
+      "notice_published_at_kst": "2025-11-21 17:39:41",
+      "asset_scope": "ADA",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+19s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Cardano",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Cardano에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Cardano tip lag, explorer head, stake pool 운영자 채널로 조기 감지가 가능했던 사례다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1650517",
+      "official_url": "https://feed.bithumb.com/notice/1650517",
+      "notice_published_at_kst": "2025-11-03 19:45:40",
+      "asset_scope": "BERA",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "-40s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Berachain",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Berachain에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Berachain explorer와 validator 채널을 동시에 보면 halt를 빠르게 볼 수 있는 유형이다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1650288",
+      "official_url": "https://feed.bithumb.com/notice/1650288",
+      "notice_published_at_kst": "2025-10-11 11:45:55",
+      "asset_scope": "DYDX",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "-55s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "dYdX Chain",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "dYdX Chain에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "dYdX chain block halt는 체인 explorer와 validator 운영 채널에서 먼저 확인 가능한 편이다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1650017",
+      "official_url": "https://feed.bithumb.com/notice/1650017",
+      "notice_published_at_kst": "2025-09-22 18:10:39",
+      "asset_scope": "ADD",
+      "scope": "withdrawal_only",
+      "trigger_type": "wallet_system_check",
+      "delta_label": "-39s",
+      "predictability": "low",
+      "lead_time_expectation": "사전 예고 거의 불가, 공지와 동시 포착",
+      "context": "ADD 자산의 빗썸 출금 지갑 경로",
+      "watch_channels": [
+        "빗썸 공지 피드",
+        "빗썸 assetsstatus endpoint",
+        "동일 자산의 반복 점검 패턴과 재개 공지 이력"
+      ],
+      "practical_prewarning_rule": "ADD 자산의 빗썸 출금 지갑 경로는 체인 문제라기보다 거래소 내부 지갑 점검이어서 외부 체인 모니터링만으로는 미리 알기 어렵고, 빗썸 자체 신호를 가장 빠르게 읽어야 한다.",
+      "case_note": "wallet system check라 외부 체인 모니터링보다 빗썸 자체 상태 감시가 핵심이다.",
+      "hard_limit": "거래소 내부 월렛 점검은 공개 체인 데이터로 사전 포착하기 거의 불가능하다."
+    },
+    {
+      "notice_id": "1649774",
+      "official_url": "https://feed.bithumb.com/notice/1649774",
+      "notice_published_at_kst": "2025-09-02 15:56:36",
+      "asset_scope": "STRK",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "-96s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Starknet",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Starknet에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Starknet 재발 사례라 `동일 체인 반복 장애` 자체를 prior risk로 높게 잡았어야 했다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1649671",
+      "official_url": "https://feed.bithumb.com/notice/1649671",
+      "notice_published_at_kst": "2025-08-29 13:12:21",
+      "asset_scope": "ZRC",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "-21s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Zircuit",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Zircuit에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Zircuit explorer block lag와 status 채널을 보면 notice 전에 이상 징후를 잡을 수 있는 유형이다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1649062",
+      "official_url": "https://feed.bithumb.com/notice/1649062",
+      "notice_published_at_kst": "2025-06-26 14:04:45",
+      "asset_scope": "FLR",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+15s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Flare",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Flare에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Flare explorer, validator, status 계열 신호가 가장 중요한 선행 정보다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1648710",
+      "official_url": "https://feed.bithumb.com/notice/1648710",
+      "notice_published_at_kst": "2025-05-31 11:43:30",
+      "asset_scope": "REI",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+90s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "REI Network",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "REI Network에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "REI 반복 장애 사례라 `재발 체인` 버킷에 올려두는 것이 맞았다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1648132",
+      "official_url": "https://feed.bithumb.com/notice/1648132",
+      "notice_published_at_kst": "2025-04-15 00:53:21",
+      "asset_scope": "ATOM",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+99s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Cosmos Hub",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Cosmos Hub에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Cosmos Hub는 explorer, Mintscan, validator 공지, forum까지 같이 봐야 선포착 확률이 높다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1647038",
+      "official_url": "https://feed.bithumb.com/notice/1647038",
+      "notice_published_at_kst": "2025-02-18 20:00:19",
+      "asset_scope": "FLOW",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "-19s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Flow",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Flow에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Flow 반복 사례라 network halt 재발 위험 체인으로 분류했어야 했다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1646858",
+      "official_url": "https://feed.bithumb.com/notice/1646858",
+      "notice_published_at_kst": "2025-01-31 18:42:09",
+      "asset_scope": "IOTX",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+171s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "IoTeX",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "IoTeX에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "IoTeX explorer, status, validator 채널이 조기 포착 포인트다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1646423",
+      "official_url": "https://feed.bithumb.com/notice/1646423",
+      "notice_published_at_kst": "2025-01-16 02:20:40",
+      "asset_scope": "ZIL",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+560s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Zilliqa",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Zilliqa에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "Zilliqa explorer, official status, validator 채널에서 halt를 먼저 잡을 수 있었다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1645260",
+      "official_url": "https://feed.bithumb.com/notice/1645260",
+      "notice_published_at_kst": "2024-11-27 11:12:24",
+      "asset_scope": "STX,ALEX",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+36s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Stacks; ALEX는 STX 체인 의존",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Stacks; ALEX는 STX 체인 의존에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "ALEX 자체보다 STX 메인넷 halt를 먼저 감시했어야 했다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1645244",
+      "official_url": "https://feed.bithumb.com/notice/1645244",
+      "notice_published_at_kst": "2024-11-21 19:23:52",
+      "asset_scope": "SUI,LWA",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "delta_label": "+368s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Sui; LWA는 Sui 체인 의존",
+      "watch_channels": [
+        "메인넷 explorer의 최신 블록 시간, 블록 높이 증가 여부",
+        "공식 status/X/Discord/Telegram의 장애 공지",
+        "validator/RPC 운영자 채널과 빗썸 공지 피드, assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Sui; LWA는 Sui 체인 의존에서 최신 블록 시간이 멈추거나 블록 간격이 비정상적으로 길어지고, 공식 채널이나 validator 채널에서 장애 언급이 붙는 순간 `가두리 전조`로 승격했어야 한다.",
+      "case_note": "LWA 자체보다 Sui 네트워크 블록 생성 중단을 감시해야 했다.",
+      "hard_limit": "정확한 빗썸 중지 시각까지는 못 맞춰도, 체인 halt 자체는 거래소 공지보다 먼저 보이는 경우가 많다."
+    },
+    {
+      "notice_id": "1645183",
+      "official_url": "https://feed.bithumb.com/notice/1645183",
+      "notice_published_at_kst": "2024-11-01 11:55:09",
+      "asset_scope": "ZETA",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "delta_label": "-9s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "ZetaChain",
+      "watch_channels": [
+        "공식 explorer/RPC health, block lag, transaction failure rate",
+        "공식 status/X/Discord/Telegram의 incident 공지",
+        "빗썸 공지 피드와 assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "ZetaChain의 explorer 지연, RPC 오류, 공식 incident 공지가 동시에 나오면 `빗썸 입출금 중단 가능성 높음`으로 봤어야 한다.",
+      "case_note": "네트워크 이슈형이라 ZetaScan, validator, status 공지가 선행 지표다.",
+      "hard_limit": "네트워크 이슈는 잡기 쉽지만, 거래소가 실제로 몇 분 뒤에 막을지는 거래소 정책에 따라 달라진다."
+    },
+    {
+      "notice_id": "1645123",
+      "official_url": "https://feed.bithumb.com/notice/1645123",
+      "notice_published_at_kst": "2024-10-02 17:12:51",
+      "asset_scope": "LUNA2",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "delta_label": "+9s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Terra 2.0",
+      "watch_channels": [
+        "공식 explorer/RPC health, block lag, transaction failure rate",
+        "공식 status/X/Discord/Telegram의 incident 공지",
+        "빗썸 공지 피드와 assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Terra 2.0의 explorer 지연, RPC 오류, 공식 incident 공지가 동시에 나오면 `빗썸 입출금 중단 가능성 높음`으로 봤어야 한다.",
+      "case_note": "Terra Finder와 validator 운영 채널에서 네트워크 이상을 먼저 볼 수 있었다.",
+      "hard_limit": "네트워크 이슈는 잡기 쉽지만, 거래소가 실제로 몇 분 뒤에 막을지는 거래소 정책에 따라 달라진다."
+    },
+    {
+      "notice_id": "1645109",
+      "official_url": "https://feed.bithumb.com/notice/1645109",
+      "notice_published_at_kst": "2024-09-27 15:29:20",
+      "asset_scope": "ZIL",
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "delta_label": "+40s",
+      "predictability": "high",
+      "lead_time_expectation": "수초~수시간 전 선포착 가능",
+      "context": "Zilliqa",
+      "watch_channels": [
+        "공식 explorer/RPC health, block lag, transaction failure rate",
+        "공식 status/X/Discord/Telegram의 incident 공지",
+        "빗썸 공지 피드와 assetsstatus endpoint"
+      ],
+      "practical_prewarning_rule": "Zilliqa의 explorer 지연, RPC 오류, 공식 incident 공지가 동시에 나오면 `빗썸 입출금 중단 가능성 높음`으로 봤어야 한다.",
+      "case_note": "같은 체인 재발 사례라 ZIL은 반복 감시 우선순위가 높았어야 한다.",
+      "hard_limit": "네트워크 이슈는 잡기 쉽지만, 거래소가 실제로 몇 분 뒤에 막을지는 거래소 정책에 따라 달라진다."
+    }
+  ]
+}

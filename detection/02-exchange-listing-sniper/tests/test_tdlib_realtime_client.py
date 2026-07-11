@@ -11,11 +11,16 @@ import pytest
 MODULE_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(MODULE_DIR))
 existing_src = sys.modules.get("src")
-if existing_src is not None and str(MODULE_DIR) not in list(getattr(existing_src, "__path__", [])):
+if existing_src is not None and str(MODULE_DIR) not in list(
+    getattr(existing_src, "__path__", [])
+):
     sys.modules.pop("src", None)
 
-from src import tdlib_realtime_client as tdlib_module
-from src.tdlib_realtime_client import _TdlibRelay, _build_listing_matched_post
+from src import tdlib_realtime_client as tdlib_module  # noqa: E402
+from src.tdlib_realtime_client import (  # noqa: E402
+    _TdlibRelay,
+    _build_listing_matched_post,
+)
 
 
 class _NoClockQueue:
@@ -112,7 +117,9 @@ def test_tdlib_relay_start_passes_merged_env_to_child(monkeypatch):
         def start(self):
             captured["thread_started"] = True
 
-    monkeypatch.setattr(tdlib_module, "_tdlib_relay_env", lambda: {"BYBIT_API_KEY": "file-key"})
+    monkeypatch.setattr(
+        tdlib_module, "_tdlib_relay_env", lambda: {"BYBIT_API_KEY": "file-key"}
+    )
     monkeypatch.setattr(tdlib_module.subprocess, "Popen", _FakeProc)
     monkeypatch.setattr(tdlib_module.threading, "Thread", _FakeThread)
 

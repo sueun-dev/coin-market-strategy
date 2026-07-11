@@ -9,7 +9,12 @@ OUT="$BIN_DIR/tdlib_json_relay"
 TDLIB_PREFIX="${TDLIB_PREFIX:-/opt/homebrew/opt/tdlib}"
 TDLIB_SOURCE_DIR="${TDLIB_SOURCE_DIR:-}"
 TDLIB_BUILD_DIR="${TDLIB_BUILD_DIR:-}"
-OPENSSL_PREFIX="${OPENSSL_PREFIX:-/opt/homebrew/opt/openssl@3}"
+LOCAL_OPENSSL_PREFIX="$ROOT_DIR/vendor/openssl-local"
+if [[ -z "${OPENSSL_PREFIX:-}" && -d "$LOCAL_OPENSSL_PREFIX/lib" ]]; then
+  OPENSSL_PREFIX="$LOCAL_OPENSSL_PREFIX"
+else
+  OPENSSL_PREFIX="${OPENSSL_PREFIX:-/opt/homebrew/opt/openssl@3}"
+fi
 
 if [[ -z "$TDLIB_BUILD_DIR" && -f "$ROOT_DIR/vendor/tdlib-latest/build/libtdjson.dylib" ]]; then
   TDLIB_SOURCE_DIR="$ROOT_DIR/vendor/tdlib-latest"

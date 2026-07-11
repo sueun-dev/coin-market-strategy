@@ -1,0 +1,12 @@
+{
+  "config": {
+    "MD013": false,
+    "MD025": false,
+    "MD040": false,
+    "MD060": false
+  },
+  "ignores": [
+    "detection/01-suspension-forecaster/BITHUMB_*.md",
+    "detection/01-suspension-forecaster/EXCHANGE_*.md"
+  ]
+}

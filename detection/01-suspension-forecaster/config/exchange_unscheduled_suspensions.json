@@ -1,0 +1,319 @@
+{
+  "generated_at": "2026-04-07T18:05:00+00:00",
+  "scope_note": "Only sudden or same-day deposit/withdrawal suspension or delay notices were included. Pre-announced upgrades, swaps, and scheduled maintenance were excluded.",
+  "source_note": "Upbit official notice pages are difficult to scrape directly; for Upbit, dates and body summaries were taken from Bloomingbit mirror pages that link back to the official notice URL. Bithumb entries were taken directly from official notice pages or official indexed snippets.",
+  "exchanges": {
+    "upbit": [
+      {
+        "occurred_at_kst": "2025-04-15 01:18",
+        "assets": ["ATOM"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "코스모스(ATOM) 입출금 일시 중단",
+        "reason_summary": "코스모스허브 네트워크 블록 생성 중단",
+        "official_url": "https://upbit.com/service_center/notice?id=5036",
+        "supporting_url": "https://bloomingbit.io/feed/news/86578"
+      },
+      {
+        "occurred_at_kst": "2025-02-18 11:13",
+        "assets": ["ENJ"],
+        "kind": "suspension",
+        "trigger_type": "wallet_system_check",
+        "title": "월렛 시스템 점검에 따른 엔진코인(ENJ) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "당일 월렛 시스템 점검",
+        "official_url": "https://upbit.com/service_center/notice?id=4882",
+        "supporting_url": "https://bloomingbit.io/feed/news/83470"
+      },
+      {
+        "occurred_at_kst": "2025-01-16 14:23",
+        "assets": ["ZIL"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 질리카(ZIL) 디지털 자산 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "질리카 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4799",
+        "supporting_url": "https://bloomingbit.io/feed/news/81783"
+      },
+      {
+        "occurred_at_kst": "2025-01-06 22:20",
+        "assets": ["STX"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "네트워크 이슈에 따른 스택스(STX) 디지털 자산 입출금 일시 중단 안내",
+        "reason_summary": "스택스 블록 생성 중단",
+        "official_url": "https://upbit.com/service_center/notice?id=4775",
+        "supporting_url": "https://bloomingbit.io/feed/news/81190"
+      },
+      {
+        "occurred_at_kst": "2025-01-04 09:27",
+        "assets": ["ADA"],
+        "kind": "suspension",
+        "trigger_type": "wallet_system_check",
+        "title": "월렛 시스템 점검에 따른 에이다(ADA) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "당일 월렛 시스템 점검",
+        "official_url": "https://upbit.com/service_center/notice?id=4770",
+        "supporting_url": "https://bloomingbit.io/feed/news/81106"
+      },
+      {
+        "occurred_at_kst": "2024-12-26 14:11",
+        "assets": ["SOL-family"],
+        "kind": "suspension",
+        "trigger_type": "wallet_system_check",
+        "title": "월렛 시스템 점검에 따른 솔라나 계열 디지털 자산 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "솔라나 계열 자산 당일 월렛 시스템 점검",
+        "official_url": "https://upbit.com/service_center/notice?id=4743",
+        "supporting_url": "https://bloomingbit.io/feed/news/80651"
+      },
+      {
+        "occurred_at_kst": "2024-12-19 11:13",
+        "assets": ["USDT-TRON"],
+        "kind": "delay",
+        "trigger_type": "withdrawal_surge",
+        "title": "출금량 증가에 따른 테더(USDT) Tron 네트워크 출금 일시 지연 안내",
+        "reason_summary": "Tron 네트워크 출금량 급증",
+        "official_url": "https://upbit.com/service_center/notice?id=4739",
+        "supporting_url": "https://bloomingbit.io/feed/news/80289"
+      },
+      {
+        "occurred_at_kst": "2024-12-09 17:35",
+        "assets": ["ZIL"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 질리카(ZIL) 디지털 자산 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "질리카 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4705",
+        "supporting_url": "https://bloomingbit.io/feed/news/79642"
+      },
+      {
+        "occurred_at_kst": "2024-11-21 19:15",
+        "assets": ["SUI-network assets"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 Sui 네트워크 디지털 자산 입출금 일시 중단 안내",
+        "reason_summary": "Sui 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4660",
+        "supporting_url": "https://bloomingbit.io/feed/news/78539"
+      },
+      {
+        "occurred_at_kst": "2024-11-01 16:19",
+        "assets": ["ZETA"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 제타체인(ZETA) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "제타체인 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4611",
+        "supporting_url": "https://bloomingbit.io/feed/news/77407"
+      },
+      {
+        "occurred_at_kst": "2024-10-31 14:03",
+        "assets": ["FLOW"],
+        "kind": "suspension",
+        "trigger_type": "node_issue",
+        "title": "네트워크 이슈에 따른 플로우(FLOW) 입출금 일시 중단 안내",
+        "reason_summary": "플로우 블록체인 노드 문제",
+        "official_url": "https://upbit.com/service_center/notice?id=4607",
+        "supporting_url": "https://bloomingbit.io/feed/news/77328"
+      },
+      {
+        "occurred_at_kst": "2024-10-24 16:29",
+        "assets": ["IOTA"],
+        "kind": "suspension",
+        "trigger_type": "wallet_system_check",
+        "title": "월렛 시스템 점검에 따른 아이오타(IOTA) 입출금 일시 중단 안내",
+        "reason_summary": "당일 월렛 시스템 점검",
+        "official_url": "https://upbit.com/service_center/notice?id=4582",
+        "supporting_url": "https://bloomingbit.io/feed/news/76975"
+      },
+      {
+        "occurred_at_kst": "2024-10-06 13:45",
+        "assets": ["LUNC"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 루나클래식(LUNC) 출금 일시 중단 안내",
+        "reason_summary": "루나클래식 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4541",
+        "supporting_url": "https://bloomingbit.io/feed/news/76036"
+      },
+      {
+        "occurred_at_kst": "2024-09-23 13:35",
+        "assets": ["ADA"],
+        "kind": "suspension",
+        "trigger_type": "wallet_system_check",
+        "title": "월렛 시스템 점검에 따른 에이다(ADA) 입출금 일시 중단 안내",
+        "reason_summary": "당일 월렛 시스템 점검",
+        "official_url": "https://upbit.com/service_center/notice?id=4510",
+        "supporting_url": "https://bloomingbit.io/feed/news/75312"
+      },
+      {
+        "occurred_at_kst": "2024-08-09 20:45",
+        "assets": ["ASTR"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 아스타(ASTR) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "아스타 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4424",
+        "supporting_url": "https://bloomingbit.io/feed/news/73114"
+      },
+      {
+        "occurred_at_kst": "2024-06-14 19:21",
+        "assets": ["STX"],
+        "kind": "delay",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 스택스(STX) 입출금 일시 지연 안내",
+        "reason_summary": "스택스 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4290",
+        "supporting_url": "https://bloomingbit.io/feed/news/69973"
+      },
+      {
+        "occurred_at_kst": "2024-05-10 18:15",
+        "assets": ["ZIL"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 질리카(ZIL) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "질리카 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4204",
+        "supporting_url": "https://bloomingbit.io/feed/news/67932"
+      },
+      {
+        "occurred_at_kst": "2024-04-15 11:44",
+        "assets": ["ATOM"],
+        "kind": "suspension",
+        "trigger_type": "wallet_system_check",
+        "title": "월렛 시스템 점검에 따른 코스모스(ATOM) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "노드 동기화 및 네트워크 안정성 확인을 위한 당일 점검",
+        "official_url": "https://upbit.com/service_center/notice?id=4160",
+        "supporting_url": "https://bloomingbit.io/feed/news/66428"
+      },
+      {
+        "occurred_at_kst": "2024-02-24 18:16",
+        "assets": ["AVAX"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 아발란체(AVAX) 입출금 일시 중단 안내 (완료)",
+        "reason_summary": "아발란체 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4066",
+        "supporting_url": "https://bloomingbit.io/feed/news/63502"
+      },
+      {
+        "occurred_at_kst": "2024-02-06 19:27",
+        "assets": ["SOL", "GMT", "RAY", "ACS"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "네트워크 이슈에 따른 SOL, GMT, RAY, ACS 입출금 일시 중단 안내",
+        "reason_summary": "솔라나 계열 네트워크 이슈",
+        "official_url": "https://upbit.com/service_center/notice?id=4030",
+        "supporting_url": "https://bloomingbit.io/feed/news/62606"
+      }
+    ],
+    "bithumb": [
+      {
+        "occurred_at_kst": "2026-02-23 20:57:49",
+        "assets": ["POKT"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "포켓네트워크(POKT) 입출금 일시 중지 안내",
+        "reason_summary": "포켓네트워크 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1652078"
+      },
+      {
+        "occurred_at_kst": "2025-11-21 17:39:41",
+        "assets": ["ADA"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "에이다(ADA) 입출금 일시 중지 안내(11/26 재개)",
+        "reason_summary": "에이다 메인넷 네트워크 이슈",
+        "official_url": "https://feed.bithumb.com/notice/1650802"
+      },
+      {
+        "occurred_at_kst": "2025-11-03 19:45:40",
+        "assets": ["BERA"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "베라체인(BERA) 입출금 일시 중지 안내 (11/05 재개)",
+        "reason_summary": "베라체인 메인넷 네트워크 이슈",
+        "official_url": "https://feed.bithumb.com/notice/1650517"
+      },
+      {
+        "occurred_at_kst": "2025-09-22 20:00:26",
+        "assets": ["0G"],
+        "kind": "delay",
+        "trigger_type": "network_issue",
+        "title": "제로지(0G) 입출금 일시 지연 안내 (정상화)",
+        "reason_summary": "제로지 네트워크 이슈로 입출금 처리 지연",
+        "official_url": "https://feed.bithumb.com/notice/1650022"
+      },
+      {
+        "occurred_at_kst": "2025-09-02 15:56:36",
+        "assets": ["STRK"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "스타크넷(STRK) 입출금 일시 중지 안내 (09/03 재개)",
+        "reason_summary": "스타크넷 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1649774"
+      },
+      {
+        "occurred_at_kst": "2025-08-29 13:12:21",
+        "assets": ["ZRC"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "저킷(ZRC) 입출금 일시 중지 안내 (09/02 재개)",
+        "reason_summary": "저킷 네트워크 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1649671"
+      },
+      {
+        "occurred_at_kst": "2025-06-26 14:04:45",
+        "assets": ["FLR"],
+        "kind": "suspension",
+        "trigger_type": "network_issue",
+        "title": "플레어(FLR) 입출금 일시 중지 안내 (06/27 재개)",
+        "reason_summary": "플레어 네트워크 이슈",
+        "official_url": "https://feed.bithumb.com/notice/1649062"
+      },
+      {
+        "occurred_at_kst": "2025-05-23 00:10:14",
+        "assets": ["SUI", "DEEP", "WAL", "LWA", "BLUE", "HAEDAL"],
+        "kind": "suspension",
+        "trigger_type": "security_issue",
+        "title": "수이(SUI) 계열 가상자산 보안 이슈로 인한 유의 촉구 안내 (5/23 18:00 입출금 재개)",
+        "reason_summary": "수이 네트워크 내 DEX 세터스 관련 보안 문제 정황",
+        "official_url": "https://feed.bithumb.com/notice/1648555"
+      },
+      {
+        "occurred_at_kst": "2025-04-15 00:53:21",
+        "assets": ["ATOM"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "코스모스(ATOM) 입출금 일시 중지 안내 (04/15 재개)",
+        "reason_summary": "코스모스 네트워크 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1648132"
+      },
+      {
+        "occurred_at_kst": "2025-02-18 20:00:19",
+        "assets": ["FLOW"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "플로우(FLOW) 입출금 일시 중지 안내 (02/19 재개)",
+        "reason_summary": "플로우 네트워크 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1647038"
+      },
+      {
+        "occurred_at_kst": "2025-01-16 02:20:40",
+        "assets": ["ZIL"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "질리카(ZIL) 입출금 일시 중지 안내 (01/16 재개)",
+        "reason_summary": "질리카 네트워크 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1646423"
+      },
+      {
+        "occurred_at_kst": "2024-11-21 19:23:52",
+        "assets": ["SUI", "LWA"],
+        "kind": "suspension",
+        "trigger_type": "block_generation_stop",
+        "title": "수이(SUI), 루미웨이브(LWA) 입출금 일시 중지 안내 (11/22 재개)",
+        "reason_summary": "Sui 네트워크 블록 생성 중단",
+        "official_url": "https://feed.bithumb.com/notice/1645244"
+      }
+    ]
+  }
+}

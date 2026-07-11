@@ -14,7 +14,7 @@ def test_buy_realtime_scripts_run_classifier_fixture_gate_before_startup():
     for name in ("run_fast_buy_realtime.sh", "run_fast_buy_cpp_realtime.sh"):
         text = _script_text(name)
         assert "LISTING_CLASSIFIER_VERIFY" in text
-        assert "verify_listing_classifiers.py\" --require-tdlib-relay" in text
+        assert 'verify_listing_classifiers.py" --require-tdlib-relay' in text
         assert "refusing to start realtime buy" in text
 
 
@@ -24,3 +24,11 @@ def test_source_first_script_keeps_classifier_gate_out_of_source_only_path():
     assert "--source-only" in text
     assert "verify_listing_classifiers.py" not in text
     assert "LISTING_CLASSIFIER_VERIFY" not in text
+
+
+def test_tdlib_build_prefers_repo_local_openssl_when_available():
+    text = (MODULE_DIR / "cpp" / "build_tdlib_relay.sh").read_text(encoding="utf-8")
+
+    assert 'LOCAL_OPENSSL_PREFIX="$ROOT_DIR/vendor/openssl-local"' in text
+    assert '-d "$LOCAL_OPENSSL_PREFIX/lib"' in text
+    assert 'OPENSSL_PREFIX="$LOCAL_OPENSSL_PREFIX"' in text

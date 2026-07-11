@@ -1,0 +1,2688 @@
+{
+  "generated_at": "2026-04-06T20:45:13.819817+00:00",
+  "as_of_date": "2026-04-06",
+  "sources": {
+    "bithumb_markets": "https://api.bithumb.com/v1/market/all?isDetails=false",
+    "upbit_markets": "https://api.upbit.com/v1/market/all?isDetails=false",
+    "coinmarketcap_map": [
+      "https://api.coinmarketcap.com/data-api/v3/map/all?listing_status=active&start=1&limit=5000&aux=platform,is_active,status",
+      "https://api.coinmarketcap.com/data-api/v3/map/all?listing_status=active&start=5001&limit=5000&aux=platform,is_active,status"
+    ]
+  },
+  "stats": {
+    "bithumb_pairs": 467,
+    "upbit_pairs": 703,
+    "unique_base_assets": 475,
+    "resolved_chain_count": 122,
+    "unresolved_asset_count": 13,
+    "current_01_target_count": 38
+  },
+  "chains": [
+    {
+      "chain_ticker": "A",
+      "chain_name": "Vaulta",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "A"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ADA",
+      "chain_name": "Cardano",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ADA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "AERGO",
+      "chain_name": "Aergo",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "AERGO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "AIOZ",
+      "chain_name": "AIOZ Network",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "AIOZ"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "AKT",
+      "chain_name": "Akash",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "AKT"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "ALGO",
+      "chain_name": "Algorand",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ALGO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "APT",
+      "chain_name": "Aptos",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "APT"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "AR",
+      "chain_name": "Arweave",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "AR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ARB",
+      "chain_name": "Arbitrum One",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ARB"
+      ],
+      "hosted_assets": [
+        "BOUNTY",
+        "ESP",
+        "MLK",
+        "XAI",
+        "ZTX"
+      ],
+      "hosted_asset_count": 5,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "ARDR",
+      "chain_name": "Ardor",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ARDR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ARK",
+      "chain_name": "Ark",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ARK"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ASTR",
+      "chain_name": "Astar",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ASTR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ATOM",
+      "chain_name": "Cosmos Hub",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ATOM"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "AVAIL",
+      "chain_name": "Avail",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "AVAIL"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "AVAX",
+      "chain_name": "Avalanche",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "AVAX"
+      ],
+      "hosted_assets": [
+        "FITFI",
+        "JOE"
+      ],
+      "hosted_asset_count": 2,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "AXL",
+      "chain_name": "Axelar",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "AXL"
+      ],
+      "hosted_assets": [
+        "WAXL"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "BABY",
+      "chain_name": "Babylon",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BABY"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BASE",
+      "chain_name": "Base",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [],
+      "hosted_assets": [
+        "AERO",
+        "AVNT",
+        "AWE",
+        "B3",
+        "BRETT",
+        "EDGE",
+        "KAITO",
+        "RECALL",
+        "SAPIEN",
+        "TRUST",
+        "VVV",
+        "ZORA"
+      ],
+      "hosted_asset_count": 12,
+      "detection_methods": [
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BB",
+      "chain_name": "BounceBit",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "BB"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BCH",
+      "chain_name": "Bitcoin Cash",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BCH"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BEAM",
+      "chain_name": "Beam",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BEAM"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BERA",
+      "chain_name": "Berachain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BERA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BLAST",
+      "chain_name": "Blast",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BLAST"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BNB",
+      "chain_name": "BNB Smart Chain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BNB"
+      ],
+      "hosted_assets": [
+        "ACE",
+        "ASTER",
+        "BMT",
+        "C",
+        "COOKIE",
+        "COS",
+        "CUDIS",
+        "CYS",
+        "EDU",
+        "GPS",
+        "HAEDAL",
+        "HOLO",
+        "HOME",
+        "HOOK",
+        "HUMA",
+        "LISTA",
+        "MIRA",
+        "NXPC",
+        "ONG",
+        "PARTI",
+        "SFP",
+        "SOLV",
+        "SOON",
+        "STABLE",
+        "THE",
+        "TOSHI",
+        "XTER"
+      ],
+      "hosted_asset_count": 27,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BSV",
+      "chain_name": "Bitcoin SV",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BSV"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BTC",
+      "chain_name": "Bitcoin",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "BTC"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "BTR",
+      "chain_name": "Bitlayer",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "BTR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CELO",
+      "chain_name": "Celo",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "CELO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "CFG",
+      "chain_name": "Centrifuge",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "CFG"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CFX",
+      "chain_name": "Conflux",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "CFX"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CHZ",
+      "chain_name": "Chiliz Chain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "CHZ"
+      ],
+      "hosted_assets": [
+        "ACM",
+        "AFC",
+        "ATM",
+        "BAR",
+        "CITY",
+        "INTER",
+        "JUV",
+        "NAP",
+        "PSG",
+        "SPURS"
+      ],
+      "hosted_asset_count": 10,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CKB",
+      "chain_name": "Nervos CKB",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "CKB"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "CORE",
+      "chain_name": "Core",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "CORE"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "COTI",
+      "chain_name": "COTI",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "COTI"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CRO",
+      "chain_name": "Crypto.org Chain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "CRO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "CSPR",
+      "chain_name": "Casper",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "CSPR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CTC",
+      "chain_name": "Creditcoin",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "CTC"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "CTK",
+      "chain_name": "Shentu",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "CTK"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "DGB",
+      "chain_name": "DigiByte",
+      "listed_on": [
+        "upbit"
+      ],
+      "native_assets": [
+        "DGB"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "DOGE",
+      "chain_name": "Dogecoin",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "DOGE"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "DOT",
+      "chain_name": "Polkadot",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "DOT"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "EGLD",
+      "chain_name": "MultiversX",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "EGLD"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ELF",
+      "chain_name": "aelf",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ELF"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ETC",
+      "chain_name": "Ethereum Classic",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ETC"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ETH",
+      "chain_name": "Ethereum",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ETH"
+      ],
+      "hosted_assets": [
+        "0G",
+        "1INCH",
+        "A8",
+        "AAVE",
+        "ACH",
+        "ACX",
+        "ADP",
+        "AGI",
+        "AGLD",
+        "AL",
+        "ALICE",
+        "ALLO",
+        "ALT",
+        "AMP",
+        "ANIME",
+        "ANKR",
+        "APE",
+        "API3",
+        "AQT",
+        "ARKM",
+        "ARPA",
+        "ATH",
+        "AUCTION",
+        "AUDIO",
+        "AVL",
+        "AXS",
+        "AZTEC",
+        "BARD",
+        "BAT",
+        "BEL",
+        "BFC",
+        "BICO",
+        "BIGTIME",
+        "BIO",
+        "BIOT",
+        "BLUR",
+        "BNT",
+        "BOB",
+        "BREV",
+        "C98",
+        "CAKE",
+        "CAMP",
+        "CARV",
+        "CBK",
+        "CELR",
+        "CHR",
+        "COMP",
+        "COW",
+        "CPOOL",
+        "CRTS",
+        "CRV",
+        "CTSI",
+        "CVC",
+        "CYBER",
+        "D",
+        "DAO",
+        "DEXE",
+        "DKA",
+        "DNT",
+        "EDEN",
+        "EGG",
+        "EIGEN",
+        "EL",
+        "ENA",
+        "ENJ",
+        "ENS",
+        "ENSO",
+        "EPT",
+        "ERA",
+        "ETHFI",
+        "EUL",
+        "F",
+        "FANC",
+        "FET",
+        "FF",
+        "FLOKI",
+        "FLUID",
+        "FORT",
+        "FRAX",
+        "GALA",
+        "GHX",
+        "GLM",
+        "GMT",
+        "GNO",
+        "GRACY",
+        "GRT",
+        "GTC",
+        "GWEI",
+        "H",
+        "HEMI",
+        "HFT",
+        "HIGH",
+        "HUNT",
+        "HVH",
+        "HYPER",
+        "ID",
+        "ILV",
+        "IMX",
+        "IN",
+        "IQ",
+        "IRYS",
+        "JASMY",
+        "KERNEL",
+        "KNC",
+        "LA",
+        "LDO",
+        "LINK",
+        "LIT",
+        "LM",
+        "LPT",
+        "MAGIC",
+        "MANA",
+        "MASK",
+        "MAV",
+        "MERL",
+        "MOC",
+        "MOCA",
+        "MORPHO",
+        "MOVE",
+        "MVC",
+        "MVL",
+        "NCT",
+        "NEWT",
+        "NFT",
+        "NIL",
+        "NMR",
+        "NOM",
+        "OBT",
+        "OCEAN",
+        "OGN",
+        "ONDO",
+        "OPEN",
+        "ORBS",
+        "ORDER",
+        "OXT",
+        "PAXG",
+        "PCI",
+        "PENDLE",
+        "PEPE",
+        "PIEVERSE",
+        "POLA",
+        "POWR",
+        "PROM",
+        "PROMPT",
+        "PROVE",
+        "PUFFER",
+        "PUMPBTC",
+        "PUNDIX",
+        "PYR",
+        "QKC",
+        "RAD",
+        "RED",
+        "RENDER",
+        "REQ",
+        "RESOLV",
+        "REZ",
+        "RLC",
+        "ROBO",
+        "RPL",
+        "RSR",
+        "RSS3",
+        "SAFE",
+        "SAND",
+        "SD",
+        "SENT",
+        "SHELL",
+        "SHIB",
+        "SIGN",
+        "SIX",
+        "SKL",
+        "SKY",
+        "SNT",
+        "SNX",
+        "SOPH",
+        "SPK",
+        "STAT",
+        "STORJ",
+        "STRK",
+        "SUPER",
+        "SUSHI",
+        "SWAP",
+        "SWELL",
+        "SXT",
+        "SYRUP",
+        "T",
+        "TALK",
+        "TAVA",
+        "THQ",
+        "TOKAMAK",
+        "TOWNS",
+        "TRAC",
+        "TREE",
+        "TURBO",
+        "TUSD",
+        "UMA",
+        "UNI",
+        "UOS",
+        "USD1",
+        "USDC",
+        "USDE",
+        "USDP",
+        "USDS",
+        "USDT",
+        "VANA",
+        "VIRTUAL",
+        "W",
+        "WCT",
+        "WIKEN",
+        "WITCH",
+        "WLD",
+        "WLFI",
+        "WNCG",
+        "WOO",
+        "XAN",
+        "XAUT",
+        "XCN",
+        "XION",
+        "XVS",
+        "XYO",
+        "YB",
+        "YFI",
+        "YGG",
+        "ZBT",
+        "ZKC",
+        "ZKP",
+        "ZRC",
+        "ZRO",
+        "ZRX"
+      ],
+      "hosted_asset_count": 228,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "FCT2",
+      "chain_name": "FirmaChain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [],
+      "hosted_assets": [
+        "FCT2"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "asset_override"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "FIL",
+      "chain_name": "Filecoin",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "FIL"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "FLR",
+      "chain_name": "Flare",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "FLR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "FLUX",
+      "chain_name": "Flux",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "FLUX"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "G",
+      "chain_name": "Gravity",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "G"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "GAS",
+      "chain_name": "Neo Gas",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "GAS"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "GLMR",
+      "chain_name": "Moonbeam",
+      "listed_on": [
+        "upbit"
+      ],
+      "native_assets": [
+        "GLMR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "HBAR",
+      "chain_name": "Hedera",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "HBAR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "HIVE",
+      "chain_name": "Hive",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "HIVE"
+      ],
+      "hosted_assets": [
+        "HBD"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ICP",
+      "chain_name": "Internet Computer",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ICP"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ICX",
+      "chain_name": "ICON",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ICX"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "INIT",
+      "chain_name": "Initia",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "INIT"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "INJ",
+      "chain_name": "Injective",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "INJ"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "IOST",
+      "chain_name": "IOST",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "IOST"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "IOTA",
+      "chain_name": "IOTA",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "IOTA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "IOTX",
+      "chain_name": "IoTeX",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "IOTX"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "IP",
+      "chain_name": "Story",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "IP"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "KAIA",
+      "chain_name": "Kaia",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "KAIA"
+      ],
+      "hosted_assets": [
+        "AZIT",
+        "BORA",
+        "GRND",
+        "MBX",
+        "OBSR",
+        "TEMCO"
+      ],
+      "hosted_asset_count": 6,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "KAVA",
+      "chain_name": "Kava",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "KAVA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "KSM",
+      "chain_name": "Kusama",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "KSM"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "LINEA",
+      "chain_name": "Linea",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "LINEA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "LSK",
+      "chain_name": "Lisk",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "LSK"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MANTA",
+      "chain_name": "Manta Network",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "MANTA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MANTRA",
+      "chain_name": "MANTRA",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "MANTRA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MAPO",
+      "chain_name": "MAP Protocol",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "MAPO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MED",
+      "chain_name": "Panacea",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "MED"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "META",
+      "chain_name": "Metadium",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "META"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "METIS",
+      "chain_name": "Metis",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "METIS"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MEV",
+      "chain_name": "MEVerse",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "MEV"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MINA",
+      "chain_name": "Mina",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "MINA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MNT",
+      "chain_name": "Mantle",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "MNT"
+      ],
+      "hosted_assets": [
+        "ELSA"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MON",
+      "chain_name": "Monad",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "MON"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "MTL",
+      "chain_name": "Metal DAO",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [],
+      "hosted_assets": [
+        "MTL"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "asset_override"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "NEAR",
+      "chain_name": "NEAR",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "NEAR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "NEO",
+      "chain_name": "Neo",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "NEO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "NKN",
+      "chain_name": "NKN",
+      "listed_on": [
+        "upbit"
+      ],
+      "native_assets": [
+        "NKN"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ONT",
+      "chain_name": "Ontology",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ONT"
+      ],
+      "hosted_assets": [
+        "MBL"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "OP",
+      "chain_name": "Optimism",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "OP"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "OSMO",
+      "chain_name": "Osmosis",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "OSMO"
+      ],
+      "hosted_assets": [
+        "DYDX"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "PEAQ",
+      "chain_name": "peaq",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "PEAQ"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "PHA",
+      "chain_name": "Phala Network",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "PHA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "PLUME",
+      "chain_name": "Plume",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "PLUME"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "POKT",
+      "chain_name": "Pocket Network",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "POKT"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "POL",
+      "chain_name": "Polygon",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "POL"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "POLYX",
+      "chain_name": "Polymesh",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "POLYX"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "QTUM",
+      "chain_name": "Qtum",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "QTUM"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "REI",
+      "chain_name": "REI Network",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "REI"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "RON",
+      "chain_name": "Ronin",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "RON"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "RVN",
+      "chain_name": "Ravencoin",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "RVN"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "SC",
+      "chain_name": "Siacoin",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "SC"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "SCR",
+      "chain_name": "Scroll",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "SCR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "SEI",
+      "chain_name": "Sei",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "SEI"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "SOL",
+      "chain_name": "Solana",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "SOL"
+      ],
+      "hosted_assets": [
+        "2Z",
+        "ACS",
+        "BIRB",
+        "BONK",
+        "DBR",
+        "DOOD",
+        "DRIFT",
+        "FLOCK",
+        "GMX",
+        "GOAT",
+        "GRASS",
+        "IO",
+        "JTO",
+        "JUP",
+        "KMNO",
+        "LAYER",
+        "ME",
+        "MET",
+        "MET2",
+        "MEW",
+        "MOODENG",
+        "ORCA",
+        "PENGU",
+        "PONKE",
+        "POPCAT",
+        "PUMP",
+        "PYTH",
+        "RAY",
+        "ROA",
+        "SKR",
+        "TRUMP",
+        "WET",
+        "WIF"
+      ],
+      "hosted_asset_count": 33,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "SONIC",
+      "chain_name": "Sonic",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "SONIC"
+      ],
+      "hosted_assets": [
+        "S"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "STEEM",
+      "chain_name": "Steem",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "STEEM"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "STX",
+      "chain_name": "Stacks",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "STX"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "SUI",
+      "chain_name": "Sui",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "SUI"
+      ],
+      "hosted_assets": [
+        "BLUE",
+        "DEEP",
+        "LWA",
+        "MMT",
+        "WAL"
+      ],
+      "hosted_asset_count": 5,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "TAIKO",
+      "chain_name": "Taiko",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "TAIKO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "TAO",
+      "chain_name": "Bittensor",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "TAO"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "THETA",
+      "chain_name": "Theta Network",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "THETA"
+      ],
+      "hosted_assets": [
+        "TDROP",
+        "TFUEL"
+      ],
+      "hosted_asset_count": 2,
+      "detection_methods": [
+        "asset_override",
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "TIA",
+      "chain_name": "Celestia",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "TIA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "TON",
+      "chain_name": "TON",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "TON"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "TRX",
+      "chain_name": "TRON",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "TRX"
+      ],
+      "hosted_assets": [
+        "BTT",
+        "JST",
+        "SUN",
+        "SUNDOG"
+      ],
+      "hosted_asset_count": 4,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "TT",
+      "chain_name": "ThunderCore",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "TT"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "VET",
+      "chain_name": "VeChain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "VET"
+      ],
+      "hosted_assets": [
+        "VTHO"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "known_native_ticker",
+        "platform_metadata"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "WAVES",
+      "chain_name": "Waves",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "WAVES"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "WAXP",
+      "chain_name": "WAX",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "WAXP"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "XEC",
+      "chain_name": "eCash",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "XEC"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "XLM",
+      "chain_name": "Stellar",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "XLM"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "XPL",
+      "chain_name": "Plasma",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [],
+      "hosted_assets": [
+        "XPL"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "asset_override"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "XPLA",
+      "chain_name": "XPLA",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "XPLA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "XPR",
+      "chain_name": "XPR Network",
+      "listed_on": [
+        "bithumb"
+      ],
+      "native_assets": [
+        "XPR"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "XRP",
+      "chain_name": "XRP Ledger",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "XRP"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "XTZ",
+      "chain_name": "Tezos",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "XTZ"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "ZETA",
+      "chain_name": "ZetaChain",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ZETA"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": false
+    },
+    {
+      "chain_ticker": "ZIL",
+      "chain_name": "Zilliqa",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [
+        "ZIL"
+      ],
+      "hosted_assets": [],
+      "hosted_asset_count": 0,
+      "detection_methods": [
+        "known_native_ticker"
+      ],
+      "current_01_target": true
+    },
+    {
+      "chain_ticker": "ZK",
+      "chain_name": "ZKsync",
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "native_assets": [],
+      "hosted_assets": [
+        "ZK"
+      ],
+      "hosted_asset_count": 1,
+      "detection_methods": [
+        "platform_metadata"
+      ],
+      "current_01_target": false
+    }
+  ],
+  "unresolved_assets": [
+    {
+      "ticker": "AHT",
+      "english_names": [
+        "AhaToken"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "BTC-AHT",
+          "KRW-AHT"
+        ],
+        "upbit": [
+          "BTC-AHT",
+          "KRW-AHT",
+          "USDT-AHT"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "AMO",
+      "english_names": [
+        "AMO Coin"
+      ],
+      "listed_on": [
+        "bithumb"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-AMO"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "BOBA",
+      "english_names": [
+        "Boba Network"
+      ],
+      "listed_on": [
+        "bithumb"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-BOBA"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "ES",
+      "english_names": [
+        "Eclipse"
+      ],
+      "listed_on": [
+        "bithumb"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-ES"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "GAME2",
+      "english_names": [
+        "GameBuild"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-GAME2"
+        ],
+        "upbit": [
+          "BTC-GAME2",
+          "KRW-GAME2"
+        ]
+      },
+      "reason": "unmatched_coin"
+    },
+    {
+      "ticker": "HP",
+      "english_names": [
+        "Hippo Protocol"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-HP"
+        ],
+        "upbit": [
+          "BTC-HP",
+          "KRW-HP"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "KAT",
+      "english_names": [
+        "Katana"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-KAT"
+        ],
+        "upbit": [
+          "BTC-KAT",
+          "KRW-KAT",
+          "USDT-KAT"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "KITE",
+      "english_names": [
+        "Kite"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-KITE"
+        ],
+        "upbit": [
+          "BTC-KITE",
+          "KRW-KITE",
+          "USDT-KITE"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "MAY",
+      "english_names": [
+        "Mayflower"
+      ],
+      "listed_on": [
+        "bithumb"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-MAY"
+        ]
+      },
+      "reason": "unmatched_coin"
+    },
+    {
+      "ticker": "SAHARA",
+      "english_names": [
+        "Sahara AI"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-SAHARA"
+        ],
+        "upbit": [
+          "BTC-SAHARA",
+          "KRW-SAHARA",
+          "USDT-SAHARA"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "SOMI",
+      "english_names": [
+        "Somnia"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-SOMI"
+        ],
+        "upbit": [
+          "BTC-SOMI",
+          "KRW-SOMI",
+          "USDT-SOMI"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "STRAX",
+      "english_names": [
+        "Xertra"
+      ],
+      "listed_on": [
+        "bithumb",
+        "upbit"
+      ],
+      "markets": {
+        "bithumb": [
+          "KRW-STRAX"
+        ],
+        "upbit": [
+          "BTC-STRAX",
+          "KRW-STRAX"
+        ]
+      },
+      "reason": "no_platform"
+    },
+    {
+      "ticker": "VAL",
+      "english_names": [
+        "Validity"
+      ],
+      "listed_on": [
+        "upbit"
+      ],
+      "markets": {
+        "upbit": [
+          "BTC-VAL"
+        ]
+      },
+      "reason": "no_platform"
+    }
+  ]
+}

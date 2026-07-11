@@ -1,0 +1,32 @@
+{
+  "poll_interval_seconds": 5,
+  "target": {
+    "chain_id": "peaq",
+    "chain_name": "peaq",
+    "primary_ticker": "PEAQ",
+    "affected_tickers": ["PEAQ"],
+    "listed_on": ["bithumb"],
+    "sources": {
+      "runtime_head": {
+        "observe_stall_rounds": 2,
+        "warning_stall_rounds": 3,
+        "critical_stall_rounds": 5,
+        "recovery_healthy_rounds": 3,
+        "observe_head_age_seconds": 12.0,
+        "warning_head_age_seconds": 24.0,
+        "critical_head_age_seconds": 45.0,
+        "observe_finalized_age_seconds": 18.0,
+        "critical_finalized_age_seconds": 30.0,
+        "divergence_blocks": 2,
+        "http_timeout_seconds": 8.0,
+        "http_endpoints": [
+          "https://quicknode1.peaq.xyz",
+          "https://quicknode2.peaq.xyz",
+          "https://quicknode3.peaq.xyz",
+          "https://peaq.api.onfinality.io/public",
+          "https://peaq-rpc.publicnode.com"
+        ]
+      }
+    }
+  }
+}

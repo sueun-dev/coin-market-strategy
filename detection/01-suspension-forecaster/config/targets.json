@@ -1,0 +1,559 @@
+{
+  "defaults": {
+    "recent_release_hours": 168
+  },
+  "exchange_profiles": {
+    "upbit": {
+      "network_upgrade": {
+        "min_lead_hours": 1,
+        "default_lead_hours": 24,
+        "max_lead_hours": 168
+      },
+      "network_issue": {
+        "min_lead_hours": 0,
+        "default_lead_hours": 0,
+        "max_lead_hours": 2
+      }
+    },
+    "bithumb": {
+      "network_upgrade": {
+        "min_lead_hours": 2,
+        "default_lead_hours": 24,
+        "max_lead_hours": 168
+      },
+      "network_issue": {
+        "min_lead_hours": 0,
+        "default_lead_hours": 0,
+        "max_lead_hours": 2
+      }
+    }
+  },
+  "targets": [
+    {
+      "chain_id": "cosmoshub",
+      "chain_name": "Cosmos Hub",
+      "primary_ticker": "ATOM",
+      "affected_tickers": ["ATOM"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://cosmos-rest.publicnode.com", "https://rest.cosmos.directory/cosmoshub"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 5.75
+        },
+        "github_release": {
+          "repo": "cosmos/gaia"
+        }
+      }
+    },
+    {
+      "chain_id": "sei",
+      "chain_name": "Sei Network",
+      "primary_ticker": "SEI",
+      "affected_tickers": ["SEI"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://sei-rest.publicnode.com", "https://rest.cosmos.directory/sei"],
+          "gov_api_version": "v1beta1",
+          "avg_block_time_seconds": 0.73
+        },
+        "github_release": {
+          "repo": "sei-protocol/sei-chain"
+        }
+      }
+    },
+    {
+      "chain_id": "injective",
+      "chain_name": "Injective",
+      "primary_ticker": "INJ",
+      "affected_tickers": ["INJ"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://injective-rest.publicnode.com", "https://rest.cosmos.directory/injective"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 0.6
+        },
+        "github_release": {
+          "repo": "InjectiveFoundation/injective-core",
+          "recent_release_hours": 336
+        }
+      }
+    },
+    {
+      "chain_id": "kava",
+      "chain_name": "Kava",
+      "primary_ticker": "KAVA",
+      "affected_tickers": ["KAVA"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://kava-rest.publicnode.com", "https://rest.cosmos.directory/kava"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 6.5
+        },
+        "github_release": {
+          "repo": "Kava-Labs/kava"
+        }
+      }
+    },
+    {
+      "chain_id": "akash",
+      "chain_name": "Akash Network",
+      "primary_ticker": "AKT",
+      "affected_tickers": ["AKT"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://akash-rest.publicnode.com", "https://rest.cosmos.directory/akash"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 6.2
+        }
+      }
+    },
+    {
+      "chain_id": "axelar",
+      "chain_name": "Axelar",
+      "primary_ticker": "AXL",
+      "affected_tickers": ["AXL"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://axelar-rest.publicnode.com", "https://rest.cosmos.directory/axelar"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 1.9
+        },
+        "github_release": {
+          "repo": "axelarnetwork/axelar-core"
+        }
+      }
+    },
+    {
+      "chain_id": "celestia",
+      "chain_name": "Celestia",
+      "primary_ticker": "TIA",
+      "affected_tickers": ["TIA"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://celestia-rest.publicnode.com", "https://rest.cosmos.directory/celestia"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 6.1
+        },
+        "github_release": {
+          "repo": "celestiaorg/celestia-app"
+        }
+      }
+    },
+    {
+      "chain_id": "cryptoorgchain",
+      "chain_name": "Crypto.com Chain",
+      "primary_ticker": "CRO",
+      "affected_tickers": ["CRO"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://rest.cosmos.directory/cryptoorgchain"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 5.5
+        },
+        "github_release": {
+          "repo": "crypto-org-chain/chain-main"
+        }
+      }
+    },
+    {
+      "chain_id": "panacea",
+      "chain_name": "MediBloc",
+      "primary_ticker": "MED",
+      "affected_tickers": ["MED"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://rest.cosmos.directory/panacea"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 5.0
+        },
+        "github_release": {
+          "repo": "medibloc/panacea-core"
+        }
+      }
+    },
+    {
+      "chain_id": "osmosis",
+      "chain_name": "Osmosis",
+      "primary_ticker": "OSMO",
+      "affected_tickers": ["OSMO"],
+      "listed_on": ["bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://osmosis-rest.publicnode.com", "https://rest.cosmos.directory/osmosis"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 2.5
+        },
+        "github_release": {
+          "repo": "osmosis-labs/osmosis"
+        }
+      }
+    },
+    {
+      "chain_id": "band",
+      "chain_name": "Band Protocol",
+      "primary_ticker": "BAND",
+      "affected_tickers": ["BAND"],
+      "listed_on": ["bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://rest.cosmos.directory/bandchain", "https://band-rest.publicnode.com"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 1.1
+        },
+        "github_release": {
+          "repo": "bandprotocol/chain"
+        }
+      }
+    },
+    {
+      "chain_id": "stride",
+      "chain_name": "Stride",
+      "primary_ticker": "STRD",
+      "affected_tickers": ["STRD"],
+      "listed_on": ["bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://stride-rest.publicnode.com", "https://rest.cosmos.directory/stride"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 1.6
+        }
+      }
+    },
+    {
+      "chain_id": "stargaze",
+      "chain_name": "Stargaze",
+      "primary_ticker": "STARS",
+      "affected_tickers": ["STARS"],
+      "listed_on": ["bithumb"],
+      "sources": {
+        "governance": {
+          "kind": "cosmos",
+          "rpc_endpoints": ["https://stargaze-rest.publicnode.com", "https://rest.cosmos.directory/stargaze"],
+          "gov_api_version": "v1",
+          "avg_block_time_seconds": 2.5
+        }
+      }
+    },
+    {
+      "chain_id": "polkadot",
+      "chain_name": "Polkadot",
+      "primary_ticker": "DOT",
+      "affected_tickers": ["DOT"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "github_release": {
+          "repo": "paritytech/polkadot-sdk"
+        }
+      }
+    },
+    {
+      "chain_id": "tezos",
+      "chain_name": "Tezos",
+      "primary_ticker": "XTZ",
+      "affected_tickers": ["XTZ"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "github_release": {
+          "repo": "tezos/tezos"
+        }
+      }
+    },
+    {
+      "chain_id": "aptos",
+      "chain_name": "Aptos",
+      "primary_ticker": "APT",
+      "affected_tickers": ["APT"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "github_release": {
+          "repo": "aptos-labs/aptos-core"
+        }
+      }
+    },
+    {
+      "chain_id": "sui",
+      "chain_name": "Sui",
+      "primary_ticker": "SUI",
+      "affected_tickers": ["SUI"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "github_release": {
+          "repo": "MystenLabs/sui"
+        }
+      }
+    },
+    {
+      "chain_id": "algorand",
+      "chain_name": "Algorand",
+      "primary_ticker": "ALGO",
+      "affected_tickers": ["ALGO"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "github_release": {
+          "repo": "algorand/go-algorand"
+        }
+      }
+    },
+    {
+      "chain_id": "cardano",
+      "chain_name": "Cardano",
+      "primary_ticker": "ADA",
+      "affected_tickers": ["ADA"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "github_release": {
+          "repo": "IntersectMBO/cardano-node"
+        }
+      }
+    },
+    {
+      "chain_id": "icon",
+      "chain_name": "ICON",
+      "primary_ticker": "ICX",
+      "affected_tickers": ["ICX"],
+      "listed_on": ["upbit", "bithumb"],
+      "sources": {
+        "github_release": {
+          "repo": "icon-project/goloop"
+        }
+      }
+    },
+    {
+      "chain_id": "celo",
+      "chain_name": "Celo",
+      "primary_ticker": "CELO",
+      "affected_tickers": ["CELO"],
+      "listed_on": ["upbit"],
+      "sources": {
+        "github_release": {
+          "repo": "celo-org/celo-blockchain"
+        }
+      }
+    },
+    {
+      "chain_id": "solana",
+      "chain_name": "Solana",
+      "primary_ticker": "SOL",
+      "affected_tickers": ["SOL"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "anza-xyz/agave"
+        }
+      }
+    },
+    {
+      "chain_id": "polygon",
+      "chain_name": "Polygon PoS",
+      "primary_ticker": "POL",
+      "affected_tickers": ["POL", "GMT"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "maticnetwork/bor"
+        }
+      }
+    },
+    {
+      "chain_id": "arbitrum",
+      "chain_name": "Arbitrum",
+      "primary_ticker": "ARB",
+      "affected_tickers": ["ARB"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "OffchainLabs/nitro"
+        }
+      }
+    },
+    {
+      "chain_id": "optimism",
+      "chain_name": "Optimism",
+      "primary_ticker": "OP",
+      "affected_tickers": ["OP"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "ethereum-optimism/optimism"
+        }
+      }
+    },
+    {
+      "chain_id": "avalanche",
+      "chain_name": "Avalanche",
+      "primary_ticker": "AVAX",
+      "affected_tickers": ["AVAX"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "ava-labs/avalanchego"
+        }
+      }
+    },
+    {
+      "chain_id": "flow",
+      "chain_name": "Flow",
+      "primary_ticker": "FLOW",
+      "affected_tickers": ["FLOW"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "onflow/flow-go"
+        }
+      }
+    },
+    {
+      "chain_id": "qtum",
+      "chain_name": "Qtum",
+      "primary_ticker": "QTUM",
+      "affected_tickers": ["QTUM"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "qtumproject/qtum"
+        }
+      }
+    },
+    {
+      "chain_id": "story",
+      "chain_name": "Story Protocol",
+      "primary_ticker": "IP",
+      "affected_tickers": ["IP"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "piplabs/story"
+        }
+      }
+    },
+    {
+      "chain_id": "xrp",
+      "chain_name": "XRP Ledger",
+      "primary_ticker": "XRP",
+      "affected_tickers": ["XRP"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "ripple/rippled"
+        }
+      }
+    },
+    {
+      "chain_id": "stellar",
+      "chain_name": "Stellar",
+      "primary_ticker": "XLM",
+      "affected_tickers": ["XLM"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "stellar/stellar-core"
+        }
+      }
+    },
+    {
+      "chain_id": "near",
+      "chain_name": "NEAR",
+      "primary_ticker": "NEAR",
+      "affected_tickers": ["NEAR"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "near/nearcore"
+        }
+      }
+    },
+    {
+      "chain_id": "stacks",
+      "chain_name": "Stacks",
+      "primary_ticker": "STX",
+      "affected_tickers": ["STX"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "stacks-network/stacks-core"
+        }
+      }
+    },
+    {
+      "chain_id": "iota",
+      "chain_name": "IOTA",
+      "primary_ticker": "IOTA",
+      "affected_tickers": ["IOTA"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "iotaledger/wasp"
+        }
+      }
+    },
+    {
+      "chain_id": "irisnet",
+      "chain_name": "IRISnet",
+      "primary_ticker": "IRIS",
+      "affected_tickers": ["IRIS"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "irisnet/irishub"
+        }
+      }
+    },
+    {
+      "chain_id": "zilliqa",
+      "chain_name": "Zilliqa",
+      "primary_ticker": "ZIL",
+      "affected_tickers": ["ZIL"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "Zilliqa/Zilliqa"
+        }
+      }
+    },
+    {
+      "chain_id": "nervos",
+      "chain_name": "Nervos CKB",
+      "primary_ticker": "CKB",
+      "affected_tickers": ["CKB"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "nervosnetwork/ckb"
+        }
+      }
+    },
+    {
+      "chain_id": "vechain",
+      "chain_name": "VeChain",
+      "primary_ticker": "VET",
+      "affected_tickers": ["VET"],
+      "listed_on": [],
+      "sources": {
+        "github_release": {
+          "repo": "vechain/thor"
+        }
+      }
+    }
+  ]
+}

@@ -1,5 +1,8 @@
 # Python
 __pycache__/
+.pytest_cache/
+.ruff_cache/
+.codeatlas/
 *.py[cod]
 *.pyo
 *.egg-info/
@@ -14,11 +17,15 @@ env/
 detection/*/data/detected_*.json
 detection/*/data/signals/*.json
 detection/*/data/chain_state.json
+detection/*/data/state.json
+detection/03-peaq-runtime-watch/data/soak/*
+!detection/03-peaq-runtime-watch/data/soak/.gitkeep
 detection/*/data/*.session
 detection/*/data/*.session-journal
 detection/*/data/*.session-*
 detection/*/bin/*
 !detection/*/bin/*.sh
+!detection/*/bin/*.py
 
 # Exchange listing sniper local secrets/runtime
 detection/02-exchange-listing-sniper/.env

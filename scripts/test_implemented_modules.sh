@@ -11,8 +11,10 @@ fi
 
 MODULES=(
   "detection/01-governance-monitor"
+  "detection/01-suspension-forecaster"
   "detection/02-exchange-listing-sniper"
   "detection/02-github-release-monitor"
+  "detection/03-peaq-runtime-watch"
   "detection/04-block-time-anomaly-detector"
   "infra/18-notification-system"
 )

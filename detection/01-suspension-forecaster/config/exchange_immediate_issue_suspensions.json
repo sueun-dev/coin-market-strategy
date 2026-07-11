@@ -1,0 +1,939 @@
+{
+  "generated_at": "2026-04-07T18:35:30.988430+00:00",
+  "strict_rule": "Count only notices whose readable body indicates the issue was already live and the service was suspended immediately at notice registration time or in direct present tense. Exclude notices that clearly schedule the stop for later.",
+  "notes": [
+    "This file is rebuilt from a page-1-through-page-60 Bloomingbit exchange-announcement archive scan.",
+    "Official notice URLs are preserved when they were exposed on the mirrored article page.",
+    "Rows in the strict set include chain issues, wallet/system issues, security issues, and project-risk notices only when the body text reads as an immediate current stop.",
+    "Bithumb rows also include a manual confirmed supplement from official-domain search-indexed notice snippets because many mirrored Bithumb articles do not preserve the full body text."
+  ],
+  "archive_scan": {
+    "pages_scanned": 60,
+    "total_rows": 1789,
+    "keyword_candidate_count": 523,
+    "body_review_candidate_count": 178,
+    "reviewed_candidate_count": 178,
+    "review_error_count": 0,
+    "strict_immediate_stop_count": 65,
+    "manual_bithumb_confirmed_count": 25
+  },
+  "exchanges": {
+    "upbit": [
+      {
+        "occurred_at_kst": "2025-02-18 11:13",
+        "assets": [
+          "ENJ"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4882",
+        "supporting_url": "https://bloomingbit.io/feed/news/83470",
+        "title": "[업비트]월렛 시스템 점검에 따른 엔진코인(ENJ) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2025-01-16 14:23",
+        "assets": [
+          "ZIL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4799",
+        "supporting_url": "https://bloomingbit.io/feed/news/81783",
+        "title": "[업비트]네트워크 이슈에 따른 질리카(ZIL) 디지털 자산 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2025-01-13 17:56",
+        "assets": [
+          "STX"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4792",
+        "supporting_url": "https://bloomingbit.io/feed/news/81574",
+        "title": "[업비트]네트워크 이슈에 따른 스택스(STX) 디지털 자산 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2025-01-07 10:38",
+        "assets": [
+          "STX"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4775",
+        "supporting_url": "https://bloomingbit.io/feed/news/81227",
+        "title": "[업비트]네트워크 이슈에 따른 스택스(STX) 디지털 자산 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2025-01-04 09:27",
+        "assets": [
+          "ADA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "node_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4770",
+        "supporting_url": "https://bloomingbit.io/feed/news/81106",
+        "title": "[업비트]월렛 시스템 점검에 따른 에이다(ADA) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-12-27 19:17",
+        "assets": [
+          "BOUNTY"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "security_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4731",
+        "supporting_url": "https://bloomingbit.io/feed/news/80746",
+        "title": "[업비트]프로젝트 이슈에 따른 체인바운티(BOUNTY) 입출금 일시 중단 및 투자 유의 촉구 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-12-26 14:11",
+        "assets": [
+          "ACS",
+          "BONK",
+          "DRIFT",
+          "GMT",
+          "JUP",
+          "ME",
+          "MEW",
+          "PYTH",
+          "RAY",
+          "RENDER",
+          "SOL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4743",
+        "supporting_url": "https://bloomingbit.io/feed/news/80651",
+        "title": "[업비트]월렛 시스템 점검에 따른 솔라나 계열 디지털 자산 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-12-09 17:35",
+        "assets": [
+          "ZIL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4705",
+        "supporting_url": "https://bloomingbit.io/feed/news/79642",
+        "title": "[업비트]네트워크 이슈에 따른 질리카(ZIL) 디지털 자산 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-11-27 14:12",
+        "assets": [
+          "STX"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4671",
+        "supporting_url": "https://bloomingbit.io/feed/news/78834",
+        "title": "[업비트]네트워크 점검에 따른 스택스(STX) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-11-22 11:20",
+        "assets": [
+          "LWA",
+          "SUI"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4660",
+        "supporting_url": "https://bloomingbit.io/feed/news/78586",
+        "title": "[업비트]네트워크 이슈에 따른 Sui 네트워크 디지털 자산 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-11-03 16:41",
+        "assets": [
+          "BRETT",
+          "CARV",
+          "LSK",
+          "PI"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "node_sync_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4614",
+        "supporting_url": "https://bloomingbit.io/feed/news/77481",
+        "title": "[업비트]월렛 시스템 점검에 따른 LSK, BRETT, CARV, PI 입출금 일시 중단 안내 (BRETT, CRAV, PI 입출금 재개 시점 안내)"
+      },
+      {
+        "occurred_at_kst": "2024-11-01 16:19",
+        "assets": [
+          "ZETA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4611",
+        "supporting_url": "https://bloomingbit.io/feed/news/77407",
+        "title": "[업비트]네트워크 이슈에 따른 제타체인(ZETA) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-11-01 14:50",
+        "assets": [
+          "FLOW"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "node_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4607",
+        "supporting_url": "https://bloomingbit.io/feed/news/77400",
+        "title": "[업비트]네트워크 이슈에 따른 플로우(FLOW) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-10-24 17:31",
+        "assets": [
+          "IOTA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "node_sync_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4582",
+        "supporting_url": "https://bloomingbit.io/feed/news/76979",
+        "title": "[업비트]월렛 시스템 점검에 따른 아이오타(IOTA) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-10-07 15:09",
+        "assets": [
+          "LUNA",
+          "LUNC"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "node_sync_issue",
+        "strict_basis": "body uses direct present-tense immediate withdrawal suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4541",
+        "supporting_url": "https://bloomingbit.io/feed/news/76071",
+        "title": "[업비트]네트워크 이슈에 따른 루나클래식(LUNC) 출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-09-27 14:22",
+        "assets": [
+          "ZIL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4526",
+        "supporting_url": "https://bloomingbit.io/feed/news/75602",
+        "title": "[업비트]네트워크 이슈에 따른 질리카(ZIL) 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2024-09-24 08:01",
+        "assets": [
+          "ADA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "node_sync_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4510",
+        "supporting_url": "https://bloomingbit.io/feed/news/75364",
+        "title": "[업비트]월렛 시스템 점검에 따른 에이다(ADA) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-08-09 20:45",
+        "assets": [
+          "ASTR"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "node_issue",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4424",
+        "supporting_url": "https://bloomingbit.io/feed/news/73114",
+        "title": "[업비트]네트워크 이슈에 따른 아스타(ASTR) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-07-30 14:09",
+        "assets": [
+          "ARB",
+          "MAGIC"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body says suspension starts from notice registration time",
+        "official_url": "https://upbit.com/service_center/notice?id=4397",
+        "supporting_url": "https://bloomingbit.io/feed/news/72450",
+        "title": "[업비트]월렛 시스템 점검에 따른 아비트럼(ARB), 매직(MAGIC) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-05-10 18:15",
+        "assets": [
+          "ZIL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4204",
+        "supporting_url": "https://bloomingbit.io/feed/news/67932",
+        "title": "[업비트]네트워크 이슈에 따른 질리카(ZIL) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-03-19 18:21",
+        "assets": [
+          "WAVES"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4112",
+        "supporting_url": "https://bloomingbit.io/feed/news/64900",
+        "title": "[업비트] 월렛 시스템 점검에 따른 웨이브(WAVES) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-02-24 18:16",
+        "assets": [
+          "AVAX"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "block_generation_stop",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4066",
+        "supporting_url": "https://bloomingbit.io/feed/news/63502",
+        "title": "[업비트] 네트워크 이슈에 따른 아발란체(AVAX) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2024-02-14 15:54",
+        "assets": [
+          "XTZ"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=4040",
+        "supporting_url": "https://bloomingbit.io/feed/news/62960",
+        "title": "[업비트] 월렛 시스템 점검에 따른 테조스(XTZ) 입출금 일시 중단 (완료)"
+      },
+      {
+        "occurred_at_kst": "2023-12-24 22:25",
+        "assets": [
+          "MATIC"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body indicates the issue was already live and the service was stopped immediately",
+        "official_url": "https://upbit.com/service_center/notice?id=3957",
+        "supporting_url": "https://bloomingbit.io/feed/news/60166",
+        "title": "[업비트] 폴리곤(MATIC) Polygon 네트워크 출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-12-14 18:21",
+        "assets": [
+          "SUI"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3924",
+        "supporting_url": "https://bloomingbit.io/feed/news/59458",
+        "title": "[업비트] 수이(SUI) 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-12-08 23:02",
+        "assets": [
+          "MATIC"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3915",
+        "supporting_url": "https://bloomingbit.io/feed/news/59181",
+        "title": "[업비트] 폴리곤(MATIC) Polygon 네트워크 출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-12-05 23:06",
+        "assets": [
+          "NKN"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3908",
+        "supporting_url": "https://bloomingbit.io/feed/news/58992",
+        "title": "[업비트] 엔케이엔(NKN) 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-12-02 02:30",
+        "assets": [
+          "ATOM"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3900",
+        "supporting_url": "https://bloomingbit.io/feed/news/58836",
+        "title": "[업비트] 코스모스(ATOM) 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-30 18:34",
+        "assets": [
+          "NEAR"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3890",
+        "supporting_url": "https://bloomingbit.io/feed/news/58748",
+        "title": "[업비트] 니어프로토콜(NEAR) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2023-11-30 03:49",
+        "assets": [
+          "IOTA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3887",
+        "supporting_url": "https://bloomingbit.io/feed/news/58697",
+        "title": "[업비트] 아이오타(IOTA) 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-26 18:42",
+        "assets": [
+          "MINA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3878",
+        "supporting_url": "https://bloomingbit.io/feed/news/58508",
+        "title": "[업비트] 미나(MINA) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2023-11-25 10:07",
+        "assets": [
+          "XRP"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3876",
+        "supporting_url": "https://bloomingbit.io/feed/news/58481",
+        "title": "[업비트] 리플(XRP) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2023-11-20 13:23",
+        "assets": [
+          "QTUM"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3857",
+        "supporting_url": "https://bloomingbit.io/feed/news/58157",
+        "title": "[업비트] 퀀텀(QTUM) 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2023-11-15 23:20",
+        "assets": [
+          "ACS",
+          "GMT",
+          "RAY",
+          "SOL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3854",
+        "supporting_url": "https://bloomingbit.io/feed/news/57965",
+        "title": "[업비트] SOL, GMT, RAY, ACS 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-14 20:41",
+        "assets": [
+          "MATIC"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body indicates the issue was already live and the service was stopped immediately",
+        "official_url": "https://upbit.com/service_center/notice?id=3851",
+        "supporting_url": "https://bloomingbit.io/feed/news/57882",
+        "title": "[업비트] 폴리곤(MATIC) Polygon 네트워크 출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-13 17:00",
+        "assets": [
+          "AHT",
+          "MLK",
+          "MOC"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3842",
+        "supporting_url": "https://bloomingbit.io/feed/news/57806",
+        "title": "[업비트] AHT, MLK, MOC 입출금 일시 중단 안내 (완료)"
+      },
+      {
+        "occurred_at_kst": "2023-11-10 20:45",
+        "assets": [
+          "ACS",
+          "GMT",
+          "RAY",
+          "SOL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3837",
+        "supporting_url": "https://bloomingbit.io/feed/news/57722",
+        "title": "[업비트] SOL, GMT, RAY, ACS 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-10 02:33",
+        "assets": [
+          "SUI"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3831",
+        "supporting_url": "https://bloomingbit.io/feed/news/57669",
+        "title": "[업비트] 수이(SUI) 입출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-09 07:02",
+        "assets": [
+          "MATIC"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body indicates the issue was already live and the service was stopped immediately",
+        "official_url": "https://upbit.com/service_center/notice?id=3826",
+        "supporting_url": "https://bloomingbit.io/feed/news/57580",
+        "title": "[업비트] 폴리곤(MATIC) Polygon 네트워크 출금 일시 중단 안내"
+      },
+      {
+        "occurred_at_kst": "2023-11-03 16:25",
+        "assets": [
+          "ACS",
+          "GMT",
+          "RAY",
+          "SOL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "body uses direct present-tense immediate suspension wording",
+        "official_url": "https://upbit.com/service_center/notice?id=3817",
+        "supporting_url": "https://bloomingbit.io/feed/news/57373",
+        "title": "[업비트] SOL, ACS, GMT, RAY 입출금 일시 중단 안내 (완료)"
+      }
+    ],
+    "bithumb": [
+      {
+        "occurred_at_kst": "2024-10-15 00:12:35",
+        "assets": [
+          "SUI",
+          "LWA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to system check",
+        "official_url": "https://feed.bithumb.com/notice/1645139",
+        "supporting_url": "https://feed.bithumb.com/notice/1645139",
+        "title": "수이(SUI), 루미웨이브(LWA) 입출금 일시 중지 안내 (10/18 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-10-04 08:39:38",
+        "assets": [
+          "SEI"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1645124",
+        "supporting_url": "https://feed.bithumb.com/notice/1645124",
+        "title": "세이(SEI) 입출금 일시 중지 안내 (10/04 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-10-01 03:18:44",
+        "assets": [
+          "EOS",
+          "IQ",
+          "EOSDAC",
+          "MEETONE",
+          "HORUS",
+          "ADD",
+          "CHL",
+          "BLACK",
+          "ATD"
+        ],
+        "scope": "mixed_scope",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says EOS-family service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1645119",
+        "supporting_url": "https://feed.bithumb.com/notice/1645119",
+        "title": "이오스(EOS) 및 이오스 계열 입출금 일시 중지 안내 (10/02 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-08-08 23:25:06",
+        "assets": [
+          "ASTR"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1645006",
+        "supporting_url": "https://feed.bithumb.com/notice/1645006",
+        "title": "아스타(ASTR) 입출금 일시 중지 안내 (08/09 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-07-27 20:09:24",
+        "assets": [
+          "CSPR"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644980",
+        "supporting_url": "https://feed.bithumb.com/notice/1644980",
+        "title": "캐스퍼(CSPR) 입출금 일시 중지 안내(08/09 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-07-24 20:09:40",
+        "assets": [
+          "XLM",
+          "AQUA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to system check",
+        "official_url": "https://feed.bithumb.com/notice/1644975",
+        "supporting_url": "https://feed.bithumb.com/notice/1644975",
+        "title": "스텔라루멘(XLM), 아쿠아(AQUA) 입출금 일시 중지 안내 (07/25 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-07-11 20:10:41",
+        "assets": [
+          "MTL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to system check",
+        "official_url": "https://feed.bithumb.com/notice/1644936",
+        "supporting_url": "https://feed.bithumb.com/notice/1644936",
+        "title": "메탈(MTL) 입출금 일시 중지 안내 (07/12 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-07-06 03:17:10",
+        "assets": [
+          "SUI",
+          "LWA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644914",
+        "supporting_url": "https://feed.bithumb.com/notice/1644914",
+        "title": "수이(SUI), 루미웨이브(LWA) 입출금 일시 중지 안내 (07/06 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-06-19 13:57:03",
+        "assets": [
+          "KSM"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to wallet check",
+        "official_url": "https://feed.bithumb.com/notice/1644868",
+        "supporting_url": "https://feed.bithumb.com/notice/1644868",
+        "title": "쿠사마(KSM) 입출금 일시 중지 안내 (06/19 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-06-11 23:26:35",
+        "assets": [
+          "KSM"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644849",
+        "supporting_url": "https://feed.bithumb.com/notice/1644849",
+        "title": "쿠사마(KSM) 입출금 일시 중지 안내 (06/12 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-06-10 17:54:22",
+        "assets": [
+          "AR"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644846",
+        "supporting_url": "https://feed.bithumb.com/notice/1644846",
+        "title": "알위브(AR) 입출금 일시 중지 안내 (06/11 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-06-08 13:00:02",
+        "assets": [
+          "FLOW"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to system check",
+        "official_url": "https://feed.bithumb.com/notice/1644843",
+        "supporting_url": "https://feed.bithumb.com/notice/1644843",
+        "title": "플로우(FLOW) 입출금 일시 중지 안내 (06/15 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-05-22 01:33:43",
+        "assets": [
+          "SPURS"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense because the CHZ network had an issue",
+        "official_url": "https://feed.bithumb.com/notice/1644805",
+        "supporting_url": "https://feed.bithumb.com/notice/1644805",
+        "title": "토트넘 홋스퍼(SPURS) 입출금 일시 중지 안내 (05/23 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-04-29 05:14:03",
+        "assets": [
+          "ENTC"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "project_issue_or_investor_caution",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to foundation request",
+        "official_url": "https://feed.bithumb.com/notice/1644734",
+        "supporting_url": "https://feed.bithumb.com/notice/1644734",
+        "title": "엔터버튼(ENTC) 입출금 일시 중지 안내"
+      },
+      {
+        "occurred_at_kst": "2024-04-05 17:54:36",
+        "assets": [
+          "STRK"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644687",
+        "supporting_url": "https://feed.bithumb.com/notice/1644687",
+        "title": "스타크넷(STRK) 입출금 일시 중지 안내 (04/08 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-03-19 12:00:13",
+        "assets": [
+          "WAVES",
+          "NSBT"
+        ],
+        "scope": "mixed_scope",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says WAVES deposit/withdrawal and NSBT withdrawal were suspended immediately due to wallet check",
+        "official_url": "https://feed.bithumb.com/notice/1644611",
+        "supporting_url": "https://feed.bithumb.com/notice/1644611",
+        "title": "웨이브(WAVES), 뉴트리노토큰(NSBT) 입출금 일시 중지 안내 (03/22 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-03-02 17:03:36",
+        "assets": [
+          "ASTR"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644581",
+        "supporting_url": "https://feed.bithumb.com/notice/1644581",
+        "title": "아스타(ASTR) 입출금 일시 중지 안내 (03/11 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-02-19 04:12:18",
+        "assets": [
+          "XRP"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to system check",
+        "official_url": "https://feed.bithumb.com/notice/1644548",
+        "supporting_url": "https://feed.bithumb.com/notice/1644548",
+        "title": "리플(XRP) 입출금 일시 중지 안내 (02/19 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-02-01 18:33:00",
+        "assets": [
+          "AERGO"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644452",
+        "supporting_url": "https://feed.bithumb.com/notice/1644452",
+        "title": "아르고(AERGO) 입출금 일시 중지 안내 (02/15 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-01-27 10:19:00",
+        "assets": [
+          "SSX"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "project_issue_or_investor_caution",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to foundation request",
+        "official_url": "https://feed.bithumb.com/notice/1644437",
+        "supporting_url": "https://feed.bithumb.com/notice/1644437",
+        "title": "썸씽(SSX) 입출금 일시 중지 안내 (02/27 출금 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-01-24 18:12:56",
+        "assets": [
+          "MATIC",
+          "ORB",
+          "FIT"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644427",
+        "supporting_url": "https://feed.bithumb.com/notice/1644427",
+        "title": "폴리곤(MATIC), 오브시티(ORB), 300피트 네트워크(FIT) 입출금 일시 중지 안내 (01/24 재개)"
+      },
+      {
+        "occurred_at_kst": "2024-01-18 19:55:00",
+        "assets": [
+          "MANTA"
+        ],
+        "scope": "withdrawal_only",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says withdrawal service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644425",
+        "supporting_url": "https://feed.bithumb.com/notice/1644425",
+        "title": "만타 네트워크(MANTA) 출금 일시 중단 안내 (01/22 재개)"
+      },
+      {
+        "occurred_at_kst": "2023-12-18 22:14:00",
+        "assets": [
+          "ZIL"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1644341",
+        "supporting_url": "https://feed.bithumb.com/notice/1644341",
+        "title": "질리카(ZIL) 입출금 일시 중지 안내 (12/20 재개)"
+      },
+      {
+        "occurred_at_kst": "2023-07-29 01:46:49",
+        "assets": [
+          "APT"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "wallet_system_check",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to system check",
+        "official_url": "https://feed.bithumb.com/notice/1644004",
+        "supporting_url": "https://feed.bithumb.com/notice/1644004",
+        "title": "앱토스(APT) 입출금 일시 중단 안내 (7/29 재개)"
+      },
+      {
+        "occurred_at_kst": "2022-05-30 22:32:01",
+        "assets": [
+          "XLM",
+          "VELO",
+          "AQUA"
+        ],
+        "scope": "deposit_withdrawal",
+        "reason_type": "network_issue",
+        "strict_basis": "official body says service is suspended immediately in direct present tense due to network issue",
+        "official_url": "https://feed.bithumb.com/notice/1642934",
+        "supporting_url": "https://feed.bithumb.com/notice/1642934",
+        "title": "스텔라루멘(XLM), 벨로프로토콜(VELO), 아쿠아(AQUA) 입출금 일시 중지 안내 (05/31 재개)"
+      }
+    ],
+    "excluded_examples": {
+      "future_scheduled_examples": [
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4841",
+          "title": "[업비트]월렛 시스템 처리량 증가에 따른 테더(USDT) Tron 네트워크 출금 일시 중단 안내 (완료)"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1645260",
+          "title": "[빗썸] 스택스(STX), 알렉스(ALEX) 입출금 일시 중지 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1645244",
+          "title": "[빗썸] 수이(SUI), 루미웨이브(LWA) 입출금 일시 중지 안내 (11/22 재개)"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1645183",
+          "title": "[빗썸] 제타체인(ZETA) 입출금 일시 중지 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1645123",
+          "title": "[빗썸] 루나2(LUNA2) 입출금 일시 중지 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1645109",
+          "title": "[빗썸] 질리카(ZIL) 입출금 일시 중지 안내"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4173",
+          "title": "[업비트] 월렛 시스템 점검에 따른 파일코인(FIL), 플로우(FLOW) 입출금 일시 중단 안내 (04/30 00시 ~)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4122",
+          "title": "[업비트] 월렛 시스템 점검에 따른 TRX, BTT, JST, SUN, STX 입출금 일시 중단 안내 (03/28 00시 ~)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4089",
+          "title": "[업비트] 월렛 시스템 점검에 따른 Solana 네트워크 디지털 자산 입출금 일시 중단 안내 (완료)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4042",
+          "title": "[업비트] 월렛 시스템 점검에 따른 에이다(ADA) 입출금 일시 중단 안내 (02/19 00시 ~)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4009",
+          "title": "[업비트] 월렛 시스템 점검에 따른 EOS, IQ, WAXP 입출금 일시 중단 안내 (02/02 00시 ~) (완료)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4022",
+          "title": "[업비트] 월렛 시스템 점검에 따른 ATOM, MED, CRO, FCT2, SEI, KAVA 입출금 일시 중단 안내 (02/08 00시 ~)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=3952",
+          "title": "[업비트] 월렛 시스템 점검으로 인한 ARK, SXP, NEO, GAS 입출금 일시 중단 안내 (12/29 00:00 ~)"
+        }
+      ],
+      "delay_only_examples": [
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4839",
+          "title": "[업비트]월렛 시스템 처리량 증가에 따른 테더(USDT) Tron 네트워크 출금 일시 지연 안내 (완료)"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4739",
+          "title": "[업비트]출금량 증가에 따른 테더(USDT) Tron 네트워크 출금 일시 지연 안내 (완료)"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1645084",
+          "title": "[빗썸] 너보스(CKB) 출금 일시 지연 안내"
+        },
+        {
+          "official_url": "https://upbit.com/service_center/notice?id=4290",
+          "title": "[업비트]네트워크 이슈에 따른 스택스(STX) 입출금 일시 지연 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1644663",
+          "title": "[빗썸] 리플(XRP) 출금 일시 지연 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1644657",
+          "title": "[빗썸] 솔라나(SOL), 로아코어(ROA), 액세스프로토콜(ACS), 지벡(ZBC), 피스 네트워크(PYTH), 주피터(JUP) 출금 일시 지연 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1644615",
+          "title": "[빗썸] 일부 가상자산 및 네트워크 계열 입출금 일시 지연 안내"
+        },
+        {
+          "official_url": "https://feed.bithumb.com/notice/1644425",
+          "title": "[빗썸] 만타 네트워크(MANTA) 출금 일시 지연 안내"
+        }
+      ]
+    }
+  }
+}

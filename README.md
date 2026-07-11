@@ -33,9 +33,11 @@ Each module lives in its own directory with two documents:
 | # | Module | Category | Status |
 |---|--------|----------|--------|
 | 01 | Governance Proposal Monitor (`detection/01-governance-monitor`) | detection | ✅ Implemented (Python, tests) |
+| 01F | Suspension Forecaster (`detection/01-suspension-forecaster`) | detection | ✅ Implemented (Python, tests) |
 | 02 | Exchange Listing Sniper (`detection/02-exchange-listing-sniper`) | detection | ✅ Implemented (Python + C++/Rust, tests) |
 | 02 | GitHub Release Monitor (`detection/02-github-release-monitor`) | detection | ✅ Implemented (Python, tests) |
 | 03 | Other-Exchange Announcement Monitor (`detection/03-exchange-announcement-monitor`) | detection | 📄 Design only |
+| 03 | PEAQ Runtime Watch (`detection/03-peaq-runtime-watch`) | detection | ✅ Implemented (Python, tests) |
 | 04 | Block-Time Anomaly / Chain-Halt Detector (`detection/04-block-time-anomaly-detector`) | detection | ✅ Implemented (Python, tests) |
 | 05 | Hot-Wallet Abnormal Withdrawal Detection (`detection/05-hot-wallet-abnormal-withdrawal`) | detection | 📄 Design only |
 | 06 | Hot-to-Cold Wallet Transfer Detection (`detection/06-hot-to-cold-wallet-monitor`) | detection | 📄 Design only |
@@ -53,7 +55,7 @@ Each module lives in its own directory with two documents:
 | 18 | Unified Notification System (`infra/18-notification-system`) | infra | ✅ Implemented (Python, tests) |
 | 19 | Data Registry System (`infra/19-data-registry`) | infra | 📄 Design only |
 
-✅ Implemented modules: **01, 02 (listing sniper), 02 (github release), 04, 18**.
+✅ Implemented modules: **01, 01F, 02 (listing sniper), 02 (github release), 03 (PEAQ runtime), 04, 18**.
 📄 Everything else is a written specification (`README.md` + `STRATEGY.md`) with no code yet.
 
 ## ChainPulse — unified monitor
@@ -93,17 +95,20 @@ If the Telegram variables are unset, polling still runs but alerts are skipped (
 - Python 3.10+ (the code uses `list[dict]` / `str | None` style annotations)
 - Python packages used by the implemented modules:
   - `httpx`, `python-dotenv` — used everywhere (ChainPulse, governance, github, block-time, notifications)
-  - `telethon`, `pyrogram` — only the exchange-listing-sniper real-time backends
-  - `pytest` — running the test suites
+  - `telethon`, `pyrogram`, `websocket-client`, `uvloop` — exchange-listing-sniper real-time/low-latency backends
+  - `pytest`, `ruff` — tests and linting
 - Optional native toolchains, only for the exchange-listing-sniper fast paths: a C++ compiler and/or Rust/Cargo (see that module's README).
 
-There is no top-level dependency manifest. Install what you need directly, e.g.:
+Install the declared runtime and development dependencies with pip:
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install httpx python-dotenv telethon pyrogram pytest
+python -m pip install -r requirements-dev.txt
 ```
+
+`requirements.lock` records the exact macOS/Python 3.12 environment used for
+the verification below. Use it when an exact local recreation matters.
 
 ## Running an individual module
 
@@ -115,6 +120,14 @@ cd detection/01-governance-monitor
 python main.py --test-telegram          # test the standalone Telegram wiring
 python main.py --loop                    # poll every 10 min
 python main.py --chain cosmoshub         # one chain only
+
+# Upstream suspension forecaster (module 01F)
+cd ../../detection/01-suspension-forecaster
+python main.py --target peaq --no-telegram
+
+# PEAQ quantitative runtime watcher (module 03)
+cd ../03-peaq-runtime-watch
+python main.py --no-telegram
 
 # GitHub release monitor (module 02)
 cd detection/02-github-release-monitor
@@ -142,7 +155,9 @@ The implemented modules ship `pytest` suites under their `tests/` directories. R
 ./scripts/test_implemented_modules.sh
 
 cd detection/01-governance-monitor && python -m pytest
+cd detection/01-suspension-forecaster && python -m pytest
 cd detection/02-github-release-monitor && python -m pytest
+cd detection/03-peaq-runtime-watch && python -m pytest
 cd detection/04-block-time-anomaly-detector && python -m pytest
 cd detection/02-exchange-listing-sniper && python -m pytest
 cd infra/18-notification-system && python -m pytest
@@ -171,9 +186,11 @@ RUN_LIVE_GOV_TESTS=1 python -m pytest tests/test_multi_chain.py
 ├── run_monitor.py            # ChainPulse unified monitor (entry point)
 ├── detection/                # 01–06: early-detection signal sources
 │   ├── 01-governance-monitor/            (implemented)
+│   ├── 01-suspension-forecaster/          (implemented)
 │   ├── 02-exchange-listing-sniper/       (implemented)
 │   ├── 02-github-release-monitor/        (implemented)
 │   ├── 03-exchange-announcement-monitor/ (design)
+│   ├── 03-peaq-runtime-watch/             (implemented)
 │   ├── 04-block-time-anomaly-detector/   (implemented)
 │   ├── 05-hot-wallet-abnormal-withdrawal/ (design)
 │   └── 06-hot-to-cold-wallet-monitor/    (design)
@@ -220,14 +237,16 @@ No license file is currently included. All rights reserved by the author unless 
 현재 실제 코드로 돌아가는 범위는 제한되어 있습니다.
 
 - `01-governance-monitor`: Cosmos SDK 및 일부 멀티체인 거버넌스에서 업그레이드 프로포절을 감지합니다.
+- `01-suspension-forecaster`: GitHub 릴리스와 Cosmos 거버넌스를 거래소별 입출금 정지 가능성으로 변환합니다.
 - `02-github-release-monitor`: 상장 메인넷 프로젝트의 GitHub 릴리스에서 upgrade/hardfork/migration 신호를 감지합니다.
 - `02-exchange-listing-sniper`: 업비트/빗썸 텔레그램 상장 공지를 감지하고, 설정 시 Bybit spot 자동매수까지 수행합니다.
+- `03-peaq-runtime-watch`: PEAQ의 latest/finalized head, finality gap, endpoint divergence를 정량 감시합니다.
 - `04-block-time-anomaly-detector`: RPC 폴링으로 체인 halt 또는 블록 생성 지연을 감지합니다.
 - `18-notification-system`: 감지 신호를 Telegram/Discord 스타일 알림으로 포맷하고 전송하는 인프라입니다.
 
 나머지 모듈은 아직 실행 코드가 아니라 전략 설계 문서입니다. 예를 들어 타겟 코인 필터링, 포지션 방향 결정, 델타 뉴트럴 진입, 프리미엄 추적, 동시 청산, 펀딩비/청산가/사이징 리스크 관리는 `README.md`와 `STRATEGY.md`로 설계되어 있지만 아직 완성된 실행 엔진은 아닙니다.
 
-각 모듈은 자체 디렉터리에 `README.md`(요약)와 `STRATEGY.md`(상세 설계)를 가집니다. 실제로 Python 또는 네이티브 코드로 구현된 모듈은 위의 **Module status** 표에서 ✅로 표시된 **01, 02(listing sniper), 02(github release), 04, 18** 입니다.
+각 모듈은 자체 디렉터리에 문서와 실행 코드를 둡니다. 실제로 Python 또는 네이티브 코드로 구현된 모듈은 위의 **Module status** 표에서 ✅로 표시했습니다.
 
 ## ChainPulse 통합 모니터
 
@@ -244,8 +263,10 @@ python3 run_monitor.py --test     # 텔레그램 테스트 알림
 ## 요구 사항 / 실행 / 테스트
 
 - Python 3.10+
-- 패키지: `httpx`, `python-dotenv`(공통), `telethon`/`pyrogram`(리스팅 스나이퍼 실시간 백엔드), `pytest`(테스트)
-- 루트에 통합 의존성 매니페스트는 없습니다. 필요한 패키지를 직접 설치하세요.
+- 런타임 패키지: `requirements.txt`
+- 개발/검증 패키지: `requirements-dev.txt`
+- 검증 환경 고정본(macOS/Python 3.12): `requirements.lock`
+- 설치: `python -m pip install -r requirements-dev.txt`
 
 구현된 모듈은 각자 디렉터리에서 `python main.py ...`로 실행하고, `tests/` 아래 pytest 스위트를 `python -m pytest`로 돌립니다. 자세한 사용법은 각 모듈의 README를 참고하세요(특히 [exchange-listing-sniper](detection/02-exchange-listing-sniper/README.md)).
 

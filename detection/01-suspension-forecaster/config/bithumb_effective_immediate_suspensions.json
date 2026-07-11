@@ -1,0 +1,512 @@
+{
+  "generated_at": "2026-04-07T20:55:41.285758+00:00",
+  "exchange": "bithumb",
+  "definition": "Include Bithumb notices whose body still uses future scheduled wording, but whose stated stop time was within plus or minus 10 minutes of the notice publication time. This is an operational or practical-immediate bucket, separate from the stricter already-stopped bucket.",
+  "threshold_seconds": 600,
+  "source_note": "Rows were rebuilt from the Bloomingbit exchange-announcement archive, then confirmed against official Bithumb notice text retrieved through a text mirror of the official page.",
+  "excluded_note": "Notices without an explicit stop timestamp, notices whose stop timestamp was more than 10 minutes away from publication, and notices already counted in the stricter immediate-stop set were excluded.",
+  "diagnostics": {
+    "archive_rows_scanned": 0,
+    "relevant_archive_rows": 0,
+    "official_urls_reviewed": 0,
+    "strict_urls_excluded": 0,
+    "fallback_rows_used": 29
+  },
+  "rows": [
+    {
+      "notice_published_at_kst": "2026-04-02 03:07:55",
+      "asset_scope": "DRIFT",
+      "assets": [
+        "DRIFT"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "security_issue",
+      "official_url": "https://feed.bithumb.com/notice/1652530",
+      "supporting_url": "https://feed.bithumb.com/notice/1652530",
+      "title": "[빗썸] 드리프트(DRIFT) 유의촉구 및 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-04-02 03:07:00",
+      "delta_from_notice_seconds": -55,
+      "delta_label": "-55s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-03-23 23:10:34",
+      "asset_scope": "PEAQ",
+      "assets": [
+        "PEAQ"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1652398",
+      "supporting_url": "https://feed.bithumb.com/notice/1652398",
+      "title": "[빗썸] 피크(PEAQ) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-03-23 23:10:00",
+      "delta_from_notice_seconds": -34,
+      "delta_label": "-34s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-03-20 09:33:51",
+      "asset_scope": "WAXP",
+      "assets": [
+        "WAXP"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "wallet_system_check",
+      "official_url": "https://feed.bithumb.com/notice/1652352",
+      "supporting_url": "https://feed.bithumb.com/notice/1652352",
+      "title": "[빗썸] 왁스(WAXP) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-03-20 09:35:00",
+      "delta_from_notice_seconds": 69,
+      "delta_label": "+69s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-02-28 15:36:52",
+      "asset_scope": "0G",
+      "assets": [
+        "0G"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "official_url": "https://feed.bithumb.com/notice/1652147",
+      "supporting_url": "https://feed.bithumb.com/notice/1652147",
+      "title": "[빗썸] 0G 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-02-28 15:40:00",
+      "delta_from_notice_seconds": 188,
+      "delta_label": "+188s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-02-24 11:20:00",
+      "asset_scope": "FLOW",
+      "assets": [
+        "FLOW"
+      ],
+      "scope": "withdrawal_only",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1652079",
+      "supporting_url": "https://feed.bithumb.com/notice/1652079",
+      "title": "[빗썸] 플로우(FLOW) 출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-02-24 11:20:00",
+      "delta_from_notice_seconds": 0,
+      "delta_label": "0s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-02-23 20:57:49",
+      "asset_scope": "POKT",
+      "assets": [
+        "POKT"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1652078",
+      "supporting_url": "https://feed.bithumb.com/notice/1652078",
+      "title": "[빗썸] 포켓네트워크(POKT) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-02-23 21:00:00",
+      "delta_from_notice_seconds": 131,
+      "delta_label": "+131s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-02-13 08:46:44",
+      "asset_scope": "REI",
+      "assets": [
+        "REI"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1652002",
+      "supporting_url": "https://feed.bithumb.com/notice/1652002",
+      "title": "[빗썸] 레이(REI) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-02-13 08:50:00",
+      "delta_from_notice_seconds": 196,
+      "delta_label": "+196s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-02-09 23:05:00",
+      "asset_scope": "VANA",
+      "assets": [
+        "VANA"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "node_sync_issue",
+      "official_url": "https://feed.bithumb.com/notice/1651944",
+      "supporting_url": "https://feed.bithumb.com/notice/1651944",
+      "title": "[빗썸] 바나(VANA) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-02-09 23:05:00",
+      "delta_from_notice_seconds": 0,
+      "delta_label": "0s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-01-31 04:10:00",
+      "asset_scope": "USDT-Tron",
+      "assets": [
+        "USDT"
+      ],
+      "scope": "withdrawal_only",
+      "trigger_type": "wallet_system_check",
+      "official_url": "https://feed.bithumb.com/notice/1651736",
+      "supporting_url": "https://feed.bithumb.com/notice/1651736",
+      "title": "[빗썸] 테더(USDT) 출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-01-31 04:10:00",
+      "delta_from_notice_seconds": 0,
+      "delta_label": "0s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-01-19 12:55:37",
+      "asset_scope": "USDT-Tron",
+      "assets": [
+        "USDT"
+      ],
+      "scope": "withdrawal_only",
+      "trigger_type": "wallet_system_check",
+      "official_url": "https://feed.bithumb.com/notice/1651542",
+      "supporting_url": "https://feed.bithumb.com/notice/1651542",
+      "title": "[빗썸] 테더(USDT) 출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-01-19 12:55:00",
+      "delta_from_notice_seconds": -37,
+      "delta_label": "-37s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2026-01-05 20:59:50",
+      "asset_scope": "STRK",
+      "assets": [
+        "STRK"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1651445",
+      "supporting_url": "https://feed.bithumb.com/notice/1651445",
+      "title": "[빗썸] 스타크넷(STRK) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2026-01-05 21:00:00",
+      "delta_from_notice_seconds": 10,
+      "delta_label": "+10s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-12-03 14:40:53",
+      "asset_scope": "DIS",
+      "assets": [
+        "DIS"
+      ],
+      "scope": "withdrawal_only",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1650998",
+      "supporting_url": "https://feed.bithumb.com/notice/1650998",
+      "title": "[빗썸] 디스(DIS) 출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-12-03 14:42:00",
+      "delta_from_notice_seconds": 67,
+      "delta_label": "+67s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-11-21 17:39:41",
+      "asset_scope": "ADA",
+      "assets": [
+        "ADA"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1650802",
+      "supporting_url": "https://feed.bithumb.com/notice/1650802",
+      "title": "[빗썸] 에이다(ADA) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-11-21 17:40:00",
+      "delta_from_notice_seconds": 19,
+      "delta_label": "+19s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-11-03 19:45:40",
+      "asset_scope": "BERA",
+      "assets": [
+        "BERA"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1650517",
+      "supporting_url": "https://feed.bithumb.com/notice/1650517",
+      "title": "[빗썸] 베라체인(BERA) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-11-03 19:45:00",
+      "delta_from_notice_seconds": -40,
+      "delta_label": "-40s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-10-11 11:45:55",
+      "asset_scope": "DYDX",
+      "assets": [
+        "DYDX"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1650288",
+      "supporting_url": "https://feed.bithumb.com/notice/1650288",
+      "title": "[빗썸] 디와이디엑스(DYDX) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-10-11 11:45:00",
+      "delta_from_notice_seconds": -55,
+      "delta_label": "-55s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-09-22 18:10:39",
+      "asset_scope": "ADD",
+      "assets": [
+        "ADD"
+      ],
+      "scope": "withdrawal_only",
+      "trigger_type": "wallet_system_check",
+      "official_url": "https://feed.bithumb.com/notice/1650017",
+      "supporting_url": "https://feed.bithumb.com/notice/1650017",
+      "title": "[빗썸] 애드(ADD) 출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-09-22 18:10:00",
+      "delta_from_notice_seconds": -39,
+      "delta_label": "-39s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-09-02 15:56:36",
+      "asset_scope": "STRK",
+      "assets": [
+        "STRK"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1649774",
+      "supporting_url": "https://feed.bithumb.com/notice/1649774",
+      "title": "[빗썸] 스타크넷(STRK) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-09-02 15:55:00",
+      "delta_from_notice_seconds": -96,
+      "delta_label": "-96s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-08-29 13:12:21",
+      "asset_scope": "ZRC",
+      "assets": [
+        "ZRC"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1649671",
+      "supporting_url": "https://feed.bithumb.com/notice/1649671",
+      "title": "[빗썸] 저킷(ZRC) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-08-29 13:12:00",
+      "delta_from_notice_seconds": -21,
+      "delta_label": "-21s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-06-26 14:04:45",
+      "asset_scope": "FLR",
+      "assets": [
+        "FLR"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1649062",
+      "supporting_url": "https://feed.bithumb.com/notice/1649062",
+      "title": "[빗썸] 플레어(FLR) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-06-26 14:05:00",
+      "delta_from_notice_seconds": 15,
+      "delta_label": "+15s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-05-31 11:43:30",
+      "asset_scope": "REI",
+      "assets": [
+        "REI"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1648710",
+      "supporting_url": "https://feed.bithumb.com/notice/1648710",
+      "title": "[빗썸] 레이(REI) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-05-31 11:45:00",
+      "delta_from_notice_seconds": 90,
+      "delta_label": "+90s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-04-15 00:53:21",
+      "asset_scope": "ATOM",
+      "assets": [
+        "ATOM"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1648132",
+      "supporting_url": "https://feed.bithumb.com/notice/1648132",
+      "title": "[빗썸] 코스모스(ATOM) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-04-15 00:55:00",
+      "delta_from_notice_seconds": 99,
+      "delta_label": "+99s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-02-18 20:00:19",
+      "asset_scope": "FLOW",
+      "assets": [
+        "FLOW"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1647038",
+      "supporting_url": "https://feed.bithumb.com/notice/1647038",
+      "title": "[빗썸] 플로우(FLOW) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-02-18 20:00:00",
+      "delta_from_notice_seconds": -19,
+      "delta_label": "-19s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-01-31 18:42:09",
+      "asset_scope": "IOTX",
+      "assets": [
+        "IOTX"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1646858",
+      "supporting_url": "https://feed.bithumb.com/notice/1646858",
+      "title": "[빗썸] 아이오텍스(IOTX) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-01-31 18:45:00",
+      "delta_from_notice_seconds": 171,
+      "delta_label": "+171s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2025-01-16 02:20:40",
+      "asset_scope": "ZIL",
+      "assets": [
+        "ZIL"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1646423",
+      "supporting_url": "https://feed.bithumb.com/notice/1646423",
+      "title": "[빗썸] 질리카(ZIL) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2025-01-16 02:30:00",
+      "delta_from_notice_seconds": 560,
+      "delta_label": "+560s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2024-11-27 11:12:24",
+      "asset_scope": "STX,ALEX",
+      "assets": [
+        "ALEX",
+        "STX"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1645260",
+      "supporting_url": "https://feed.bithumb.com/notice/1645260",
+      "title": "[빗썸] 스택스(STX), 알렉스(ALEX) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2024-11-27 11:13:00",
+      "delta_from_notice_seconds": 36,
+      "delta_label": "+36s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2024-11-21 19:23:52",
+      "asset_scope": "SUI,LWA",
+      "assets": [
+        "LWA",
+        "SUI"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "block_generation_stop",
+      "official_url": "https://feed.bithumb.com/notice/1645244",
+      "supporting_url": "https://feed.bithumb.com/notice/1645244",
+      "title": "[빗썸] 수이(SUI), 루미웨이브(LWA) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2024-11-21 19:30:00",
+      "delta_from_notice_seconds": 368,
+      "delta_label": "+368s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2024-11-01 11:55:09",
+      "asset_scope": "ZETA",
+      "assets": [
+        "ZETA"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "official_url": "https://feed.bithumb.com/notice/1645183",
+      "supporting_url": "https://feed.bithumb.com/notice/1645183",
+      "title": "[빗썸] 제타체인(ZETA) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2024-11-01 11:55:00",
+      "delta_from_notice_seconds": -9,
+      "delta_label": "-9s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2024-10-02 17:12:51",
+      "asset_scope": "LUNA2",
+      "assets": [
+        "LUNA2"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "official_url": "https://feed.bithumb.com/notice/1645123",
+      "supporting_url": "https://feed.bithumb.com/notice/1645123",
+      "title": "[빗썸] 루나2(LUNA2) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2024-10-02 17:13:00",
+      "delta_from_notice_seconds": 9,
+      "delta_label": "+9s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    },
+    {
+      "notice_published_at_kst": "2024-09-27 15:29:20",
+      "asset_scope": "ZIL",
+      "assets": [
+        "ZIL"
+      ],
+      "scope": "deposit_withdrawal",
+      "trigger_type": "network_issue",
+      "official_url": "https://feed.bithumb.com/notice/1645109",
+      "supporting_url": "https://feed.bithumb.com/notice/1645109",
+      "title": "[빗썸] 질리카(ZIL) 입출금 일시 중단 안내",
+      "stated_stop_at_kst": "2024-09-27 15:30:00",
+      "delta_from_notice_seconds": 40,
+      "delta_label": "+40s",
+      "future_wording_confirmed": true,
+      "archive_page": 1
+    }
+  ]
+}
