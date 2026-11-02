@@ -206,7 +206,7 @@ Implemented modules generally follow the same internal shape: `main.py` CLI, a `
 
 ## License
 
-No license file is currently included. All rights reserved by the author unless a `LICENSE` is added.
+[MIT](LICENSE)
 
 ---
 
@@ -272,4 +272,4 @@ python3 run_monitor.py --test     # 텔레그램 테스트 알림
 
 ## 라이선스
 
-현재 라이선스 파일이 없습니다. `LICENSE`가 추가되기 전까지 모든 권리는 작성자에게 있습니다.
+[MIT](LICENSE)
